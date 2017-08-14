@@ -7,11 +7,21 @@ End Date/Last Modified:
 
 ### Objectives   
 
+* Characterize the functional diversity in seasonal timing patterns that lead to incipient speciation.  
+
 ### Questions:  
+* Do daily activity patterns reflect or translate into seasonal activity patterns in *Rhagoletis*.  
+* Do parasitoids match their phenological strategies with rhagoletis? 
 
-### Hypotheses    
+### Hypotheses:    
 
-### Predicted outcomes   
+### Experimental approach : 
 
-### Potential Conclusions
+
+
+### Predicted outcomes:   
+
+### Potential Conclusions:    
+
+
 
