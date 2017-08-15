@@ -19,7 +19,7 @@ End Date/Last Modified:
 	* Circadian rhythms should postively match the ability to exit diapause and diapause depth.   
 		* Amplitude or Tau  to rep circ rhythm, but data could be messy, consider area under curve? 
 	* 
-2. Parasitoids shift their activity patterns alongside their host of different Rhagoletis faces.   
+2. Parasitoids shift their activity patterns alongside their host Rhagoletis race.   
 	* positive relationship in Tau, or amplitude
 
 ### Experimental approach : 
@@ -28,7 +28,8 @@ To estimate circadian rhtyms, daily activities follow a wave and the curve will 
 
 **Overall workflow-**
 
-![](https://user-images.githubusercontent.com/4654474/29324916-d024c630-81b3-11e7-914e-678a12089b8a.png)
+![](https://user-images.githubusercontent.com/4654474/29325330-38c0fe06-81b5-11e7-889f-9fe3ee705a71.png)
+
 
 
 ### Expected outcomes:   
