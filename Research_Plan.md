@@ -26,8 +26,9 @@ End Date/Last Modified:
 
 To estimate circadian rhtyms, daily activities follow a wave and the curve will be summarized by the maximum activity (amplitude) and distance of the max activity (Tau, free run period).  Activity patterns themselves will be measured with a trikinetics system:  
 
-1. Collect apples and haws, acclimate for 1 month? 
-2. Put in fridge (4C) to induce diapause for 4 months. 
+**Overall workflow-**
+
+![](https://user-images.githubusercontent.com/4654474/29324916-d024c630-81b3-11e7-914e-678a12089b8a.png)
 
 
 ### Expected outcomes:   
@@ -49,15 +50,22 @@ ggplot(dat,aes(x=jitter(tau,factor=100),y=jitter(diapause,factor=100)))+
 
 ```
 
+The "classing" is intrinsic to the diapause duration, so probably unnecessary to show this. Probably shouldn't be classing based on 1 metric. It is better to class with a classification tree or discriminant analysis. 
+
 **There is an offset between race and apple such that apples are just overall higher in diapause duration and tau.** 
 
 red line is apple 
 
 ![](https://user-images.githubusercontent.com/4654474/29323684-a1ac20f4-81af-11e7-959e-b91af5250053.png)
 
-
+**Wasps circ rhythm is positively related to maggot flies.**    
 
 ### Potential Conclusions:    
 
+
+
+Thoughts: 
+
+WOuld be interesting to investigate the relationship between short term and long term activity within a phylogenetic context. For example, taking 30-40 species of rhagoletis with 10-20 animal replicates and measuring diapause duration and circ rhythm.  
 
 
