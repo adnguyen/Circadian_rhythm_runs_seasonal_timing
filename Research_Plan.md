@@ -3,7 +3,7 @@
 Authors: Dan Hahn and Andrew Nguyen
 
 Start Date: 2017-08-14   
-End Date/Last Modified:    
+End Date/Last Modified: 2017-08-18   
 
 ### Objectives   
 
