@@ -28,7 +28,7 @@ To estimate circadian rhtyms, daily activities follow a wave and the curve will 
 
 **Overall workflow-**
 
-![](https://user-images.githubusercontent.com/4654474/29325330-38c0fe06-81b5-11e7-889f-9fe3ee705a71.png)
+![](https://user-images.githubusercontent.com/4654474/29463033-3ec15cd2-83ff-11e7-991d-98b375744f44.png)
 
 
 
