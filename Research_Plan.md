@@ -1,6 +1,7 @@
 # Research Plan    
 
 Authors: Dan Hahn and Andrew Nguyen
+dan was here
 
 Start Date: 2017-08-14   
 End Date/Last Modified: 2017-08-18   
