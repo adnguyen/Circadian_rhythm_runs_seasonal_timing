@@ -22,10 +22,17 @@ Last modified:
    * Prepare the petri dish by filling it with vermiculite and add water until all of it is wet, but make sure it isn't too wet. One way to assess wetness is to hold the petri sideways and squeeze the vermiculite. Water should not be dripping from dish. 
 5. Label the petri dishes by site, race, larvael/pupal collection date, fridge date, and number of individuals placed in dish.   
    * The fridge date is 13 days from collection date. 
-6. Seal each petri dish with tape, and place the taped petri dishes into a container with saturated potassium chloride solution to keep the humidity (85%).
+6. Seal each petri dish with tape, and place the taped petri dishes into a container with saturated potassium chloride (KCl) solution to keep the humidity (85%).
+   * KCl solution is made by mixing 1L water with 350g of KCl
 
+
+
+
+**Example of petri dish set up with vermiculite and label**
 
 ![](https://user-images.githubusercontent.com/4654474/29672388-1788f106-88ba-11e7-8ce2-933e25909784.png)   
+
+**Example of storing petri dish with KCl solution on the bottom**
 
 ![](https://user-images.githubusercontent.com/4654474/29672387-176b63ac-88ba-11e7-8f12-47325686cf78.png)    
 
