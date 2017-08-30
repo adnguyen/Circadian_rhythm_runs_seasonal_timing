@@ -1,4 +1,4 @@
-# Rhagoletis handling and processing
+Rhagoletis handling and processing
 
 Authors: Chao Chen, Dan Hahn, Andrew Nguyen 
 
@@ -6,14 +6,14 @@ Date Started: 2017-08-24
 
 Last modified:
 
-### Prepare tubs for holding fruits with maggot
+**Prepare tubs for holding fruits with maggot**
 
 1. Put the metal mesh into the tubs, and pour the fruits onto the metal mesh
    * Make sure the apples are **1-2 layers thick** 
    * As fruits keeping rotting, there will be more juice at the bottom of the tub. Clean the juices up and place paper towels to absorb juice that will fall in the future. 
 2. Label all the tubs clearly especially by site and host fruit
 
-### Collect wandering larvae and puape
+**Collect wandering larvae and pupae**
 
 1. The wandering larvae will come out from the apple and drop into the tub. Take the metal mesh out so you can see the wandering larvae or pupae at the bottom of the tub.   
 2. Pick the larvae or pupae out from the tub very gently with your fingers and put them into one or more (> 100) petri dish
@@ -38,7 +38,7 @@ Last modified:
 
 * Note: At the last few days of collection, the fruits will become very juicy so we sometimes clean the insects with water before moving into the vermiculite. Try to collect the insect at the same schedule every day   
 
-### Respirometry:
+**Respirometry:**
 
 1.	Take the pupae out from the vermiculite the day before respirometry. Normally we do purge in the afternoon and injection in the next morning. I can show you the details of respirometry later.
 
