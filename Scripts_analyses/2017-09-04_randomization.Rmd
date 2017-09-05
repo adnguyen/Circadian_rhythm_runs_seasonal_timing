@@ -21,6 +21,21 @@ ggplot(day2,aes(x=mass,colour=rando_assign,fill=rando_assign))+geom_density(alph
 summary(as.factor(day2$rando_assign))
 summary(aov(mass~rando_assign,data=day2))
 #write.csv(day2,"../Data/2017-09-04_day2cohort_randomized.csv")
+day2$tape<-as.character(day2$tape)
+##assign names cohort day, tape color, ind_id
+day2$uniqueID<-paste(day2$cohort_day,substr(day2$tape,1,1),day2$Ind_ID,sep="")
 
+
+gc<-subset(day2,day2$rando_assign=="genetic control")
+dim(gc)
+write.csv(gc,"../Data/randomizing/2017-09-04_day2cohort_genetic_control.csv")
+
+
+RT<-subset(day2,day2$rando_assign=="RT eclosion")
+write.csv(RT,"../Data/randomizing/2017-09-04_day2cohort_RT_eclosion.csv")
+
+
+SO<-subset(day2,day2$rando_assign=="Simulated Overwintering")
+write.csv(SO,"../Data/randomizing/2017-09-04_day2cohort_simulated_overwintering.csv")
 ```
 
