@@ -1,0 +1,26 @@
+---
+title: "Randomizing groups"
+output: html_document
+---
+
+### Day 2 cohort; 2017-08-25 collected   
+
+```{r}
+day2<-read.csv("../Data/2017-09-04_day2cohort_randomization.csv")
+day2
+
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day2$rando_assign<-sample(v,length(day2[,1]),replace=TRUE)
+day2
+
+ggplot(day2,aes(y=mass,x=rando_assign))+geom_boxplot()
+
+ggplot(day2,aes(x=mass,colour=rando_assign,fill=rando_assign))+geom_density(alpha=.5,position="identity")#+geom_histogram(binwidth=1,alpha=.5)
+
+
+summary(as.factor(day2$rando_assign))
+summary(aov(mass~rando_assign,data=day2))
+#write.csv(day2,"../Data/2017-09-04_day2cohort_randomized.csv")
+
+```
+
