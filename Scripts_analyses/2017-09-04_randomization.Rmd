@@ -39,3 +39,39 @@ SO<-subset(day2,day2$rando_assign=="Simulated Overwintering")
 write.csv(SO,"../Data/randomizing/2017-09-04_day2cohort_simulated_overwintering.csv")
 ```
 
+### Day 3 cohort; 2017-08-26 collected   
+
+```{r}
+day3<-read.csv("../Data/randomizing/2017-09-07_day3cohort_randomization.csv")
+day3
+
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day3$rando_assign<-sample(v,length(day3[,1]),replace=TRUE)
+
+
+ggplot(day3,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+ggplot(day3,aes(x=mass_day10,colour=rando_assign,fill=rando_assign))+geom_density(alpha=.5,position="identity")#+geom_histogram(binwidth=1,alpha=.5)
+
+
+summary(as.factor(day3$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day3))
+#write.csv(day2,"../Data/2017-09-04_day2cohort_randomized.csv")
+day3$tape<-as.character(day3$tape)
+##assign names cohort day, tape color, ind_id
+day3$uniqueID<-paste(day3$cohort_day,substr(day3$tape,1,1),day3$Ind_ID,sep="")
+
+
+gc<-subset(day3,day3$rando_assign=="genetic control")
+dim(gc)
+write.csv(gc,"../Data/randomizing/2017-09-07_day3cohort_genetic_control.csv")
+
+
+RT<-subset(day3,day3$rando_assign=="RT eclosion")
+write.csv(RT,"../Data/randomizing/2017-09-07_day3cohort_RT_eclosion.csv")
+
+
+SO<-subset(day3,day3$rando_assign=="Simulated Overwintering")
+write.csv(SO,"../Data/randomizing/2017-09-07_day3cohort_simulated_overwintering.csv")
+```
+
