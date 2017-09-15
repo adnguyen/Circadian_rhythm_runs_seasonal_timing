@@ -122,7 +122,7 @@ v<-c("genetic control","RT eclosion","Simulated Overwintering")
 #day5$rando_assign<-sample(v,length(day5[,1]),replace=TRUE)
 
 
-ggplot(day5,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+ggplot(day5,aes(y=mass_day5,x=rando_assign))+geom_boxplot()
 
 #ggplot(day4,aes(x=mass_day10,colour=rando_assign,fill=rando_assign))+geom_density(alpha=.5,position="identity")#+geom_histogram(binwidth=1,alpha=.5)
 
@@ -133,6 +133,42 @@ summary(aov(mass_day10~rando_assign,data=day5))
 day5$tape<-as.character(day5$tape)
 ##assign names cohort day, tape color, ind_id
 day5$uniqueID<-paste(day5$cohort_day,substr(day5$tape,1,1),day5$Ind_ID,sep="")
+
+
+gc<-subset(day5,day5$rando_assign=="genetic control")
+dim(gc)
+write.csv(gc,"../Data/randomizing/2017-09-11_day5cohort_genetic_control.csv")
+
+
+RT<-subset(day5,day5$rando_assign=="RT eclosion")
+write.csv(RT,"../Data/randomizing/2017-09-11_day5cohort_RT_eclosion.csv")
+
+
+SO<-subset(day5,day5$rando_assign=="Simulated Overwintering")
+write.csv(SO,"../Data/randomizing/2017-09-11_day5cohort_simulated_overwintering.csv")
+```
+
+### Day 10 cohort; 2017-08-28 collected   
+
+```{r}
+day10<-read.csv("../Data/randomizing/2017-09-11_day10cohort_randomization.csv")
+day10
+
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day10$rando_assign<-sample(v,length(day10[,1]),replace=TRUE)
+
+
+ggplot(day10,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+#ggplot(day4,aes(x=mass_day10,colour=rando_assign,fill=rando_assign))+geom_density(alpha=.5,position="identity")#+geom_histogram(binwidth=1,alpha=.5)
+
+
+summary(as.factor(day5$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day5))
+#write.csv(day5,"../Data/randomizing/2017-09-11_day5cohort_randomized.csv")
+day10$tape<-as.character(day10$tape)
+##assign names cohort day, tape color, ind_id
+day10$uniqueID<-paste(day10$cohort_day,substr(day10$tape,1,1),day10$Ind_ID,sep="")
 
 
 gc<-subset(day5,day5$rando_assign=="genetic control")
