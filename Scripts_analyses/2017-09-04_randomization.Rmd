@@ -122,7 +122,7 @@ v<-c("genetic control","RT eclosion","Simulated Overwintering")
 #day5$rando_assign<-sample(v,length(day5[,1]),replace=TRUE)
 
 
-ggplot(day5,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+ggplot(day5,aes(y=mass_day5,x=rando_assign))+geom_boxplot()
 
 #ggplot(day4,aes(x=mass_day10,colour=rando_assign,fill=rando_assign))+geom_density(alpha=.5,position="identity")#+geom_histogram(binwidth=1,alpha=.5)
 
@@ -146,4 +146,104 @@ write.csv(RT,"../Data/randomizing/2017-09-11_day5cohort_RT_eclosion.csv")
 
 SO<-subset(day5,day5$rando_assign=="Simulated Overwintering")
 write.csv(SO,"../Data/randomizing/2017-09-11_day5cohort_simulated_overwintering.csv")
+```
+
+### Day 10 cohort; 2017-09-02 collected   
+
+```{r}
+day10<-read.csv("../Data/randomizing/2017-09-15_day10cohort_randomization.csv")
+day10
+
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day10$rando_assign<-sample(v,length(day10[,1]),replace=TRUE)
+
+
+ggplot(day10,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+#ggplot(day4,aes(x=mass_day10,colour=rando_assign,fill=rando_assign))+geom_density(alpha=.5,position="identity")#+geom_histogram(binwidth=1,alpha=.5)
+
+
+summary(as.factor(day10$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day10))
+#write.csv(day10,"../Data/randomizing/2017-09-15_day10cohort_randomized.csv")
+day10$tape<-as.character(day10$tape)
+##assign names cohort day, tape color, ind_id
+day10$uniqueID<-paste(day10$cohort_day,substr(day10$tape,1,1),day10$Ind_ID,sep="")
+
+day10$rando_assign<-as.factor(day10$rando_assign)
+gc<-subset(day10,rando_assign=="genetic control")
+dim(gc)
+write.csv(gc,"../Data/randomizing/2017-09-15_day10cohort_genetic_control.csv")
+
+
+RT<-subset(day10,rando_assign=="RT eclosion")
+write.csv(RT,"../Data/randomizing/2017-09-15_day10cohort_RT_eclosion.csv")
+
+
+SO<-subset(day10,day10$rando_assign=="Simulated Overwintering")
+write.csv(SO,"../Data/randomizing/2017-09-15_day10cohort_simulated_overwintering.csv")
+```
+
+
+### Day 11 cohort; 2017-09-03 collected
+```{r}
+day11<-read.csv("../Data/randomizing/2017-09-15_day11cohort_randomization.csv")
+day11
+
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day11$rando_assign<-sample(v,length(day11[,1]),replace=TRUE)
+
+
+ggplot(day11,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+summary(as.factor(day11$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day11))
+day11$tape<-as.character(day11$tape)
+##assign names cohort day, tape color, ind_id
+day11$uniqueID<-paste(day11$cohort_day,substr(day11$tape,1,1),day11$Ind_ID,sep="")
+#write.csv(day11,"../Data/randomizing/2017-09-15_day11cohort_randomized.csv")
+
+gc<-subset(day11,rando_assign=="genetic control")
+dim(gc)
+write.csv(gc,"../Data/randomizing/2017-09-15_day11cohort_genetic_control.csv")
+
+
+RT<-subset(day11,rando_assign=="RT eclosion")
+write.csv(RT,"../Data/randomizing/2017-09-15_day11cohort_RT_eclosion.csv")
+
+
+SO<-subset(day11,rando_assign=="Simulated Overwintering")
+write.csv(SO,"../Data/randomizing/2017-09-15_day11cohort_simulated_overwintering.csv")
+```
+
+
+### Day 12 cohort; 2017-09-04 collected
+```{r}
+day12<-read.csv("../Data/randomizing/2017-09-15_day12cohort_randomization.csv")
+day12
+
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day12$rando_assign<-sample(v,length(day12[,1]),replace=TRUE)
+
+
+ggplot(day12,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+summary(as.factor(day12$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day12))
+day12$tape<-as.character(day12$tape)
+##assign names cohort day, tape color, ind_id
+day12$uniqueID<-paste(day12$cohort_day,substr(day12$tape,1,1),day12$Ind_ID,sep="")
+#write.csv(day12,"../Data/randomizing/2017-09-15_day12cohort_randomized.csv")
+
+gc<-subset(day12,rando_assign=="genetic control")
+dim(gc)
+write.csv(gc,"../Data/randomizing/2017-09-15_day12cohort_genetic_control.csv")
+
+
+RT<-subset(day12,rando_assign=="RT eclosion")
+write.csv(RT,"../Data/randomizing/2017-09-15_day12cohort_RT_eclosion.csv")
+
+
+SO<-subset(day12,rando_assign=="Simulated Overwintering")
+write.csv(SO,"../Data/randomizing/2017-09-15_day12cohort_simulated_overwintering.csv")
 ```
