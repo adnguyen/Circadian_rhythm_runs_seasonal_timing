@@ -5,7 +5,7 @@ output: html_document
 
 ### Day 2 cohort; 2017-08-25 collected   
 
-```{r}
+```{r day 2}
 day2<-read.csv("../Data/2017-09-04_day2cohort_randomization.csv")
 day2
 
@@ -41,7 +41,7 @@ write.csv(SO,"../Data/randomizing/2017-09-04_day2cohort_simulated_overwintering.
 
 ### Day 3 cohort; 2017-08-26 collected   
 
-```{r}
+```{r day 3}
 day3<-read.csv("../Data/randomizing/2017-09-07_day3cohort_randomization.csv")
 day3
 
@@ -78,7 +78,7 @@ write.csv(SO,"../Data/randomizing/2017-09-07_day3cohort_simulated_overwintering.
 
 ### Day 4 cohort; 2017-08-27 collected   
 
-```{r}
+```{r day 4}
 day4<-read.csv("../Data/randomizing/2017-09-10_day4cohort_randomization.csv")
 day4
 
@@ -114,7 +114,7 @@ write.csv(SO,"../Data/randomizing/2017-09-10_day4cohort_simulated_overwintering.
 
 ### Day 5 cohort; 2017-08-28 collected   
 
-```{r}
+```{r day 5}
 day5<-read.csv("../Data/randomizing/2017-09-11_day5cohort_randomization.csv")
 day5
 
@@ -150,7 +150,7 @@ write.csv(SO,"../Data/randomizing/2017-09-11_day5cohort_simulated_overwintering.
 
 ### Day 10 cohort; 2017-09-02 collected   
 
-```{r}
+```{r day 10}
 day10<-read.csv("../Data/randomizing/2017-09-15_day10cohort_randomization.csv")
 day10
 
@@ -186,7 +186,7 @@ write.csv(SO,"../Data/randomizing/2017-09-15_day10cohort_simulated_overwintering
 
 
 ### Day 11 cohort; 2017-09-03 collected
-```{r}
+```{r day 11}
 day11<-read.csv("../Data/randomizing/2017-09-15_day11cohort_randomization.csv")
 day11
 
@@ -218,7 +218,7 @@ write.csv(SO,"../Data/randomizing/2017-09-15_day11cohort_simulated_overwintering
 
 
 ### Day 12 cohort; 2017-09-04 collected
-```{r}
+```{r day 12}
 day12<-read.csv("../Data/randomizing/2017-09-15_day12cohort_randomization.csv")
 day12
 
@@ -246,4 +246,66 @@ write.csv(RT,"../Data/randomizing/2017-09-15_day12cohort_RT_eclosion.csv")
 
 SO<-subset(day12,rando_assign=="Simulated Overwintering")
 write.csv(SO,"../Data/randomizing/2017-09-15_day12cohort_simulated_overwintering.csv")
+```
+
+### Day 13 cohort; 2017-09-05 collected
+```{r day 14}
+day13<-read.csv("../Data/randomizing/2017-09-18-day13cohort_randomization.csv")
+day13
+
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day13$rando_assign<-sample(v,length(day13[,1]),replace=TRUE)
+
+
+ggplot(day13,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+summary(as.factor(day13$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day13))
+day13$tape<-as.character(day13$tape)
+##assign names cohort day, tape color, ind_id
+day13$uniqueID<-paste(day13$cohort_day,substr(day13$tape,1,1),day13$Ind_ID,sep="")
+#write.csv(day13,"../Data/randomizing/2017-09-18_day13cohort_randomized.csv")
+
+gc<-subset(day13,rando_assign=="genetic control")
+dim(gc)
+write.csv(gc,"../Data/randomizing/2017-09-18_day13cohort_genetic_control.csv")
+
+
+RT<-subset(day13,rando_assign=="RT eclosion")
+write.csv(RT,"../Data/randomizing/2017-09-18_day13cohort_RT_eclosion.csv")
+
+
+SO<-subset(day13,rando_assign=="Simulated Overwintering")
+write.csv(SO,"../Data/randomizing/2017-09-18_day13cohort_simulated_overwintering.csv")
+```
+
+### Day 14 cohort; 2017-09-06 collected
+```{r day 14}
+day14<-read.csv("../Data/randomizing/2017-09-18-day14cohort_randomization.csv")
+day14
+
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day14$rando_assign<-sample(v,length(day14[,1]),replace=TRUE)
+
+
+ggplot(day14,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+summary(as.factor(day14$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day14))
+day14$tape<-as.character(day14$tape)
+##assign names cohort day, tape color, ind_id
+day14$uniqueID<-paste(day14$cohort_day,substr(day14$tape,1,1),day14$Ind_ID,sep="")
+#write.csv(day14,"../Data/randomizing/2017-09-18_day14cohort_randomized.csv")
+
+gc<-subset(day14,rando_assign=="genetic control")
+dim(gc)
+write.csv(gc,"../Data/randomizing/2017-09-18_day14cohort_genetic_control.csv")
+
+
+RT<-subset(day14,rando_assign=="RT eclosion")
+write.csv(RT,"../Data/randomizing/2017-09-18_day14cohort_RT_eclosion.csv")
+
+
+SO<-subset(day14,rando_assign=="Simulated Overwintering")
+write.csv(SO,"../Data/randomizing/2017-09-18_day14cohort_simulated_overwintering.csv")
 ```
