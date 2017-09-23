@@ -309,3 +309,109 @@ write.csv(RT,"../Data/randomizing/2017-09-18_day14cohort_RT_eclosion.csv")
 SO<-subset(day14,rando_assign=="Simulated Overwintering")
 write.csv(SO,"../Data/randomizing/2017-09-18_day14cohort_simulated_overwintering.csv")
 ```
+
+
+# creating randomized wells 
+
+```{r}
+letters<-rep(c("A","B","C","D","E","F","G","H"),12)
+
+num<-sort(rep(seq(1,12,1),8))
+
+wells<-paste(letters,num,sep="")
+```
+
+
+### Day 16 cohort; 2017-09-08 collected
+```{r day 16}
+day16<-read.csv("../Data/randomizing/2017-09-22-day16cohort_randomization.csv")
+day16
+
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day16$rando_assign<-sample(v,length(day16[,1]),replace=TRUE)
+
+
+ggplot(day16,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+summary(as.factor(day16$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day16))
+day16$tape<-as.character(day16$tape)
+##assign names cohort day, tape color, ind_id
+day16$uniqueID<-paste(day16$cohort_day,substr(day16$tape,1,1),day16$Ind_ID,sep="")
+
+
+
+##assign well id for Rt and fridge treatments 
+#sample(wells,length(day16$Ind_ID),replace=TRUE)
+#day16$wellID<-ifelse(day16$rando_assign!="genetic control",sample(wells,length(day16$Ind_ID),replace=TRUE),"")
+
+day16$wellID<-ifelse(day16$rando_assign=="RT eclosion",sample(wells,length(day16$Ind_ID),replace=TRUE),ifelse(day16$rando_assign=="Simulated Overwintering",sample(wells,length(day16$Ind_ID),replace=TRUE),""))
+day16$wellID
+
+#write.csv(day16,"../Data/randomizing/2017-09-22_day16cohort_randomized.csv")
+
+```
+
+### Day 18 cohort; 2017-09-10 collected
+
+```{r day 18}
+day18<-read.csv("../Data/randomizing/2017-09-22-day18cohort_randomization.csv")
+day18
+
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day18$rando_assign<-sample(v,length(day18[,1]),replace=TRUE)
+
+
+ggplot(day18,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+summary(as.factor(day18$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day18))
+day18$tape<-as.character(day18$tape)
+##assign names cohort day, tape color, ind_id
+day18$uniqueID<-paste(day18$cohort_day,substr(day18$tape,1,1),day18$Ind_ID,sep="")
+
+
+
+##assign well id for Rt and fridge treatments 
+#sample(wells,length(day18$Ind_ID),replace=TRUE)
+#day18$wellID<-ifelse(day18$rando_assign!="genetic control",sample(wells,length(day18$Ind_ID),replace=TRUE),"")
+
+day18$wellID<-ifelse(day18$rando_assign=="RT eclosion",sample(wells,length(day18$Ind_ID),replace=TRUE),ifelse(day18$rando_assign=="Simulated Overwintering",sample(wells,length(day18$Ind_ID),replace=TRUE),""))
+day18$wellID
+
+#write.csv(day18,"../Data/randomizing/2017-09-22_day18cohort_randomized.csv")
+
+```
+
+
+### Day 19 cohort; 2017-09-11 collected
+```{r day 18}
+day19<-read.csv("../Data/randomizing/2017-09-22-day19cohort_randomization.csv")
+day19<-day19[-67:-79,]
+day19
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day19$rando_assign<-sample(v,length(day19[,1]),replace=TRUE)
+
+
+ggplot(day19,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+summary(as.factor(day19$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day19))
+day19$tape<-as.character(day19$tape)
+##assign names cohort day, tape color, ind_id
+day19$uniqueID<-paste(day19$cohort_day,substr(day19$tape,1,1),day19$Ind_ID,sep="")
+
+
+
+##assign well id for Rt and fridge treatments 
+#sample(wells,length(day19$Ind_ID),replace=TRUE)
+#day19$wellID<-ifelse(day19$rando_assign!="genetic control",sample(wells,length(day19$Ind_ID),replace=TRUE),"")
+
+day19$wellID<-ifelse(day19$rando_assign=="RT eclosion",sample(wells,length(day19$Ind_ID),replace=TRUE),ifelse(day19$rando_assign=="Simulated Overwintering",sample(wells,length(day19$Ind_ID),replace=TRUE),""))
+day19$wellID
+
+#write.csv(day19,"../Data/randomizing/2017-09-22_day19cohort_randomized.csv")
+
+```
+
+### Day 20 cohort; 2017-09-12 collected
