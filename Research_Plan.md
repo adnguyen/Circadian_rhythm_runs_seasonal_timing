@@ -7,20 +7,21 @@ End Date/Last Modified: 2017-08-18
 
 ### Objectives   
 
-* Characterize the functional diversity in seasonal timing patterns that lead to incipient speciation.  
+* Characterize the functional diversity in seasonal timing patterns that lead to incipient speciation.  Kylie was here!!!
 
-### Questions:  
+### Questions:
+
 * How do different races of Rhagoletis shift their seasonal timing? 
 * How do parasitoids match their phenological strategies with rhagoletis? 
 
 ### Hypotheses and Predictions:    
 
 1. Different races of Rhagoletis modulate their intrinsic activity patterns to match seasonal ones.   
-	* Circadian rhythms should postively match the ability to exit diapause and diapause depth.   
-		* Amplitude or Tau  to rep circ rhythm, but data could be messy, consider area under curve? 
-	* 
+  * Circadian rhythms should postively match the ability to exit diapause and diapause depth.   
+    * Amplitude or Tau  to rep circ rhythm, but data could be messy, consider area under curve? 
+  * ​
 2. Parasitoids shift their activity patterns alongside their host Rhagoletis race.   
-	* positive relationship in Tau, or amplitude
+  * positive relationship in Tau, or amplitude
 
 ### Experimental approach : 
 
@@ -37,7 +38,7 @@ To estimate circadian rhtyms, daily activities follow a wave and the curve will 
 **Diapause duration is positively related to tau.**   
 
 ![](https://user-images.githubusercontent.com/4654474/29323325-88e42040-81ae-11e7-8c1e-872f227cef13.png)
- 
+
 ```R
 tau<-seq(22,26,length.out=150)
 diapause<-seq(20,150,length.out=150)
