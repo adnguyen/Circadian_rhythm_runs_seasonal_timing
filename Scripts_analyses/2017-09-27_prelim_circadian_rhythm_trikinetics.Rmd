@@ -1,0 +1,94 @@
+---
+title: "Preliminary trikinetics"
+output: html_document
+---
+
+
+### Load libraries
+```{r library}
+library(ggplot2)
+library(plyr)
+library(tidyr)
+library(lubridate)
+```
+
+### read in data
+
+```{r}
+prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_27_prelim_data.txt")
+head(prelim)
+#add header
+length(names(prelim))
+
+
+names(prelim)<-c(c("index","read_day","read_month","read_year","read_time","monitor_status","extra","unused1","unused2","unused3","unused4","light_status"),paste("t",seq(1,32),sep=""))
+
+##dropping unused
+prelim.drop<-prelim[-1,-8:-11]
+head(prelim.drop)
+
+##play with time data
+prelim.drop$read_time<-hms(prelim.drop$read_time)
+prelim.drop$hour = hour(prelim.drop$read_time) + minute(prelim.drop$read_time)/60
+
+bins=c(paste0(rep(c(paste0(0,0:9),10:23), each=4),":", c("00",15,30,45))[-1],"24:00")
+
+prelim.drop$bins=cut(prelim.drop$hour,breaks=seq(0,24,.25),labels=bins)
+head(prelim.drop)
+```
+
+
+
+### restructure data from wide to long format    
+
+```{r wide to long format dat}
+prelim.long<-gather(prelim.drop,trik_ID,counts,t1:t32)
+head(prelim.long)
+
+dim(prelim.long)
+
+
+#summarize the counts for each bin  
+
+prelim.long<-ddply(prelim.long, .(read_day,trik_ID,bins), summarise, counts = sum(counts), .drop=FALSE)
+head(prelim.long)
+
+```
+
+### visualize behavioral patterns
+
+```{r visualizing}
+prelim.long1<-subset(prelim.long,counts>0.5)
+
+#ggplot(prelim.long1,aes(x=read_time,y=counts,colour=factor(trik_ID)))+geom_point()
+#ggplot(prelim.long1,aes(x=bins,y=counts))+geom_point()+facet_grid(trik_ID~read_day)
+ggplot(prelim.long,aes(x=bins,y=counts))+geom_point()+facet_grid(trik_ID~read_day)
+```
+
+
+### looking at 1 example : T13   (wasp)
+
+```{r}
+t13<-subset(prelim.long,trik_ID=="t13")
+str(t13)
+
+ggplot(t13,aes(x=bins,y=counts))+geom_point()+facet_grid(.~read_day)+stat_smooth(method="loess")
+
+```
+
+### looking at 1 example : T27   (Rhago)
+
+```{r}
+t27<-subset(prelim.long1,trik_ID=="t27")
+str(t27)
+#t27$bins<-as.numeric(t27$bins)
+ggplot(t27,aes(x=bins,y=counts))+geom_point()+facet_grid(.~read_day)+stat_smooth(method="loess")
+#ggplot(t27,aes(x=bins,y=counts))+geom_point()+facet_grid(.~read_day)+stat_smooth(method="")
+```
+
+### Session
+
+```{r}
+sessionInfo()
+```
+
