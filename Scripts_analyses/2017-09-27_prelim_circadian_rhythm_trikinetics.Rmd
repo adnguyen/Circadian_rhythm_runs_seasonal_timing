@@ -15,7 +15,9 @@ library(lubridate)
 ### read in data
 
 ```{r}
-prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_27_prelim_data.txt")
+#prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_27_prelim_data.txt")
+prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_29_prelim_data.txt")
+
 head(prelim)
 #add header
 length(names(prelim))
@@ -50,7 +52,7 @@ dim(prelim.long)
 
 #summarize the counts for each bin  
 
-prelim.long<-ddply(prelim.long, .(read_day,trik_ID,bins), summarise, counts = sum(counts), .drop=FALSE)
+prelim.long<-ddply(prelim.long, .(read_day,trik_ID,bins), summarise, counts = sum(counts),light_status=mean(light_status), .drop=FALSE)
 head(prelim.long)
 
 ```
@@ -69,21 +71,51 @@ ggplot(prelim.long,aes(x=bins,y=counts))+geom_point()+facet_grid(trik_ID~read_da
 ### looking at 1 example : T13   (wasp)
 
 ```{r}
-t13<-subset(prelim.long,trik_ID=="t13")
+t13<-subset(prelim.long,trik_ID=="t13"& read_day ==28)
 str(t13)
 
-ggplot(t13,aes(x=bins,y=counts))+geom_point()+facet_grid(.~read_day)+stat_smooth(method="loess")
+#ggplot(t13,aes(x=bins,y=counts))+geom_point()+facet_grid(.~read_day)+stat_smooth(method="loess")
+
+ggplot(t13,aes(x=as.numeric(bins),y=counts,colour=factor(read_day)))+geom_point()+scale_x_continuous(,breaks=seq(1,96,4),labels=seq(1,24,1))+stat_smooth()
+#+geom_line()
 
 ```
 
 ### looking at 1 example : T27   (Rhago)
 
 ```{r}
-t27<-subset(prelim.long1,trik_ID=="t27")
+t27<-subset(prelim.long,trik_ID=="t18"& read_day ==28)
+#t27<-subset(prelim.long,trik_ID=="t27")
 str(t27)
 #t27$bins<-as.numeric(t27$bins)
-ggplot(t27,aes(x=bins,y=counts))+geom_point()+facet_grid(.~read_day)+stat_smooth(method="loess")
+#ggplot(t27,aes(x=bins,y=counts))+geom_point()+facet_grid(.~read_day)+stat_smooth(method="loess")
+ggplot(t27,aes(x=as.numeric(bins),y=counts,colour=factor(read_day)))+geom_point()+scale_x_continuous(,breaks=seq(1,96,4),labels=seq(1,24,1))+geom_line()
+
 #ggplot(t27,aes(x=bins,y=counts))+geom_point()+facet_grid(.~read_day)+stat_smooth(method="")
+```
+
+
+
+### tirkinetics cohort list  
+
+```{r}
+n<-read.csv("../Data/Trikinetics_cohorts_eclosion.csv")
+n$trik_ID<-as.numeric(n$trik_ID)
+#prelim.long$trik_ID<-as.numeric(substr(prelim.long$trik_ID,2,3))
+
+full<-inner_join(prelim.long,n,by=c("trik_ID"))
+head(full)
+
+```
+
+### plot by cohort   
+
+```{r}
+c1<-subset(full,trik_cohort==1 & read_day >26.1 & read_day <29)
+ggplot(c1,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(read_day~trik_ID)+scale_x_continuous(,breaks=seq(1,96,4),labels=seq(1,24,1))+geom_line()
+
+
+ggplot(c1,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(read_day~trik_ID)+scale_x_continuous(,breaks=seq(1,96,4),labels=seq(1,24,1))+stat_smooth()
 ```
 
 ### Session
