@@ -16,7 +16,8 @@ library(lubridate)
 
 ```{r}
 #prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_27_prelim_data.txt")
-prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_29_prelim_data.txt")
+#prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_29_prelim_data.txt")
+prelim<-read.table("../Data/raw/Trikinetics/2017-09-27_2017-10-01_prelim_data.txt")
 
 head(prelim)
 #add header
@@ -71,14 +72,30 @@ ggplot(prelim.long,aes(x=bins,y=counts))+geom_point()+facet_grid(trik_ID~read_da
 ### looking at 1 example : T13   (wasp)
 
 ```{r}
-t13<-subset(prelim.long,trik_ID=="t13"& read_day ==28)
+#t13<-subset(prelim.long,trik_ID=="t13"& read_day ==28)
+t13<-subset(prelim.long,trik_ID=="t13" & read_day >26 & read_day< 31 )
 str(t13)
 
 #ggplot(t13,aes(x=bins,y=counts))+geom_point()+facet_grid(.~read_day)+stat_smooth(method="loess")
 
 ggplot(t13,aes(x=as.numeric(bins),y=counts,colour=factor(read_day)))+geom_point()+scale_x_continuous(,breaks=seq(1,96,4),labels=seq(1,24,1))+stat_smooth()
 #+geom_line()
+ggplot(t13,aes(x=as.numeric(bins),y=counts,colour=factor(read_day)))+geom_point()+scale_x_continuous(,breaks=seq(1,96,4),labels=seq(1,24,1))
 
+##fitting spline
+data.frame(spline(x=as.numeric(t13$bins),y=t13$counts,n=length(t13$read_day),method="periodic"))
+as.vector(spline(x=as.numeric(t13$bins),y=t13$counts,n=length(t13$read_day))[1])
+
+fulldat<-ddply(t13,.(read_day),transform,time=as.vector(spline(x=as.numeric(bins),y=counts,n=length(read_day))[1]),splinefit=as.vector(spline(x=as.numeric(bins),y=counts,n=length(read_day),method="periodic")[2]))
+
+
+##plotting splines
+ggplot(fulldat,aes(x=as.numeric(bins),y=counts,colour=factor(read_day)))+geom_point()+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line(data=fulldat,aes(x=x,y=y))+facet_grid(read_day~.)
+
+## lets measure overall activity  
+
+sum(fulldat$counts)
+sum(fulldat$y)
 ```
 
 ### looking at 1 example : T27   (Rhago)
@@ -111,11 +128,16 @@ head(full)
 ### plot by cohort   
 
 ```{r}
-c1<-subset(full,trik_cohort==1 & read_day >26.1 & read_day <29)
+c1<-subset(full,trik_cohort==1 & read_day >26.1 & read_day <31)
 ggplot(c1,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(read_day~trik_ID)+scale_x_continuous(,breaks=seq(1,96,4),labels=seq(1,24,1))+geom_line()
 
 
 ggplot(c1,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(read_day~trik_ID)+scale_x_continuous(,breaks=seq(1,96,4),labels=seq(1,24,1))+stat_smooth()
+
+## sum counts 
+ddply(c1,.(trik_ID,organism,read_day),summarize,counts=sum(counts))
+ddply(c1,.(trik_ID,organism),summarize,counts=sum(counts))
+
 ```
 
 ### Session
