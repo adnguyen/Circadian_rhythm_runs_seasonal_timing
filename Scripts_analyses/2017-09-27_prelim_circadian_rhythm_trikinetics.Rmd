@@ -144,22 +144,25 @@ ddply(c1,.(trik_ID,organism),summarize,counts=sum(counts))
 ## creating a sequence of time 
 
 ```{r}
-t<-hm(c("9:10","11:50"))
+t<-hm(c("13:16","16:12"))
 time.x = hour(t) + minute(t)/60
 
-d<-seq(time.x[1],time.x[2],length.out=50)
+d<-seq(time.x[1],time.x[2],length.out=154)
 
 ###for whole dataset 
 
 x<-read.csv("../Data/2017-10-03_dataslice.csv")
+#x<-read.csv("../Data/test.csv")
 x$purge_time_1<-hm(x$purge_time_1)
 x$purge1<-hour(x$purge_time_1) + minute(x$purge_time_1)/60
 
-new.x<-ddply(x,.(cohort_day,tape),transform,seq(from=min(purge1,na.rm=TRUE),to=max(purge1,na.rm=TRUE),length.out=length(Ind_ID)))
+#new.x<-ddply(x,.(cohort_day,tape),transform,seq(from=min(purge1,na.rm=TRUE),to=max(purge1,na.rm=TRUE),length.out=length(purge1)))
 
 new.length<-ddply(x[,-5],.(cohort_day,tape),transform,length=length(Ind_ID))
-dim(x)
-dim(new.length)
+
+#new.length<-ddply(x[,-2],.(cohort_day,tape),transform,length=length(purge1))
+
+
 new.x<-ddply(new.length,.(cohort_day,tape),transform,ftime=seq(from=min(purge1,na.rm=TRUE),to=max(purge1,na.rm=TRUE),length.out=mean(length)))
 
 ```
