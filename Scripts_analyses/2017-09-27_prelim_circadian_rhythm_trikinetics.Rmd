@@ -165,6 +165,9 @@ new.length<-ddply(x[,-5],.(cohort_day,tape),transform,length=length(Ind_ID))
 
 new.x<-ddply(new.length,.(cohort_day,tape),transform,ftime=seq(from=min(purge1,na.rm=TRUE),to=max(purge1,na.rm=TRUE),length.out=mean(length)))
 
+
+#new.x<-ddply(new.length,.(cohort_day,tape),summarize,min=min(purge1,na.rm=TRUE),max=max(purge1,na.rm=TRUE))
+write.csv(new.x,"test1.csv")
 ```
 
 
