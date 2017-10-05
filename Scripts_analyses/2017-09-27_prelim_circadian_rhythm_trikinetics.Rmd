@@ -118,7 +118,7 @@ ggplot(t27,aes(x=as.numeric(bins),y=counts,colour=factor(read_day)))+geom_point(
 ```{r}
 n<-read.csv("../Data/Trikinetics_cohorts_eclosion.csv")
 n$trik_ID<-as.numeric(n$trik_ID)
-#prelim.long$trik_ID<-as.numeric(substr(prelim.long$trik_ID,2,3))
+prelim.long$trik_ID<-as.numeric(substr(prelim.long$trik_ID,2,3))
 
 full<-inner_join(prelim.long,n,by=c("trik_ID"))
 head(full)
@@ -149,7 +149,7 @@ ggplot(c5,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_g
 
 
 
-c4<-subset(c3,trik_ID=="18" & read_day==1)
+c4<-subset(c2,trik_ID=="18" & day==1)
 #c4$time<-rep(seq(0,24,.25),8)
 c4$time<-seq(0,24,.25)
 library(psych)
@@ -159,7 +159,7 @@ cosinor.plot("time","counts",data=c4)
 
 ### full data
 
-c4<-subset(c3,trik_ID=="18")
+c4<-subset(c2,trik_ID=="18")
 c4$time<-rep(seq(0,24,.25),8)
 cosinor(c4$time,c4$counts)
 cosinor.plot("time","counts",data=c4,ylim=c(0,20),xlim=c(0,24))
