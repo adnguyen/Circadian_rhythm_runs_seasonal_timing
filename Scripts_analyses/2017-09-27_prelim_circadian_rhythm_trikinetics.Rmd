@@ -201,7 +201,16 @@ CATCosinor(TimeCol=time,Y=counts,fileName=c4)
 trying spectral density of a time serries from ar
 
 ```{r}
+mo1<-ar(c(c4$time,c4$counts),method="ols")
+spec.ar(mo1,method="ols")
+```
 
+
+### trying cts filter
+
+```{r}
+library(cts)
+car(x=c4[,c("time","counts")])
 ```
 
 ### cohort 2   
