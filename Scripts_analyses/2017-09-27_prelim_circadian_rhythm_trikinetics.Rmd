@@ -140,6 +140,7 @@ ddply(c1,.(trik_ID,organism),summarize,counts=sum(counts))
 
 ```
 
+# Manipulating time    
 
 ## creating a sequence of time 
 
@@ -168,6 +169,10 @@ new.x<-ddply(new.length,.(cohort_day,tape),transform,ftime=seq(from=min(purge1,n
 
 #new.x<-ddply(new.length,.(cohort_day,tape),summarize,min=min(purge1,na.rm=TRUE),max=max(purge1,na.rm=TRUE))
 write.csv(new.x,"test1.csv")
+
+head(new.length)
+resp1<-hms(new.length$resp_time_1)
+resp1_conv<-hour(resp1)+minute(resp1)/60
 ```
 
 
