@@ -17,7 +17,7 @@ library(lubridate)
 ```{r}
 #prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_27_prelim_data.txt")
 #prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_29_prelim_data.txt")
-prelim<-read.table("../Data/raw/Trikinetics/2017-09-27_2017-10-01_prelim_data.txt")
+prelim<-read.table("../Data/raw/Trikinetics/2017-09-27_2017-10-05_prelim_data_monitor2.txt")
 
 head(prelim)
 #add header
@@ -72,7 +72,7 @@ ggplot(prelim.long,aes(x=bins,y=counts))+geom_point()+facet_grid(trik_ID~read_da
 ### looking at 1 example : T13   (wasp)
 
 ```{r}
-#t13<-subset(prelim.long,trik_ID=="t13"& read_day ==28)
+
 t13<-subset(prelim.long,trik_ID=="t13" & read_day >26 & read_day< 31 )
 str(t13)
 
@@ -122,23 +122,59 @@ n$trik_ID<-as.numeric(n$trik_ID)
 
 full<-inner_join(prelim.long,n,by=c("trik_ID"))
 head(full)
-
+daydat<-data.frame(read_day=c(27,28,29,30,1,2,3,4),day=seq(1,8))
 ```
 
 ### plot by cohort   
 
+### cohort 1 
 ```{r}
-c1<-subset(full,trik_cohort==1 & read_day >26.1 & read_day <31)
-ggplot(c1,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(read_day~trik_ID)+scale_x_continuous(,breaks=seq(1,96,4),labels=seq(1,24,1))+geom_line()
+c1<-subset(full,trik_cohort==1 & read_day!=26 & read_day !=5)
+c2<-inner_join(c1,daydat,by=c("read_day"))
 
+ggplot(c2,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line()+geom_vline(xintercept=c(24,80))
 
-ggplot(c1,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(read_day~trik_ID)+scale_x_continuous(,breaks=seq(1,96,4),labels=seq(1,24,1))+stat_smooth()
+ggplot(c2,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+stat_smooth()+geom_vline(xintercept=c(24,80))
 
 ## sum counts 
-ddply(c1,.(trik_ID,organism,read_day),summarize,counts=sum(counts))
-ddply(c1,.(trik_ID,organism),summarize,counts=sum(counts))
+ddply(c2,.(trik_ID,organism,read_day),summarize,counts=sum(counts))
+ddply(c2,.(trik_ID,organism),summarize,counts=sum(counts))
+
+c3<-subset(c2,organism=="fly")
+ggplot(c3,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line()+ylim(0,50)
+
+c5<-subset(c2,organism=="wasp")
+ggplot(c5,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line()+ylim(0,50)
+
+
+
+
+c4<-subset(c3,trik_ID=="18")
+
+library(psych)
+
+cosinor(bins,data=c4)
+```
+
+### cohort 2   
+
+```{r}
+c21<-subset(full,trik_cohort==2 & read_day!=26 & read_day !=27 &  read_day !=5)
+c22<-inner_join(c21,daydat,by=c("read_day"))
+
+ggplot(c22,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line()+geom_vline(xintercept=c(24,80))
 
 ```
+
+### cohort 3
+
+```{r}
+c31<-subset(full,trik_cohort==3 & read_day!=26 &read_day !=27 & read_day !=28 & read_day !=5)
+c32<-inner_join(c31,daydat,by=c("read_day"))
+
+ggplot(c32,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line()+geom_vline(xintercept=c(24,80))
+```
+
 
 # Manipulating time    
 
@@ -175,6 +211,36 @@ resp1<-hms(new.length$resp_time_1)
 resp1_conv<-hour(resp1)+minute(resp1)/60
 ```
 
+
+### looking at photoperiod data  
+
+```{r}
+library(geosphere)
+lat<-c(40.1106,42.7325,43.3361)
+lon<-c(-88.2073,-84.5555,-85.8109)
+site<-c("Urbana","Lansing","Grant")
+coords<-data.frame(lat,lon,site)
+coords
+##from Filchak et al paper; nature
+
+##mode for apple = Aug 5, 1991 (julian day 217)
+## mode for haw = sept 1, 1991 (julian day 244)
+##these are all infestation dates, what is the time that adults are active? 
+doy=c("1991-08-05","1991-09-01")
+
+#daylength(coords,doy=doy)
+grantlight<-data.frame(daylight=daylength(coords$lat[1],1:365),day=seq(1,365))
+
+
+#plot and then add vertical lines for the mode of emergence 
+ggplot(grantlight,aes(x=day,y=daylight))+geom_line()+geom_vline(xintercept=c(217,244))
+ggplot(grantlight,aes(x=day,y=daylight))+geom_line()+geom_vline(xintercept=c(217,244))
+
+#ddply(coords,.(site),summarize,daylength(lat,1:365))
+```
+### predictions: 
+
+* If Rhagoletis races match their activity with day length, then flies in apple should be active over a wider range within a day than flies in haws. 
 
 ### Session
 
