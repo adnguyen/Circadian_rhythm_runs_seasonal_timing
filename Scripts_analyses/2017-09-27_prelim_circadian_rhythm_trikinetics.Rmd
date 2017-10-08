@@ -122,7 +122,19 @@ prelim.long$trik_ID<-as.numeric(substr(prelim.long$trik_ID,2,3))
 
 full<-inner_join(prelim.long,n,by=c("trik_ID"))
 head(full)
+
+
+###creatinga  continuous sequence of time
 daydat<-data.frame(read_day=c(27,28,29,30,1,2,3,4),day=seq(1,8))
+
+
+read_day<-c(rep(1,length(seq(0,24,.25))),sort(rep(2:8,96)))
+contday<-seq(0,192,.25)
+
+
+dd<-data.frame(contday,read_day)
+
+
 ```
 
 ### plot by cohort   
@@ -131,13 +143,16 @@ daydat<-data.frame(read_day=c(27,28,29,30,1,2,3,4),day=seq(1,8))
 ```{r}
 c1<-subset(full,trik_cohort==1 & read_day!=26 & read_day !=5)
 c2<-inner_join(c1,daydat,by=c("read_day"))
+c2<-na.omit(ddply(c2,.(trik_ID),transform,read_day=sort(read_day)))
+
+c2.1<-left_join(c2,dd,by=c("read_day"))
 
 ggplot(c2,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line()+geom_vline(xintercept=c(24,80))
 
 ggplot(c2,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+stat_smooth()+geom_vline(xintercept=c(24,80))
 
 ## sum counts 
-ddply(c2,.(trik_ID,organism,read_day),summarize,counts=sum(counts))
+ddply(c2,.(trik_ID,organism,day),summarize,counts=sum(counts))
 ddply(c2,.(trik_ID,organism),summarize,counts=sum(counts))
 
 c3<-subset(c2,organism=="fly")
@@ -151,7 +166,7 @@ ggplot(c5,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_g
 
 c4<-subset(c2,trik_ID=="18" & day==1)
 #c4$time<-rep(seq(0,24,.25),8)
-c4$time<-seq(0,24,.25)
+c4$time<-seq(0,192,.25)
 library(psych)
 
 cosinor(c4$time,c4$counts)
@@ -160,9 +175,16 @@ cosinor.plot("time","counts",data=c4)
 ### full data
 
 c4<-subset(c2,trik_ID=="18")
-c4$time<-rep(seq(0,24,.25),8)
+c4<-c4[order(c4$day),]
+#c4$time<-rep(seq(0,24,.25),8)
+c4$time<-seq(0,191.75,.25)
+
+ggplot(c4,aes(x=time,y=counts))+geom_point()+geom_vline(xintercept = seq(0,210,24))
+
+
 cosinor(c4$time,c4$counts)
-cosinor.plot("time","counts",data=c4,ylim=c(0,20),xlim=c(0,24))
+cosinor.plot("time","counts",data=c4,ylim=c(0,20))
+#cosinor.plot("time","counts",data=c4,ylim=c(0,20),xlim=c(0,24))
 
 
 cos.fits<-ddply(c4,.(day),summarize,phase=cosinor(time,counts)[1],fit=cosinor(time,counts)[2],amplitude=cosinor(time,counts)[3],sd=cosinor(time,counts)[4],mean=cosinor(time,counts)[5],intercept=cosinor(time,counts)[6])
@@ -175,6 +197,16 @@ ggplot(c4,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_g
 
 ggplot(c4,aes(x=as.numeric(bins),y=counts,colour=factor(day)))+geom_point()+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line()+ylim(0,50)
 ```
+
+### looking at data continuously
+
+```{r}
+ggplot(c2,aes(x=contday,y=counts,colour=organism))+geom_point()+facet_grid(trik_ID~.)
+
+
+```
+
+
 
 ## creating a function for cosinor model 
 ```{r}
