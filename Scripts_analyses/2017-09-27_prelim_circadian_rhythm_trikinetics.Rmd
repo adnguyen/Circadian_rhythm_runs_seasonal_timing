@@ -143,7 +143,8 @@ dd<-data.frame(contday,read_day)
 ```{r}
 c1<-subset(full,trik_cohort==1 & read_day!=26 & read_day !=5)
 c2<-inner_join(c1,daydat,by=c("read_day"))
-c2<-na.omit(ddply(c2,.(trik_ID),transform,read_day=sort(read_day)))
+#c2<-na.omit(ddply(c2,.(trik_ID),transform,read_day=sort(read_day)))
+c2<-ddply(c2,.(trik_ID),transform,read_day=sort(read_day))
 
 c2.1<-left_join(c2,dd,by=c("read_day"))
 
@@ -171,15 +172,15 @@ library(psych)
 
 cosinor(c4$time,c4$counts)
 cosinor.plot("time","counts",data=c4)
-
+ 
 ### full data
 
 c4<-subset(c2,trik_ID=="18")
-c4<-c4[order(c4$day),]
-#c4$time<-rep(seq(0,24,.25),8)
-c4$time<-seq(0,191.75,.25)
 
-ggplot(c4,aes(x=time,y=counts))+geom_point()+geom_vline(xintercept = seq(0,210,24))
+#c4$time<-rep(seq(0,24,.25),8) 
+c4<-c4[order(c4$day),]# for continuous analysis
+c4$time<-seq(0,191.75,.25) # for continuous analysis
+#ggplot(c4,aes(x=time,y=counts))+geom_point()+geom_vline(xintercept = seq(0,210,24))
 
 
 cosinor(c4$time,c4$counts)
@@ -210,14 +211,50 @@ ggplot(c2,aes(x=contday,y=counts,colour=organism))+geom_point()+facet_grid(trik_
 
 ## creating a function for cosinor model 
 ```{r}
-sinor<-function(data=data,amp=4.61,mean=6.58,phase=14.91,period=24,time=seq(0,24,.25)){
-  y=mean +amp* cos((2*pi*time)/period+phase)
+sinor<-function(data=data,M=6.58,A=4.61,phase=14.91,period=14,time=seq(0,24,.25)){
+  y=M +A* cos((2*pi*time)/period+phase)
   return(y)
 }
 
 plot(c4$time,c4$counts,ylim=c(0,20))
-points(seq(0,24,.25),sinor(),col="red",pch=24)
+lines(c4$time,sinor(time=c4$time),col="red",pch=24)
 
+```
+
+
+###creating NLS model 
+
+$$Y(t) = M + A *cos(2\pi t/\tau + \phi) + e(t)$$
+M = MESOR - midline statistic of rhythm, a rhythm adjusted mean
+A = amplitude - half the extent of predictable variation within a cycle
+$\phi$ = acrophase- time of overall high values recurring in each cycle 
+$\tau$ = period - duration of one cycle 
+
+```{r}
+nls.circ.fit<-function(data=data,time=time,counts=counts){
+  fit<-nls(counts ~ M+A * cos((2*pi*time)/period+phase),data=data,start=list(M=6,A=5,phase=15,period=20),trace=TRUE,control=nls.control(warnOnly = TRUE, tol = 1e-05, maxiter=1000))
+  return(summary(fit)$parameters)
+}
+
+#continuous time
+
+fits<-nls.circ.fit(data=c4)
+params<-t(fits)[1,]
+c4$fitted<-sinor(M=6.718,A=6.422,phase=20.826,period=23.63,time=c4$time)
+
+ggplot(c4,aes(x=time,y=counts))+geom_point()+geom_vline(xintercept = seq(0,210,24))+geom_line(aes(x=time,y=fitted))
++geom_line()
+
+
+
+##daily time
+c4$time<-c(seq(0,24,.25),rep(seq(0.25,24,.25),7))[-769]
+#c4$time<-rep(1,length(c4$read_day))
+fits2<-nls.circ.fit(time=daily_time,data=c4)
+fits2
+
+t<-ddply(c4,.(day),failwith(f=nls.circ.fit))
+t
 ```
 
 trying catkit package   
