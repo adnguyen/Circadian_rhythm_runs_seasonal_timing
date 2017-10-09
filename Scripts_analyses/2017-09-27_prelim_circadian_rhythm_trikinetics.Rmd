@@ -246,6 +246,13 @@ ggplot(c4,aes(x=time,y=counts))+geom_point()+geom_vline(xintercept = seq(0,210,2
 +geom_line()
 
 
+##spec.prgrm
+
+ms<-spec.pgram(cbind(c4$counts,c4$time))
+summary(ms)
+
+#peridogram
+periodogram(c4$counts)
 
 ##daily time
 c4$time<-c(seq(0,24,.25),rep(seq(0.25,24,.25),7))[-769]
