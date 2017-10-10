@@ -526,10 +526,97 @@ day4$wellID
 ```
 
 
+### 2017-09-26 cohort day 5  
 
+```{r day 5}
+day5<-read.csv("../Data/randomizing/2017-10-10_day5_haw_cohort_randomization.csv")
+day5
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day5$rando_assign<-sample(v,length(day5[,1]),replace=TRUE)
+
+
+ggplot(day5,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+summary(as.factor(day5$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day5))
+day5$tape<-as.character(day5$tape)
+##assign names cohort day, tape color, ind_id
+day5$uniqueID<-paste("h",day5$cohort_day,substr(day5$tape,1,1),day5$Ind_ID,sep="")
+
+
+
+##assign well id for Rt and fridge treatments 
+day5$wellID<-ifelse(day5$rando_assign=="RT eclosion",sample(wells,length(day5$Ind_ID),replace=FALSE),ifelse(day5$rando_assign=="Simulated Overwintering",sample(wells,length(day5$Ind_ID),replace=FALSE),""))
+day5$wellID
+
+#write.csv(day5,"../Data/randomizing/2017-10-10_day5_haw_cohort_randomized.csv")
+
+```
+
+
+### 2017-09-27 cohort day 6
+```{r day6}
+day6<-read.csv("../Data/randomizing/2017-10-10_day6_haw_cohort_randomization.csv")
+day6
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day6$rando_assign<-sample(v,length(day6[,1]),replace=TRUE)
+
+
+ggplot(day6,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+summary(as.factor(day6$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day6))
+day6$tape<-as.character(day6$tape)
+##assign names cohort day, tape color, ind_id
+day6$uniqueID<-paste("h",day6$cohort_day,substr(day6$tape,1,1),day6$Ind_ID,sep="")
+
+
+
+##assign well id for Rt and fridge treatments 
+day6$wellID<-ifelse(day6$rando_assign=="RT eclosion",sample(wells,length(day6$Ind_ID),replace=FALSE),ifelse(day6$rando_assign=="Simulated Overwintering",sample(wells,length(day6$Ind_ID),replace=FALSE),""))
+day6$wellID
+
+#write.csv(day6,"../Data/randomizing/2017-10-10_day6_haw_cohort_randomized.csv")
+
+```
+
+### 2017-09-28 cohort day 7  
+
+```{r day7}
+day7<-read.csv("../Data/randomizing/2017-10-10_day7_haw_cohort_randomization.csv")
+day7
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
+#day7$rando_assign<-sample(v,length(day7[,1]),replace=TRUE)
+
+
+ggplot(day7,aes(y=mass_day10,x=rando_assign))+geom_boxplot()
+
+summary(as.factor(day7$rando_assign))
+summary(aov(mass_day10~rando_assign,data=day7))
+day7$tape<-as.character(day7$tape)
+##assign names cohort day, tape color, ind_id
+day7$uniqueID<-paste("h",day7$cohort_day,substr(day7$tape,1,1),day7$Ind_ID,sep="")
+
+
+
+##assign well id for Rt and fridge treatments 
+day7$wellID<-ifelse(day7$rando_assign=="RT eclosion",sample(wells,length(day7$Ind_ID),replace=FALSE),ifelse(day7$rando_assign=="Simulated Overwintering",sample(wells,length(day7$Ind_ID),replace=FALSE),""))
+day7$wellID
+
+#write.csv(day7,"../Data/randomizing/2017-10-10_day7_haw_cohort_randomized.csv")
+
+```
+
+
+### 2017-09-29 cohort day 8  
+
+### 2017-09-30 cohort day 9  
+
+### 2017-10-01 cohort day 10  
 
 
 ```{r}
 t<-read.csv("../Data/2017-09-29_dataslice.csv")
 t$uniqueID<-paste(t$cohort_day,substr(t$tape,1,1),t$Ind_ID,sep="")
 ```
+
