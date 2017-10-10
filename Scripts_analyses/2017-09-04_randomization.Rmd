@@ -526,6 +526,9 @@ day4$wellID
 ```
 
 
+
+
+
 ```{r}
 t<-read.csv("../Data/2017-09-29_dataslice.csv")
 t$uniqueID<-paste(t$cohort_day,substr(t$tape,1,1),t$Ind_ID,sep="")
