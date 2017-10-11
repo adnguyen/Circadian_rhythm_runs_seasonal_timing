@@ -183,6 +183,16 @@ c4$time<-seq(0,191.75,.25) # for continuous analysis
 #ggplot(c4,aes(x=time,y=counts))+geom_point()+geom_vline(xintercept = seq(0,210,24))
 
 
+###morlet wavelet transformation
+library(dplR)
+obj1<-morlet(y1=c4$counts,x1=c4$time)
+str(obj1)
+
+wavelet.plot(obj1)
+
+
+
+###cosinor fit
 cosinor(c4$time,c4$counts)
 cosinor.plot("time","counts",data=c4,ylim=c(0,20))
 #cosinor.plot("time","counts",data=c4,ylim=c(0,20),xlim=c(0,24))
@@ -249,7 +259,8 @@ ggplot(c4,aes(x=time,y=counts))+geom_point()+geom_vline(xintercept = seq(0,210,2
 ##spec.prgrm
 
 ms<-spec.pgram(cbind(c4$counts,c4$time))
-summary(ms)
+ms<-spec.pgram(cbind(c4$counts,c4$time),log="no")
+#summary(ms)
 
 #peridogram
 periodogram(c4$counts)
