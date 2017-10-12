@@ -17,7 +17,8 @@ library(lubridate)
 ```{r}
 #prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_27_prelim_data.txt")
 #prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_29_prelim_data.txt")
-prelim<-read.table("../Data/raw/Trikinetics/2017-09-27_2017-10-05_prelim_data_monitor2.txt")
+#prelim<-read.table("../Data/raw/Trikinetics/2017-09-27_2017-10-05_prelim_data_monitor2.txt")
+prelim<-read.table("../Data/raw/Trikinetics/2017-09-27_2017-10-12_prelim_Monitor2.txt")
 
 head(prelim)
 #add header
@@ -55,7 +56,7 @@ dim(prelim.long)
 
 prelim.long<-ddply(prelim.long, .(read_day,trik_ID,bins), summarise, counts = sum(counts),light_status=mean(light_status), .drop=FALSE)
 head(prelim.long)
-
+###this might take a while, so save the file to you can use it in the future 
 ```
 
 ### visualize behavioral patterns
@@ -185,10 +186,10 @@ c4$time<-seq(0,191.75,.25) # for continuous analysis
 
 ###morlet wavelet transformation
 library(dplR)
-obj1<-morlet(y1=c4$counts,x1=c4$time)
+obj1<-morlet(y1=c4$counts,x1=c4$time,p2=9.5)
 str(obj1)
 
-wavelet.plot(obj1)
+wavelet.plot(obj1,nyrs=.1)
 
 
 
