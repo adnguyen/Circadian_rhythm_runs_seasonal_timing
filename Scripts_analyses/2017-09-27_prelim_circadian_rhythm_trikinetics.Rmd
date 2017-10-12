@@ -198,7 +198,7 @@ wavelet.plot(obj1,nyrs=.1)
 ####trying wmtsa package
 library(wmtsa)
 
-w1<-wavCWT(c4$counts)
+w1<-wavCWT(c4$counts,wavelet="morlet")
 w2<-wavCWTTree(w1)
 summary(w2)
 
