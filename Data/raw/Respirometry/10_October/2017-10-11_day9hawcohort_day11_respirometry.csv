@@ -1,0 +1,13 @@
+starttime_VCO2_6262_1,area_VCO2_6262_1,n,licor,ind_id,tape,site
+10:36:37,0.1387167,1,7000,1,white,Ferris
+10:38:28,0.7685612,2,7000,2,white,Ferris
+10:39:44,9.53E-02,3,7000,3,white,Ferris
+10:41:04,8.97E-02,4,7000,4,white,Ferris
+10:42:21,1.43E-02,5,7000,5,white,Blank
+10:43:24,0.0105226,6,7000,6,white,Blank
+10:36:37,0.3396308,1,6262,1,orange,Ferris
+10:38:28,0.1566465,2,6262,2,orange,Ferris
+10:39:44,0.3968528,3,6262,3,orange,Ferris
+10:41:04,0.2163901,4,6262,4,orange,Ferris
+10:42:21,0.0220111,5,6262,5,orange,Blank
+10:43:24,0.0179091,6,6262,6,orange,Blank
