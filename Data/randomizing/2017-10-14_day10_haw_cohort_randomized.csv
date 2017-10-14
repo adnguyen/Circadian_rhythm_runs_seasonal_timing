@@ -1,0 +1,12 @@
+Ind_ID,tape,Site_name,mass_day10,purge_time_1,day10,cohort_date,cohort_day,Host,rando_assign,uniqueID,wellID
+1,blue,Ferris,11.174,11:03,10/11/17,10/1/17,10,Haw,genetic control,h10b1,
+2,blue,Ferris,8.154,,10/11/17,10/1/17,10,Haw,Simulated Overwintering,h10b2,G12
+3,blue,Ferris,7.064,,10/11/17,10/1/17,10,Haw,Simulated Overwintering,h10b3,G10
+4,blue,Ferris,11.898,,10/11/17,10/1/17,10,Haw,RT eclosion,h10b4,A1
+5,blue,Ferris,11.943,,10/11/17,10/1/17,10,Haw,Simulated Overwintering,h10b5,E12
+6,blue,Ferris,9.698,,10/11/17,10/1/17,10,Haw,Simulated Overwintering,h10b6,H7
+1,red,Ferris,11.77,11:06,10/11/17,10/1/17,10,Haw,genetic control,h10r1,
+2,red,Ferris,9.656,,10/11/17,10/1/17,10,Haw,Simulated Overwintering,h10r2,G1
+3,red,Ferris,7.065,,10/11/17,10/1/17,10,Haw,RT eclosion,h10r3,G3
+4,red,Ferris,9.067,,10/11/17,10/1/17,10,Haw,RT eclosion,h10r4,G8
+5,red,Ferris,7.709,,10/11/17,10/1/17,10,Haw,genetic control,h10r5,
