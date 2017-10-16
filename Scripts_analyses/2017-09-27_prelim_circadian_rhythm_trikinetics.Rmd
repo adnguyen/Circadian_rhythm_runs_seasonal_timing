@@ -188,6 +188,9 @@ c4$time<-seq(1,1455) # for continuous analysis
 #ggplot(c4,aes(x=time,y=counts))+geom_point()+geom_vline(xintercept = seq(0,210,24))
 
 
+###plots with barplots
+ggplot(c4,aes(y=counts,x=bins))+geom_bar(stat="identity")+facet_grid(.~day)
+
 ###morlet wavelet transformation
 library(dplR)
 obj1<-morlet(y1=c4$counts,x1=c4$time,p2=9.5)

@@ -20,8 +20,21 @@ This project is funded by the National Science Foundation, grant #...
 ### Repository Layout
 
 * **Data/**:
+	* 2017-08-24_rhagoletis_data_sheet.xlsx
+	* 2017-10-03_dataslice.csv
+	* 2017-10-10_Trikinetics_cohorts_eclosion.csv
+	* 2017-10-12_trik_cohort_list_free_run.xlsx
+	* Sampling_mass_purgetimes.xlsx
+	* **randomizing/**: Folder used to save cohorts into separate files to randomize and includes the randomized outputs with uniqueIDs
+	* **raw/**: 
+		* **Respirometry/**:	
+		* **Trikinetics/**:   
 * **Documents/**:
-* **Results/**: 
+	* Detailed Experimental workflow.md : markdown file using mermaid to draw a workflow
+	* Detailed Experimental workflow.png : png version
+	* Rhagoletis_handling_processing.md : protocols for handling *Rhagoletis*
+	* Rhagoletis_handling_processing.pdf : pdf version
+* **Results/**: Preliminary figures right now 
 * **Scripts_analyses/**:
 * Readme.md
 * Research_Plan.md
