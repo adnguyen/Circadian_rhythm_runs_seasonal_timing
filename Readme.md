@@ -20,11 +20,11 @@ This project is funded by the National Science Foundation, grant #...
 ### Repository Layout
 
 * **Data/**:
-	* 2017-08-24_rhagoletis_data_sheet.xlsx
-	* 2017-10-03_dataslice.csv
-	* 2017-10-10_Trikinetics_cohorts_eclosion.csv
-	* 2017-10-12_trik_cohort_list_free_run.xlsx
-	* Sampling_mass_purgetimes.xlsx
+	* 2017-08-24_rhagoletis_data_sheet.xlsx : master datasheet where we collated data; metadata below
+	* 2017-10-03_dataslice.csv; a snapshot of the data(017-08-24_rhagoletis_data_sheet.xlsx data_collect tab) on 2017-10-03 
+	* 2017-10-10_Trikinetics_cohorts_eclosion.csv : csv of trikinetics cohorts 
+	* 2017-10-12_trik_cohort_list_free_run.xlsx : table indicating when each cohort needs to be put into free run experiment (day 8) 
+	* Sampling_mass_purgetimes.xlsx : data collection sheet that we print out and fill in and put into our physical notebook   
 	* **randomizing/**: Folder used to save cohorts into separate files to randomize and includes the randomized outputs with uniqueIDs
 	* **raw/**: 
 		* **Respirometry/**: expedata and csv files 	
@@ -36,8 +36,8 @@ This project is funded by the National Science Foundation, grant #...
 	* Rhagoletis_handling_processing.pdf : pdf version
 * **Results/**: Preliminary figures right now 
 * **Scripts_analyses/**:
-* Readme.md
-* Research_Plan.md
+* Readme.md : ...this file...
+* Research_Plan.md : initial research plan 
 
 ------
 
@@ -50,7 +50,7 @@ This project is funded by the National Science Foundation, grant #...
 
 ------
 
-<div id='id-section1'/>     
+<div id='id-section3'/>     
 
 ### Meta data for critical datasets   
 
