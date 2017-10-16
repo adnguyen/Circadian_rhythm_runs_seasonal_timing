@@ -27,8 +27,8 @@ This project is funded by the National Science Foundation, grant #...
 	* Sampling_mass_purgetimes.xlsx
 	* **randomizing/**: Folder used to save cohorts into separate files to randomize and includes the randomized outputs with uniqueIDs
 	* **raw/**: 
-		* **Respirometry/**:	
-		* **Trikinetics/**:   
+		* **Respirometry/**: expedata and csv files 	
+		* **Trikinetics/**:  trikinetics monitor data sets; raw  
 * **Documents/**:
 	* Detailed Experimental workflow.md : markdown file using mermaid to draw a workflow
 	* Detailed Experimental workflow.png : png version
