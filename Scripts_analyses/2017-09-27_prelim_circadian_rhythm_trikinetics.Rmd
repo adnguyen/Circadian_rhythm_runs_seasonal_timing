@@ -35,9 +35,11 @@ head(prelim.drop)
 prelim.drop$read_time<-hms(prelim.drop$read_time)
 prelim.drop$hour = hour(prelim.drop$read_time) + minute(prelim.drop$read_time)/60
 
-bins=c(paste0(rep(c(paste0(0,0:9),10:23), each=4),":", c("00",15,30,45))[-1],"24:00")
+#bins=c(paste0(rep(c(paste0(0,0:9),10:23), each=4),":", c("00",15,30,45))[-1],"24:00")
+#prelim.drop$bins=cut(prelim.drop$hour,breaks=seq(0,24,.25),labels=bins)
+bins=c(paste0(rep(c(paste0(0,0:9),10:23), each=10),":", c("00","06",12,18,24,30,36,42,48,54))[-1],"24:00")
+prelim.drop$bins=cut(prelim.drop$hour,breaks=seq(0,24,.1),labels=bins)
 
-prelim.drop$bins=cut(prelim.drop$hour,breaks=seq(0,24,.25),labels=bins)
 head(prelim.drop)
 ```
 
