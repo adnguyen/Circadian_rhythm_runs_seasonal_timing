@@ -34,7 +34,7 @@ dat.long<-gather(dat,trik_ID,counts,t1:t32)
 
 #summarize the counts for each bin  
 
-dat.long2<-ddply(dat.long, .(read_day,trik_ID,bins), summarise, counts = sum(counts),light_status=mean(light_status), .drop=FALSE)
+dat.long2<-ddply(dat.long, .(read_day,trik_ID,bins), summarise, counts = sum(counts),light_status=mean(light_status),, .drop=FALSE)
 head(dat.long2)
 ```
 
@@ -50,12 +50,14 @@ ggplot(t17,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~.)+
 
 ### cohort list
 ```{r}
-n<-read.csv("../Data/2017-10-10_Trikinetics_cohorts_eclosion.csv")
-n$trik_ID<-as.numeric(n$trik_ID)
+n<-read.csv("../Data/2017-10-16_Trikinetics_cohorts_eclosion.csv")
+#n$trik_ID<-as.numeric(n$trik_ID)
 dat.long2$trik_ID<-as.numeric(substr(dat.long2$trik_ID,2,3))
-n<-subset(n,Trik_monitor==2)
+*
+n$Free_run_entry_date
 
-full<-inner_join(dat.long2,n,by=c("trik_ID"))
+
+full<-inner_join(dat.long2,n,by=c("uniqueID"))
 head(full)
 ```
 
