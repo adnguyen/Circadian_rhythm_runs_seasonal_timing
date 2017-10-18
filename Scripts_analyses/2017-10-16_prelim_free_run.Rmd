@@ -12,7 +12,8 @@ library(lubridate)
 
 
 ```{r}
-dat<-read.file("../Data/raw/Trikinetics/2017-10-12_2017-10-16_monitor3.txt")
+#dat<-read.file("../Data/raw/Trikinetics/2017-10-12_2017-10-16_monitor3.txt")
+dat<-read.file("../Data/raw/Trikinetics/2017-10-12_2017-10-18_monitor3.txt")
 names(dat)<-c(c("index","read_day","read_month","read_year","read_time","monitor_status","extra","unused1","unused2","unused3","unused4","light_status"),paste("t",seq(1,32),sep=""))
 dat<-dat[-1,-8:-11]
 str(dat)
@@ -39,11 +40,11 @@ head(dat.long2)
 ```
 
 ```{r}
-dat.long3<-subset(dat.long2,read_day !=16 & read_day !=12)
+dat.long3<-subset(dat.long2,read_day !=18 & read_day !=12)
 #ggplot(dat.long3,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(trik_ID~read_day)
 
 ##lookg at 17th position
-t17<-subset(dat.long2,Free_run_trik_position=="t17" & read_day !=16 & read_day !=12)
+t17<-subset(dat.long3,Free_run_trik_position=="t17" & read_day !=16 & read_day !=12)
 ggplot(t17,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~.)+geom_vline(xintercept = 201)
 
 ```
@@ -65,7 +66,7 @@ head(full)
 
 ### extracting 1st cohort
 ```{r}
-co1<-subset(full, Free_run_entry_date=="2017-10-12" & Free_run_trik_position<10)
+co1<-subset(full, Free_run_entry_date=="2017-10-12" & Free_run_trik_position<10 & read_day !=18)
 #& read_day!=16 & read_day !=12
 ggplot(co1,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_trik_position~read_day)+geom_vline(xintercept=201)
 ```
