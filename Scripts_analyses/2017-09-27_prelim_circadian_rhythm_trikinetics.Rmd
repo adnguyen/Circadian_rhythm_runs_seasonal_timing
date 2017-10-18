@@ -35,9 +35,11 @@ head(prelim.drop)
 prelim.drop$read_time<-hms(prelim.drop$read_time)
 prelim.drop$hour = hour(prelim.drop$read_time) + minute(prelim.drop$read_time)/60
 
-bins=c(paste0(rep(c(paste0(0,0:9),10:23), each=4),":", c("00",15,30,45))[-1],"24:00")
+#bins=c(paste0(rep(c(paste0(0,0:9),10:23), each=4),":", c("00",15,30,45))[-1],"24:00")
+#prelim.drop$bins=cut(prelim.drop$hour,breaks=seq(0,24,.25),labels=bins)
+bins=c(paste0(rep(c(paste0(0,0:9),10:23), each=10),":", c("00","06",12,18,24,30,36,42,48,54))[-1],"24:00")
+prelim.drop$bins=cut(prelim.drop$hour,breaks=seq(0,24,.1),labels=bins)
 
-prelim.drop$bins=cut(prelim.drop$hour,breaks=seq(0,24,.25),labels=bins)
 head(prelim.drop)
 ```
 
@@ -57,7 +59,7 @@ dim(prelim.long)
 prelim.long<-ddply(prelim.long, .(read_day,trik_ID,bins), summarise, counts = sum(counts),light_status=mean(light_status), .drop=FALSE)
 head(prelim.long)
 ###this might take a while, so save the file to you can use it in the future 
-#write.csv(p0relim.long,"2017-10-12_longformat_16days_data_monitor2.csv")
+#write.csv(prelim.long,"2017-10-12_longformat_16days_data_monitor2.csv")
 ```
 
 ### visualize behavioral patterns
@@ -153,7 +155,7 @@ c2<-ddply(c2,.(trik_ID),transform,read_day=sort(read_day))
 
 #c2.1<-left_join(c2,dd,by=c("read_day"))
 
-ggplot(c2,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line()+geom_vline(xintercept=c(24,80))
+ggplot(c2,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,288,.25),labels=seq(0,288,.25))+geom_line()+geom_vline(xintercept=c(61,201))
 
 ggplot(c2,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+stat_smooth()+geom_vline(xintercept=c(24,80))
 
@@ -162,7 +164,7 @@ ddply(c2,.(trik_ID,organism,day),summarize,counts=sum(counts))
 ddply(c2,.(trik_ID,organism),summarize,counts=sum(counts))
 
 c3<-subset(c2,organism=="fly")
-ggplot(c3,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line()+ylim(0,50)
+ggplot(c3,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,288,.25),labels=seq(0,288,.25))+geom_line()+geom_vline(xintercept=c(61,201))
 
 c5<-subset(c2,organism=="wasp")
 ggplot(c5,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_grid(day~trik_ID)+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line()+ylim(0,50)
@@ -184,21 +186,28 @@ c4<-subset(c2,trik_ID=="18")
 
 #c4$time<-rep(seq(0,24,.25),8) 
 c4<-c4[order(c4$day),]# for continuous analysis
-c4$time<-seq(1,1455) # for continuous analysis
+c4$time<-seq(1,3615) # for continuous analysis
 #ggplot(c4,aes(x=time,y=counts))+geom_point()+geom_vline(xintercept = seq(0,210,24))
 
+
+###plots with barplots
+ggplot(c4,aes(y=counts,x=bins))+geom_bar(stat="identity")+facet_grid(.~day)
 
 ###morlet wavelet transformation
 library(dplR)
 obj1<-morlet(y1=c4$counts,x1=c4$time,p2=9.5)
 str(obj1)
 
+
 wavelet.plot(obj1,nyrs=.1)
+
+plot(obj1$x,obj1$period)
+
 
 ####trying wmtsa package
 library(wmtsa)
 
-w1<-wavCWT(c4$counts,wavelet="morlet")
+w1<-wavCWT(c4$counts,wavelet="gaussian2")
 w2<-wavCWTTree(w1)
 summary(w2)
 
