@@ -696,5 +696,10 @@ day10$wellID
 ```{r}
 t<-read.csv("../Data/2017-09-29_dataslice.csv")
 t$uniqueID<-paste(t$cohort_day,substr(t$tape,1,1),t$Ind_ID,sep="")
+
+y<-read.csv("../Data/2017-10-18_haw_data-slice.csv")
+y$uniqueID<-paste("h",y$cohort_day,substr(y$tape,1,1),y$Ind_ID,sep="")
+head(y)
+write.csv(y,"y.csv")
 ```
 
