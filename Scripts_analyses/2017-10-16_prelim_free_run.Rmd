@@ -30,11 +30,11 @@ head(dat)
 
 ### changing wide to long format
 
-dat.long<-gather(dat,trik_ID,counts,t1:t32)
+dat.long<-gather(dat,Free_run_trik_position,counts,t1:t32)
 
 #summarize the counts for each bin  
 
-dat.long2<-ddply(dat.long, .(read_day,trik_ID,bins), summarise, counts = sum(counts),light_status=mean(light_status),, .drop=FALSE)
+dat.long2<-ddply(dat.long, .(read_day,Free_run_trik_position,bins), summarise, counts = sum(counts),light_status=mean(light_status),, .drop=FALSE)
 head(dat.long2)
 ```
 
@@ -43,7 +43,7 @@ dat.long3<-subset(dat.long2,read_day !=16 & read_day !=12)
 #ggplot(dat.long3,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(trik_ID~read_day)
 
 ##lookg at 17th position
-t17<-subset(dat.long2,trik_ID=="t17" & read_day !=16 & read_day !=12)
+t17<-subset(dat.long2,Free_run_trik_position=="t17" & read_day !=16 & read_day !=12)
 ggplot(t17,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~.)+geom_vline(xintercept = 201)
 
 ```
@@ -51,13 +51,13 @@ ggplot(t17,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~.)+
 ### cohort list
 ```{r}
 n<-read.csv("../Data/2017-10-16_Trikinetics_cohorts_eclosion.csv")
-#n$trik_ID<-as.numeric(n$trik_ID)
-dat.long2$trik_ID<-as.numeric(substr(dat.long2$trik_ID,2,3))
-*
-n$Free_run_entry_date
+n$Free_run_trik_position<-as.numeric(n$Free_run_trik_position)
+dat.long2$Free_run_trik_position<-as.numeric(substr(dat.long2$Free_run_trik_position,2,3))
 
 
-full<-inner_join(dat.long2,n,by=c("uniqueID"))
+
+
+full<-inner_join(dat.long2,n,by=c("Free_run_trik_position"))
 head(full)
 ```
 
@@ -65,8 +65,15 @@ head(full)
 
 ### extracting 1st cohort
 ```{r}
-co1<-subset(full,free_run_cohort==1 & trik_cohort==1)
+co1<-subset(full, Free_run_entry_date=="2017-10-12" & Free_run_trik_position<10)
 #& read_day!=16 & read_day !=12
-ggplot(co1,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(trik_ID~read_day)
+ggplot(co1,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_trik_position~read_day)+geom_vline(xintercept=201)
+```
+
+#### extracting 2nd cohort
+```{r}
+co1.2<-subset(full, Free_run_entry_date=="2017-10-13")
+#& read_day!=16 & read_day !=12
+ggplot(co1.2,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_trik_position~read_day)+geom_vline(xintercept=201)
 ```
 
