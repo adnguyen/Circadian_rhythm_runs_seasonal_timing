@@ -66,9 +66,11 @@ head(full)
 
 ### extracting 1st cohort
 ```{r}
-co1<-subset(full, Free_run_entry_date=="2017-10-12" & Free_run_trik_position<10 & read_day !=18)
+#co1<-subset(full, Free_run_entry_date=="2017-10-12" & Free_run_trik_position<10 & read_day !=18)
+
+co1<-subset(full, Free_run_entry_date=="10/12/17" & Free_run_trik_position<10 & read_day !=18)
 #& read_day!=16 & read_day !=12
-ggplot(co1,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_trik_position~read_day)+geom_vline(xintercept=201)
+ggplot(co1,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_trik_position~read_day)#+geom_vline(xintercept=201)
 ```
 
 #### extracting 2nd cohort
