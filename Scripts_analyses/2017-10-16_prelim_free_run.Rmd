@@ -8,14 +8,19 @@ library(ggplot2)
 library(plyr)
 library(tidyr)
 library(lubridate)
+
+
 ```
 
 
 ```{r}
 #dat<-read.file("../Data/raw/Trikinetics/2017-10-12_2017-10-16_monitor3.txt")
-dat<-read.file("../Data/raw/Trikinetics/2017-10-12_2017-10-18_monitor3.txt")
+#dat<-read.table("../Data/raw/Trikinetics/2017-10-12_2017-10-18_Monitor3.txt")
+dat<-read.table("../Data/raw/Trikinetics/2017-10-12_2017-10-23_Monitor4.txt")
+
 names(dat)<-c(c("index","read_day","read_month","read_year","read_time","monitor_status","extra","unused1","unused2","unused3","unused4","light_status"),paste("t",seq(1,32),sep=""))
-dat<-dat[-1,-8:-11]
+
+dat<-dat[-8:-11]
 str(dat)
 
 ##play with time data
@@ -35,8 +40,11 @@ dat.long<-gather(dat,Free_run_trik_position,counts,t1:t32)
 
 #summarize the counts for each bin  
 
-dat.long2<-ddply(dat.long, .(read_day,Free_run_trik_position,bins), summarise, counts = sum(counts),light_status=mean(light_status),, .drop=FALSE)
+dat.long2<-ddply(dat.long, .(read_day,Free_run_trik_position,bins), summarise, counts = sum(counts),light_status=mean(light_status),.drop=FALSE)
+
 head(dat.long2)
+
+
 ```
 
 ```{r}
@@ -54,7 +62,7 @@ ggplot(t17,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~.)+
 n<-read.csv("../Data/2017-10-16_Trikinetics_cohorts_eclosion.csv")
 n$Free_run_trik_position<-as.numeric(n$Free_run_trik_position)
 dat.long2$Free_run_trik_position<-as.numeric(substr(dat.long2$Free_run_trik_position,2,3))
-
+n<-subset(n,Free_run_trik_monitor==4)
 
 
 
@@ -66,17 +74,30 @@ head(full)
 
 ### extracting 1st cohort
 ```{r}
-#co1<-subset(full, Free_run_entry_date=="2017-10-12" & Free_run_trik_position<10 & read_day !=18)
+co1<-subset(full, Free_run_entry_date=="2017-10-12" & Free_run_trik_position<10 & read_day !=18)
 
-co1<-subset(full, Free_run_entry_date=="10/12/17" & Free_run_trik_position<10 & read_day !=18)
+#co1<-subset(full, Free_run_entry_date=="10/12/17" & Free_run_trik_position<10 & read_day !=18)
 #& read_day!=16 & read_day !=12
 ggplot(co1,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_trik_position~read_day)#+geom_vline(xintercept=201)
 ```
 
 #### extracting 2nd cohort
 ```{r}
-co1.2<-subset(full, Free_run_entry_date=="2017-10-13")
-#& read_day!=16 & read_day !=12
-ggplot(co1.2,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_trik_position~read_day)+geom_vline(xintercept=201)
+co1.2<-subset(full, Free_run_entry_date=="2017-10-13" & read_day!=18 & read_day !=12)
+
+ggplot(co1.2,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_trik_position~read_day)+geom_vline(xintercept=c(60,200))
+
+#ggplot(co1.2,aes(x=bins,y=counts))+geom_bar(stat="identity")+facet_grid(Free_run_trik_position~read_day)#+geom_vline(xintercept=c(60,200))
+
+```
+
+#### extracting 3rd cohort
+```{r}
+co1.3<-subset(full, Free_run_entry_date=="2017-10-14" & read_day!=23 & read_day >14)
+
+#ggplot(co1.3,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_trik_position~read_day)+geom_vline(xintercept=c(60,200))
+
+ggplot(co1.3,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~uniqueID)+geom_vline(xintercept=c(60,200))
+#write.csv(co1.3,"co13.csv")
 ```
 

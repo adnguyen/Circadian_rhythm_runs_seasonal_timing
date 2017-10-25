@@ -18,7 +18,7 @@ library(lubridate)
 #prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_27_prelim_data.txt")
 #prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_29_prelim_data.txt")
 #prelim<-read.table("../Data/raw/Trikinetics/2017-09-27_2017-10-05_prelim_data_monitor2.txt")
-prelim<-read.table("../Data/raw/Trikinetics/2017-09-27_2017-10-12_prelim_Monitor2.txt")
+prelim<-read.table("../Data/raw/Trikinetics/2017-09-26_2017-10-23_Monitor1.txt")
 
 head(prelim)
 #add header
@@ -28,7 +28,8 @@ length(names(prelim))
 names(prelim)<-c(c("index","read_day","read_month","read_year","read_time","monitor_status","extra","unused1","unused2","unused3","unused4","light_status"),paste("t",seq(1,32),sep=""))
 
 ##dropping unused
-prelim.drop<-prelim[-1,-8:-11]
+#prelim.drop<-prelim[-1,-8:-11]
+prelim.drop<-prelim[,-8:-11]
 head(prelim.drop)
 
 ##play with time data
@@ -122,12 +123,13 @@ ggplot(t27,aes(x=as.numeric(bins),y=counts,colour=factor(read_day)))+geom_point(
 ```{r}
 #n<-read.csv("../Data/Trikinetics_cohorts_eclosion.csv")
 n<-read.csv("../Data/2017-10-16_Trikinetics_cohorts_eclosion.csv")
-n$trik_ID<-as.numeric(n$trik_ID)
-prelim.long$trik_ID<-as.numeric(substr(prelim.long$trik_ID,2,3))
-n<-subset(n,Trik_monitor==2)
+n$Trikinetics_position<-as.numeric(n$Trikinetics_position)
+prelim.long$Trikinetics_position<-as.numeric(substr(prelim.long$trik_ID,2,3))
+n<-subset(n,Trik_monitor==1)
 
-full<-inner_join(prelim.long,n,by=c("trik_ID"))
-head(full)
+#full1<-inner_join(prelim.long,n,by=c("Trikinetics_position"))
+full1<-left_join(prelim.long,n,by=c("Trikinetics_position"))
+head(full1)
 
 
 ###creatinga  continuous sequence of time
@@ -233,6 +235,18 @@ ggplot(c4,aes(x=as.numeric(bins),y=counts,colour=organism))+geom_point()+facet_g
 
 ggplot(c4,aes(x=as.numeric(bins),y=counts,colour=factor(day)))+geom_point()+scale_x_continuous(,breaks=seq(0,96,4),labels=seq(0,24,1))+geom_line()+ylim(0,50)
 ```
+
+
+### Cohort 3   ; 2017-10-06
+
+```{r}
+cohort3.1<-subset(full1,eclosion_date=="2017-10-06" & read_day>6 & read_day <14)
+
+dim(cohort3.1)
+
+```
+
+
 
 ### cohort 4
 ```{r}
