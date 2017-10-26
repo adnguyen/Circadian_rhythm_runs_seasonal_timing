@@ -240,10 +240,33 @@ ggplot(c4,aes(x=as.numeric(bins),y=counts,colour=factor(day)))+geom_point()+scal
 ### Cohort 3   ; 2017-10-06
 
 ```{r}
-cohort3.1<-subset(full1,eclosion_date=="2017-10-06" & read_day>6 & read_day <14)
+cohort3.1<-subset(full1,eclosion_date=="2017-10-06" & read_day>6 & read_day <15)
 
 dim(cohort3.1)
 
+ggplot(cohort3.1,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~uniqueID)+geom_vline(xintercept=c(60,200))
+
+
+cohort3.1.1<-subset(cohort3.1,uniqueID=="2b35")
+cohort3.1.1<-cohort3.1.1[order(cohort3.1.1$read_day),]
+cohort3.1.1$cont_time<-seq(1,length(cohort3.1.1$read_day),1)
+ggplot(cohort3.1.1,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~uniqueID)+geom_vline(xintercept=c(60,200))
+
+cwt.3.1<-morlet(y1=cohort3.1.1$counts,x1=cohort3.1.1$cont_time)
+str(cwt.3.1)
+wavelet.plot(cwt.3.1)
+
+
+
+
+#######
+w1.1<-wavCWT(cohort3.1.1$counts,wavelet="gaussian2")
+w2.1<-wavCWTTree(w1.1)
+summary(w2.1)
+
+w3.1<-wavCWTPeaks(w2.1)
+plot(w3.1)
+plot(summary(w2.1)$Max,summary(w2.1)$Octaves)
 ```
 
 

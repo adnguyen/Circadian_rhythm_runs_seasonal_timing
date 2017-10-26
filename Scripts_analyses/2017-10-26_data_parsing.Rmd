@@ -1,0 +1,62 @@
+---
+title: "Data parsing"
+output: html_document
+---
+
+### Libraries
+
+```{r loading libraries}
+library(ggplot2)
+```
+
+
+### Read in each monitor and combine them and having a column ID assocaited with mointor
+
+```{r}
+d1<-read.table("../Data/raw/Trikinetics/2017-09-26_2017-10-23_Monitor1.txt")
+names(d1)<-c(c("index","read_day","read_month","read_year","read_time","monitor_status","extra","unused1","unused2","unused3","unused4","light_status"),paste("t",seq(1,32),sep=""))
+d1$Monitor<-rep("1",length(d1$index))
+str(d1)
+
+
+d2<-read.table("../Data/raw/Trikinetics/2017-09-26_2017-10-23_Monitor2.txt")
+names(d2)<-c(c("index","read_day","read_month","read_year","read_time","monitor_status","extra","unused1","unused2","unused3","unused4","light_status"),paste("t",seq(1,32),sep=""))
+d2$Monitor<-rep("2",length(d2$index))
+str(d2)
+
+
+d3<-read.table("../Data/raw/Trikinetics/2017-10-12_2017-10-23_Monitor3.txt")
+names(d3)<-c(c("index","read_day","read_month","read_year","read_time","monitor_status","extra","unused1","unused2","unused3","unused4","light_status"),paste("t",seq(1,32),sep=""))
+d3$Monitor<-rep("3",length(d3$index))
+str(d3)
+
+
+d4<-read.table("../Data/raw/Trikinetics/2017-10-12_2017-10-23_Monitor4.txt")
+names(d4)<-c(c("index","read_day","read_month","read_year","read_time","monitor_status","extra","unused1","unused2","unused3","unused4","light_status"),paste("t",seq(1,32),sep=""))
+d4$Monitor<-rep("4",length(d4$index))
+head(d4$Monitor,100)
+#str(d4)
+
+full.raw<-rbind(d1,d2,d3,d4)
+str(full.raw)
+dim(full.raw)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+### Session info
+
+```{r session info}
+sessionInfo()
+
+```
