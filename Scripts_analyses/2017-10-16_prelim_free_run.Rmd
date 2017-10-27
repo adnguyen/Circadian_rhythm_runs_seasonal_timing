@@ -120,13 +120,16 @@ dwt.1<-dwt(cbind(co1.3.1$counts,co1.3.1$cont_time))
 summary(dwt.1,n.levels=2)
 dwt.2<-align(dwt.1)
 plot.dwt(dwt.2)
+par(mfrow=c(1,1),mar=c(5,5,5,5))
+
 
 str(dwt.2)
 
 plot(dwt.2@V[[9]],dwt.2@W[[9]])
 
 plot(co1.3.1$cont_time,co1.3.1$counts)
-barplot(co1.3.1$counts)
+barplot(co1.3.1$counts,names.arg=co1.3.1$cont_time)
+
 
 ##continuous wavelet transformation
 library(dplR)
@@ -150,9 +153,11 @@ lines(cwt.1$x,sqrt(cwt.1$Power[,4]),col="red")
 
 ```{r}
 library(WaveletComp)
-my.w<-analyze.wavelet(co1.3.1,"counts",upperPeriod=240,loess.span=0,make.pval = T, n.sim = 10)
+my.w<-analyze.wavelet(co1.3.1,"counts",upperPeriod=240,loess.span=0,make.pval = T, n.sim = 10,dj = 1/20)
 wt.image(my.w,color.key="quantile",n.levels=250,legend.params=list(lab="wavelet power levels"),plot.ridge=TRUE,lwd=5)
 str(my.w)
 reconstruct(my.w)
 #plot(my.w$Period,my.w$Ampl)
+par(mar=c(5,5,5,5),mfrow=c(1,1))
+#reconstruct(my.w,sel.period=c(10,120))
 ```
