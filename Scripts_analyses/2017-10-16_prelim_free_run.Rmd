@@ -28,10 +28,19 @@ dat$read_time<-hms(dat$read_time)
 dat$hour = hour(dat$read_time) + minute(dat$read_time)/60
 
 #bins=c(paste0(rep(c(paste0(0,0:9),10:23), each=4),":", c("00",15,30,45))[-1],"24:00")
+
+#.1 hour bins
 bins=c(paste0(rep(c(paste0(0,0:9),10:23), each=10),":", c("00",6,12,18,24,30,36,42,48,54))[-1],"24:00")
 
 dat$bins=cut(dat$hour,breaks=seq(0,24,.1),labels=bins)
 head(dat)
+
+
+#### 1 hour bins
+#bins=c(paste0(rep(c(paste0(0,0:9),10:23), each=1),":", c("00"))[-1],"24:00")
+
+#dat$bins=cut(dat$hour,breaks=seq(0,24,1),labels=bins)
+#head(dat)
 
 
 ### changing wide to long format
@@ -47,15 +56,6 @@ head(dat.long2)
 
 ```
 
-```{r}
-dat.long3<-subset(dat.long2,read_day !=18 & read_day !=12)
-#ggplot(dat.long3,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(trik_ID~read_day)
-
-##lookg at 17th position
-t17<-subset(dat.long3,Free_run_trik_position=="t17" & read_day !=16 & read_day !=12)
-ggplot(t17,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~.)+geom_vline(xintercept = 201)
-
-```
 
 ### cohort list
 ```{r}
@@ -68,6 +68,8 @@ n<-subset(n,Free_run_trik_monitor==4)
 
 full<-inner_join(dat.long2,n,by=c("Free_run_trik_position"))
 head(full)
+
+
 ```
 
 
@@ -83,7 +85,8 @@ ggplot(co1,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_tri
 
 #### extracting 2nd cohort
 ```{r}
-co1.2<-subset(full, Free_run_entry_date=="2017-10-13" & read_day!=18 & read_day !=12)
+#co1.2<-subset(full, Free_run_entry_date=="2017-10-13" & read_day!=18 & read_day !=12)
+co1.2<-subset(full, Free_run_entry_date=="10/13/2017" & read_day!=18 & read_day !=12)
 
 ggplot(co1.2,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_trik_position~read_day)+geom_vline(xintercept=c(60,200))
 
@@ -93,11 +96,68 @@ ggplot(co1.2,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_t
 
 #### extracting 3rd cohort
 ```{r}
-co1.3<-subset(full, Free_run_entry_date=="2017-10-14" & read_day!=23 & read_day >14)
+#co1.3<-subset(full, Free_run_entry_date=="2017-10-14" & read_day!=23 & read_day >14)
+co1.3<-subset(full, Free_run_entry_date=="10/14/17" & read_day!=23 & read_day >14)
 
-#ggplot(co1.3,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(Free_run_trik_position~read_day)+geom_vline(xintercept=c(60,200))
+ggplot(co1.3,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(uniqueID~read_day)+geom_vline(xintercept=c(60,200))
 
-ggplot(co1.3,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~uniqueID)+geom_vline(xintercept=c(60,200))
+ggplot(co1.3,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~uniqueID)#+geom_vline(xintercept=c(60,200))
 #write.csv(co1.3,"co13.csv")
+
+#ggplot(co1.3,aes(x=as.numeric(bins),y=counts))+geom_bar(stat="identity")+facet_grid(read_day~uniqueID)
+
+###subsetting out 1 
+co1.3.1<-subset(co1.3,uniqueID=="2b35")
+ggplot(co1.3.1,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~uniqueID)
+co1.3.1$day<-sort(rep(1:length(unique(co1.3.1$read_day)),summary(as.factor(co1.3.1$read_day))[1]))
+#co1.3.1$cont_time<-seq(1,length(co1.3.1$read_day),1)
+co1.3.1$cont_time<-seq(from=.1,length.out=length(co1.3.1$read_day),by=.1)
+
+
+###discrete wavelet analysis
+library(wavelets)
+dwt.1<-dwt(cbind(co1.3.1$counts,co1.3.1$cont_time))
+summary(dwt.1,n.levels=2)
+dwt.2<-align(dwt.1)
+plot.dwt(dwt.2)
+par(mfrow=c(1,1),mar=c(5,5,5,5))
+
+
+str(dwt.2)
+
+plot(dwt.2@V[[9]],dwt.2@W[[9]])
+
+plot(co1.3.1$cont_time,co1.3.1$counts)
+barplot(co1.3.1$counts,names.arg=co1.3.1$cont_time)
+
+
+##continuous wavelet transformation
+library(dplR)
+cwt.1<-morlet(y1=co1.3.1$counts,x1=co1.3.1$cont_time)
+str(cwt.1)
+wavelet.plot(cwt.1)
+
+#plot(cwt.1$wave[128,],cwt.1$period)
+plot(cwt.1$wave[,29],cwt.1$Power[,29])
+
+plot(cwt.1$x,cwt.1$wave[,29],type="l",col="blue",lwd=2)
+lines(cwt.1$x,sqrt(cwt.1$Power[,29]),col="red")
+
+plot(cwt.1$x,cwt.1$wave[,4],type="l",col="blue",lwd=2)
+lines(cwt.1$x,sqrt(cwt.1$Power[,4]),col="red")
+
 ```
 
+
+### trying out WaveletComp package
+
+```{r}
+library(WaveletComp)
+my.w<-analyze.wavelet(co1.3.1,"counts",upperPeriod=240,loess.span=0,make.pval = T, n.sim = 10,dj = 1/20)
+wt.image(my.w,color.key="quantile",n.levels=250,legend.params=list(lab="wavelet power levels"),plot.ridge=TRUE,lwd=5)
+str(my.w)
+reconstruct(my.w)
+#plot(my.w$Period,my.w$Ampl)
+par(mar=c(5,5,5,5),mfrow=c(1,1))
+#reconstruct(my.w,sel.period=c(10,120))
+```
