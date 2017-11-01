@@ -116,17 +116,28 @@ co1.3.1$cont_time<-seq(from=.1,length.out=length(co1.3.1$read_day),by=.1)
 
 ###discrete wavelet analysis
 library(wavelets)
-dwt.1<-dwt(cbind(co1.3.1$counts,co1.3.1$cont_time))
-summary(dwt.1,n.levels=2)
+dwt.1<-dwt(cbind(co1.3.1$counts,co1.3.1$cont_time),n.levels=9,boundary="periodic")
+summary(dwt.1)
 dwt.2<-align(dwt.1)
 plot.dwt(dwt.2)
+par(mfrow=c(1,1),mar=c(5,5,5,5))
+
 
 str(dwt.2)
 
 plot(dwt.2@V[[9]],dwt.2@W[[9]])
+plot(dwt.2@V[[8]],dwt.2@W[[8]])
+plot(dwt.2@V[[7]],dwt.2@W[[7]])
 
 plot(co1.3.1$cont_time,co1.3.1$counts)
-barplot(co1.3.1$counts)
+#barplot(co1.3.1$counts,names.arg=co1.3.1$cont_time)
+
+### maximum overlap discrete wavelet transformation  
+modwt.1<-modwt(cbind(co1.3.1$counts,co1.3.1$cont_time),boundary="periodic")
+summary(modwt.1)
+plot.modwt(modwt.1)
+par(mfrow=c(1,1),mar=c(5,5,5,5))
+str(modwt.1)
 
 ##continuous wavelet transformation
 library(dplR)
@@ -150,8 +161,33 @@ lines(cwt.1$x,sqrt(cwt.1$Power[,4]),col="red")
 
 ```{r}
 library(WaveletComp)
-my.w<-analyze.wavelet(co1.3.1,"counts")
-wt.image(my.w,color.key="quantile",n.levels=250)
+my.w<-analyze.wavelet(co1.3.1,"counts",upperPeriod=240,loess.span=0,make.pval = T, n.sim = 10,dj = 1/20)
+wt.image(my.w,color.key="quantile",n.levels=250,legend.params=list(lab="wavelet power levels"),plot.ridge=TRUE,lwd=5)
 str(my.w)
+reconstruct(my.w)
 #plot(my.w$Period,my.w$Ampl)
+par(mar=c(5,5,5,5),mfrow=c(1,1))
+#reconstruct(my.w,sel.period=c(10,120))
+
+
+#
+colSums(my.w$Ridge)
+ridge=my.w$Period*my.w$Ridge
+ridge[ridge==0]=NA
+
+```
+
+
+#### wavethresh
+
+```{r}
+library(wavethresh)
+t1<-wd(co1.3.1$counts[1:1024],type="wavelet",bc="periodic")
+plot(t1)
+
+ac<-accessC.wd(t1,level=9)
+ad<-accessD.wd(t1,level=3)
+
+plot(ac,type="l",col="orange")
+lines(co1.3.1$counts[1:1024]/2,col="red")
 ```
