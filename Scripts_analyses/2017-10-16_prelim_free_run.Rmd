@@ -116,7 +116,7 @@ co1.3.1$cont_time<-seq(from=.1,length.out=length(co1.3.1$read_day),by=.1)
 
 ###discrete wavelet analysis
 library(wavelets)
-dwt.1<-dwt(cbind(co1.3.1$counts,co1.3.1$cont_time),n.levels=3,boundary="periodic")
+dwt.1<-dwt(cbind(co1.3.1$counts,co1.3.1$cont_time),n.levels=9,boundary="periodic")
 summary(dwt.1)
 dwt.2<-align(dwt.1)
 plot.dwt(dwt.2)
@@ -130,8 +130,14 @@ plot(dwt.2@V[[8]],dwt.2@W[[8]])
 plot(dwt.2@V[[7]],dwt.2@W[[7]])
 
 plot(co1.3.1$cont_time,co1.3.1$counts)
-barplot(co1.3.1$counts,names.arg=co1.3.1$cont_time)
+#barplot(co1.3.1$counts,names.arg=co1.3.1$cont_time)
 
+### maximum overlap discrete wavelet transformation  
+modwt.1<-modwt(cbind(co1.3.1$counts,co1.3.1$cont_time),boundary="periodic")
+summary(modwt.1)
+plot.modwt(modwt.1)
+par(mfrow=c(1,1),mar=c(5,5,5,5))
+str(modwt.1)
 
 ##continuous wavelet transformation
 library(dplR)
