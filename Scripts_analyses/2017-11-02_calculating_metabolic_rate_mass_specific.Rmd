@@ -14,18 +14,29 @@ time.x = hour(t) + minute(t)/60
 
 d<-seq(time.x[1],time.x[2],length.out=154)
 
+d
 ###for whole dataset 
 x<-read.csv("../Data/2017-10-27_data_slice.csv")
+
+#day 10 resp
+##purge
 x$purge_time_1<-hm(x$purge_time_1)
 x$purge1<-hour(x$purge_time_1) + minute(x$purge_time_1)/60
+###resp time
+x$resp_time1<-hms(x$resp_time_1)
+x$resp1<-hour(x$resp_time1) + minute(x$resp_time1)/60
 
-#new.x<-ddply(x,.(cohort_day,tape),transform,seq(from=min(purge1,na.rm=TRUE),to=max(purge1,na.rm=TRUE),length.out=length(purge1)))
-
-new.length<-ddply(x[,-5],.(cohort_day,tape),summarize,length=length(na.omit(purge1)))
-
-#new.length<-ddply(x[,-2],.(cohort_day,tape),transform,length=length(purge1))
-
+###purge time
 new.x<-ddply(x,.(collection_date,cohort_day,tape),transform,ftime=seq(from=min(purge1,na.rm=TRUE),to=max(purge1,na.rm=TRUE),length.out=length(tape)))
+
+
+###resp time
+#ddply(x,.(collection_date,cohort_day,tape),summarize,counts=length(tape),min=min(resp1,na.rm=TRUE))
+
+new.x2<-ddply(x,.(collection_date,cohort_day,tape),transform,ftime2=seq(from=min(resp1,na.rm=TRUE),to=max(resp1,na.rm=TRUE),length.out=length(tape)))
+#fulltime=(24-ftime)+ftime2
+head(new.x)
+
 
 ```
 
