@@ -153,7 +153,9 @@ plot(modwt.2@series[,2],modwt.2@W[[4]][,1],type="l",ylim=c(-20,70))
 lines(co1.3.1$cont_time,co1.3.1$counts,col="red")
 lines(modwt.2@series[,2],modwt.2@V[[4]][,1],col="purple")
 
-
+#plot(modwt.2@series[,2],modwt.2@W[[8]][,1],type="l",ylim=c(-20,70))
+#lines(co1.3.1$cont_time,co1.3.1$counts,col="red")
+#lines(modwt.2@series[,2],modwt.2@V[[8]][,1],col="purple")
 
 ###multi resolution analysis 
 mra1<-mra(cbind(co1.3.1$counts,co1.3.1$cont_time),boundary="periodic",n.levels=8)
@@ -175,6 +177,10 @@ lines(cwt.1$x,sqrt(cwt.1$Power[,29]),col="red")
 plot(cwt.1$x,cwt.1$wave[,4],type="l",col="blue",lwd=2)
 lines(cwt.1$x,sqrt(cwt.1$Power[,4]),col="red")
 
+#cbind(cwt.1$wave[,29],cwt.1$Power[,29])
+
+
+
 ```
 
 
@@ -182,7 +188,7 @@ lines(cwt.1$x,sqrt(cwt.1$Power[,4]),col="red")
 
 ```{r}
 library(WaveletComp)
-my.w<-analyze.wavelet(co1.3.1,"counts",upperPeriod=240,loess.span=0,make.pval = T, n.sim = 10,dj = 1/20)
+my.w<-analyze.wavelet(co1.3.1,"counts",upperPeriod=240,loess.span=0,make.pval = T, n.sim = 10)#,dj = 1/20)
 wt.image(my.w,color.key="quantile",n.levels=250,legend.params=list(lab="wavelet power levels"),plot.ridge=TRUE,lwd=5)
 str(my.w)
 reconstruct(my.w)
@@ -191,11 +197,53 @@ par(mar=c(5,5,5,5),mfrow=c(1,1))
 #reconstruct(my.w,sel.period=c(10,120))
 
 
-#
-colSums(my.w$Ridge)
-ridge=my.w$Period*my.w$Ridge
-ridge[ridge==0]=NA
+##looking at diff periods
+##slice at 3
+#per3<-data.frame(cbind(co1.3.1$cont_time,my.w$Ampl[13,],my.w$Ridge[13,]))
+per3<-data.frame(cbind(co1.3.1$cont_time,my.w$Ampl[7,],my.w$Ridge[7,]))
+head(per3)
+subset(per3,X3>0.5)
 
+##plot
+plot(co1.3.1$cont_time,co1.3.1$counts,type="l",ylim=c(-20,70),main="2.46 period")
+#lines(co1.3.1$cont_time,my.w$Wave[13,],col="red")
+#lines(co1.3.1$cont_time,my.w$Power[13,])
+lines(co1.3.1$cont_time,my.w$Wave[7,],col="red")
+lines(co1.3.1$cont_time,my.w$Power[7,])
+abline(v=subset(per3,X3>0.5)$X1,col="blue")
+
+
+
+##slice at 9
+per9<-data.frame(cbind(co1.3.1$cont_time,my.w$Ampl[42,],my.w$Ridge[42,]))
+head(per9)
+subset(per9,X3>0.5)
+
+##plot
+plot(co1.3.1$cont_time,co1.3.1$counts,type="l",ylim=c(-20,70),main="9 hr period")
+lines(co1.3.1$cont_time,my.w$Wave[42,],col="red")
+lines(co1.3.1$cont_time,my.w$Power[42,])
+abline(v=subset(per9,X3>0.5)$X1,col="blue")
+abline(v=seq(0,192,24),col="purple",lty="dotdash")
+
+##slice at 24
+per24<-data.frame(cbind(co1.3.1$cont_time,my.w$Ampl[73,],my.w$Ridge[73,],my.w$Power[73,]))
+head(per24)
+subset(per24,X3>0.5)
+
+##plots
+plot(co1.3.1$cont_time,co1.3.1$counts,type="l",ylim=c(-20,70),main="24 hr period")
+lines(co1.3.1$cont_time,my.w$Wave[73,],col="red")
+lines(co1.3.1$cont_time,my.w$Power[73,])
+abline(v=subset(per24,X3>0.5)$X1,col="blue")
+abline(v=seq(0,192,24),col="purple",lty="dotdash")
+
+#sqrt(subset(per24,X3>0.5)$X4)
+
+### slice at 48
+per48<-data.frame(cbind(co1.3.1$cont_time,my.w$Ampl[93,],my.w$Ridge[93,]))
+head(per48)
+subset(per48,X3>0.5)
 ```
 
 
