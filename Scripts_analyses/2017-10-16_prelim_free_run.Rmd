@@ -135,21 +135,24 @@ plot(co1.3.1$cont_time,co1.3.1$counts)
 ### maximum overlap discrete wavelet transformation  
 modwt.1<-modwt(cbind(co1.3.1$counts,co1.3.1$cont_time),boundary="periodic")
 summary(modwt.1)
-plot.modwt(modwt.1)
+modwt.2<-align(modwt.1)
+plot.modwt(modwt.2)
 par(mfrow=c(1,1),mar=c(5,5,5,5))
-str(modwt.1)
+str(modwt.2)
 
 
 #modwt plots
-plot(modwt.1@V$V1[,1],modwt.1@W$W1[,1])
-plot(modwt.1@V$V2[,1],modwt.1@W$W2[,1])
-
-plot(modwt.1@V$V2[,1],modwt.1@W$W2[,1])
 
 ##plotting transformation
-plot(modwt.1@series[,2],modwt.1@W$W2[,1],type="l",ylim=c(-20,70))
+plot(modwt.2@series[,2],modwt.2@W[[2]][,1],type="l",ylim=c(-20,70))
 #lines(co1.3.1$cont_time,co1.3.1$counts,col="red")
-lines(modwt.1@series[,2],modwt.1@V$V2[,1],col="purple")
+lines(modwt.2@series[,2],modwt.2@V[[2]][,1],col="purple")
+
+
+plot(modwt.2@series[,2],modwt.2@W[[4]][,1],type="l",ylim=c(-20,70))
+lines(co1.3.1$cont_time,co1.3.1$counts,col="red")
+lines(modwt.2@series[,2],modwt.2@V[[4]][,1],col="purple")
+
 
 
 ###multi resolution analysis 
