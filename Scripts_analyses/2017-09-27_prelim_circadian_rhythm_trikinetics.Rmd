@@ -240,8 +240,8 @@ ggplot(c4,aes(x=as.numeric(bins),y=counts,colour=factor(day)))+geom_point()+scal
 ### Cohort 3   ; 2017-10-06
 
 ```{r}
-cohort3.1<-subset(full1,eclosion_date=="2017-10-06" & read_day>6 & read_day <15)
-
+#cohort3.1<-subset(full1,eclosion_date=="2017-10-06" & read_day>6 & read_day <15)
+cohort3.1<-subset(full1,eclosion_date=="10/6/17" & read_day>6 & read_day <15)
 dim(cohort3.1)
 
 ggplot(cohort3.1,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(read_day~uniqueID)+geom_vline(xintercept=c(60,200))
@@ -267,35 +267,59 @@ summary(w2.1)
 w3.1<-wavCWTPeaks(w2.1)
 plot(w3.1)
 plot(summary(w2.1)$Max,summary(w2.1)$Octaves)
+
+
+
+
+### continuous wavelet analysis
+library(WaveletComp)
+my.we<-analyze.wavelet(cohort3.1.1,"counts",upperPeriod=240,loess.span=0,make.pval = T, n.sim = 10)#,dj = 1/20)
+wt.image(my.we,color.key="quantile",n.levels=250,legend.params=list(lab="wavelet power levels"),plot.ridge=TRUE,lwd=5)
+str(my.we)
+reconstruct(my.we)
+#plot(my.w$Period,my.w$Ampl)
+par(mar=c(5,5,5,5),mfrow=c(1,1))
+
+
+##slice at 9
+per9<-data.frame(cbind(co1.3.1$cont_time,my.we$Ampl[42,],my.we$Ridge[42,]))
+head(per9)
+subset(per9,X3>0.5)
+
+##plot
+plot(co1.3.1$cont_time,cohort3.1.1$counts,type="l",ylim=c(-20,70),main="9 hr period")
+lines(co1.3.1$cont_time,my.we$Wave[42,],col="red")
+lines(co1.3.1$cont_time,my.we$Power[42,])
+abline(v=subset(per9,X3>0.5)$X1,col="blue")
+abline(v=seq(0,192,24),col="purple",lty="dotdash")
+
+##slice at 24
+per24<-data.frame(cbind(co1.3.1$cont_time,my.we$Ampl[73,],my.we$Ridge[73,],my.we$Power[73,]))
+head(per24)
+subset(per24,X3>0.5)
+
+##plots
+plot(co1.3.1$cont_time,cohort3.1.1$counts,type="l",ylim=c(-20,70),main="24 hr period")
+lines(co1.3.1$cont_time,my.w$Wave[73,],col="red")
+lines(co1.3.1$cont_time,my.w$Power[73,])
+abline(v=subset(per24,X3>0.5)$X1,col="blue")
+abline(v=seq(0,192,24),col="purple",lty="dotdash")
+
+
+##discrete wavelet analysis
+
+modwt.3<-modwt(cbind(cohort3.1.1$counts,cohort3.1.1$cont_time),boundary="periodic")
+summary(modwt.3)
+modwt.4<-align(modwt.3)
+plot.modwt(modwt.4)
+par(mfrow=c(1,1),mar=c(5,5,5,5))
+str(modwt.4)
+
+
 ```
 
 
 
-### cohort 4
-```{r}
-cohort4<-subset(full,trik_cohort==7 & read_day>4 & read_day <13)
-cohort4.2<-inner_join(cohort4,daydat,by=c("read_day"))
-#c2<-na.omit(ddply(c2,.(trik_ID),transform,read_day=sort(read_day)))
-cohort4.3<-ddply(cohort4.2,.(trik_ID),transform,read_day=sort(read_day))
-
-ggplot(cohort4.3,aes(x=as.numeric(bins),y=counts))+geom_line()+facet_grid(trik_ID~read_day)
-
-t21<-subset(cohort4.3,trik_ID=="21")
-t21<-t21[order(t21$read_day),]
-t21$time<-seq(1,1928,1)
-obj2<-morlet(y1=t21$counts,x1=t21$time)
-str(obj2)
-wavelet.plot(obj2)
-
-
-t25<-subset(cohort4.3,trik_ID=="25")
-t25<-t25[order(t25$read_day),]
-t25$time<-seq(1,1928,1)
-obj3<-morlet(y1=t25$counts,x1=t25$time)
-str(obj3)
-wavelet.plot(obj3)
-
-```
 
 ### looking at data continuously
 
