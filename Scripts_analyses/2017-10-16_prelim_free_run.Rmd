@@ -146,16 +146,16 @@ Jcirc <- floor(log2(round(24/.1)))
 DJt_circ <- wavMRDSum(co1.3.1$count,levels=Jcirc,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
 DJt_circ
 
-plot(co1.3.1$count,type="l",col="red")
-points(DJt_circ,col="purple")
+#plot(co1.3.1$count,type="l",col="red")
+#points(DJt_circ,col="purple")
 
 library(pracma)
 IBL<-data.frame(findpeaks(DJt_circ))
 names(IBL)<-c("Height","mid_time","initial_time","final_time")
-plot(IBL)
+#plot(IBL)
 diff(IBL$mid_time)
 
-plot(IBL$mid_time[-1],diff(IBL$mid_time),)
+plot(IBL$mid_time[-1],diff(IBL$mid_time),xlab="time (.1 hr)",ylab="interval in .1 hr")
 lines(loess(diff(IBL$mid_time)~IBL$mid_time[-1],span=1))
 
 plot(IBL[,2:1])
