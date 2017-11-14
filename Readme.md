@@ -110,3 +110,72 @@ imm making make change
   * Free_run_entry_time: the time when a sample entered the free- run experiment
   * notes_3: notes for free run experiment
 
+
+
+
+# typora
+
+```mermaid
+graph TD
+
+A[Ragland lab] --> B[Hahn Lab]
+```
+
+
+
+[hyperlinked words](https://github.com/adnguyen/Notebooks_and_Protocols/blob/master/2016_notebook.md#id-section14)
+
+![](http://myrmecos.net/wp-content/uploads/2011/02/army_ant_week.jpg)
+
+
+
+
+
+* list 1
+* list 2
+* list 3
+
+
+
+1. list 1
+2. list 2
+3. List 3
+
+
+
+check out the new [analyses](https://github.com/adnguyen/Notebooks_and_Protocols/blob/master/2017_notebook.md#model-without-hkgs)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
