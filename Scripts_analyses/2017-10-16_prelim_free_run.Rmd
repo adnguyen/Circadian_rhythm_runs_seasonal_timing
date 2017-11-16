@@ -65,7 +65,7 @@ dat.long2$Free_run_trik_position<-as.numeric(substr(dat.long2$Free_run_trik_posi
 n<-subset(n,Free_run_trik_monitor==4)
 
 
-
+library(dplyr)
 full<-inner_join(dat.long2,n,by=c("Free_run_trik_position"))
 head(full)
 
@@ -143,25 +143,55 @@ str(modwt.2)
 
 ### Tanya Leise suggestion 
 Jcirc <- floor(log2(round(24/.1)))
-DJt_circ <- wavMRDSum(co1.3.1$count,levels=Jcirc,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+DJt_circ <- wavMRDSum(co1.3.1$count,levels=seq(1,7),keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
 DJt_circ
 
 #plot(co1.3.1$count,type="l",col="red")
 #points(DJt_circ,col="purple")
-plot(DJt_circ,col="purple")
+plot(DJt_circ,col=rgb(0,0,.5,.5),type="l")
+points(co1.3.1$count,type="l",col=rgb(.5,0,0,.5))
 
 library(pracma)
-IBL<-data.frame(findpeaks(DJt_circ))
+IBL<-data.frame(findpeaks(DJt_circ,minpeakheight = 1))
 names(IBL)<-c("Height","mid_time","initial_time","final_time")
+IBL
 #plot(IBL)
 diff(IBL$mid_time)
 
-plot(IBL$mid_time[-1],diff(IBL$mid_time),xlab="time (.1 hr)",ylab="interval in .1 hr",type="l")
-lines(loess(diff(IBL$mid_time)~IBL$mid_time[-1],span=1))
+#plot(IBL$mid_time[-1],diff(IBL$mid_time),xlab="time (.1 hr)",ylab="interval in .1 hr",type="l")
 
-plot(IBL[,2:1])
-plot(diff(IBL$mid_time),IBL[-1,1])
-lines(loess(IBL[-1,1]~diff(IBL$mid_time)))
+par(mfrow=c(2,1))
+par(mar=c(1,5,1,5))
+plot(IBL$mid_time[-67],diff(IBL$mid_time),xlab="time (.1 hr)",ylab="interval in .1 hr",xlim=c(0,2000))
+lines(loess(diff(IBL$mid_time)~IBL$mid_time[-67],span=1))
+abline(v=seq(0,2400,240),lty="dotdash")
+
+
+plot(co1.3.1$count,type="l")
+abline(v=seq(0,2400,240),lty="dotdash")
+points(IBL$mid_time,IBL$Height,pch=20,col="red")
+par(mfrow=c(1,1))
+
+
+
+plot(IBL$mid_time,IBL$Height,pch=20,col="black",type="l")
+#plot(IBL$Height[-1],diff(IBL$mid_time),xlab="time (.1 hr)",ylab="interval in .1 hr")
+
+
+hist(diff(IBL$mid_time),20)
+
+###plotting specific ones 
+detail3 <- wavMRDSum(co1.3.1$count,levels=3,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+plot(detail3,type="l")
+d3<-findpeaks(detail3)
+plot(d3[-1,2],diff(d3[,2]),type="l")
+
+detail7 <- wavMRDSum(co1.3.1$count,levels=7,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+plot(detail7,type="l")
+d7<-findpeaks(detail7)
+plot(d7[-1,2],diff(d7[,2]),type="l")
+
+
 #modwt plots
 
 ##plotting transformation
