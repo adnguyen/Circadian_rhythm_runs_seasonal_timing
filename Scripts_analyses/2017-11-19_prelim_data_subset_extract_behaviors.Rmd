@@ -1,0 +1,108 @@
+---
+title: "Grabbing behavioral rhythm data for a subset of individuals"
+author: "Andrew D. Nguyen"
+date: "11/19/2017"
+output: 
+  html_document: 
+    toc: yes
+---
+
+# Goal is to extract behavioral data and link it with master data   
+
+We're taking a subset set of samples out.  
+
+### Load libraries
+```{r loading libraries}
+library(ggplot2)
+library(plyr)
+
+```
+
+### Load in monitor data   
+
+* add header names to the data   
+* for every unique ID, extract behavioral counts
+
+```{r load monitor data}
+m1<-read.table("../Data/raw/Trikinetics/Monitor1.txt")
+m1$monitor<-rep(1,length(m1$V1))
+m2<-read.table("../Data/raw/Trikinetics/Monitor2.txt")
+m2$monitor<-rep(2,length(m2$V1))
+m3<-read.table("../Data/raw/Trikinetics/Monitor3.txt")
+m3$monitor<-rep(3,length(m3$V1))
+m4<-read.table("../Data/raw/Trikinetics/Monitor4.txt")
+m4$monitor<-rep(4,length(m4$V1))
+m5<-read.table("../Data/raw/Trikinetics/Monitor5.txt")
+m5$monitor<-rep(5,length(m5$V1))
+m6<-read.table("../Data/raw/Trikinetics/Monitor6.txt")
+m6$monitor<-rep(6,length(m6$V1))
+
+allm<-rbind(m1,m2,m3,m4,m5,m6)
+
+allm$V2<-paste("20",allm$V4,"-",allm$V3,"-",allm$V2,sep="") # reformatting the date
+allm<-allm[,-3:-4] # excluding time we dont need
+head(allm)
+
+names(allm)<-c("time_step","date","time","trik_status","none1","none2","none3","none4","none5","light_status",paste("t",seq(1,32),sep=""),"monitor")
+
+```
+
+
+**h4o4**  
+
+```{r h4o4}
+#############################################
+###entrainment
+#############################################
+
+### grabbing the data from allm dataset to get the time step, date, time, trik status, light status, monitor, and monitor position for h4o4
+
+###we need to look up and specify the time step that the animal was in the trikinetics rig
+h4o4<-subset(allm,monitor =="1" & time_step <29241 & time_step>20964, select=c("time_step","date","time","trik_status","light_status","monitor","t1")) 
+#dim(h4o4)
+
+#specifying the entrainment part of data
+h4o4$experiment<-rep("Entrainment",length(h4o4$time_step))
+
+##recoding the trik position (needs to be specific to the animal )
+h4o4$trik_position<-rep(1,length(h4o4$time_step))
+
+## renaming trik position to counts
+names(h4o4)[7]<-c("counts") 
+
+
+#############################################
+### free run
+#############################################
+h4o4f<-subset(allm,monitor =="4" & time_step <52917 & time_step>29242, select=c("time_step","date","time","trik_status","light_status","monitor","t19"))
+dim(h4o4f)
+h4o4f$experiment<-rep("Free-run",length(h4o4f$time_step))
+h4o4f$trik_position<-rep(19,length(h4o4f$time_step))
+names(h4o4f)[7]<-c("counts")
+
+
+#### stitching the data together  
+h4o4full<-rbind(h4o4,h4o4f)
+h4o4full$uniqueID<-rep("h4o4",length(h4o4full$time_step))
+head(h4o4full)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Session Information
+
+```{r session info}
+sessionInfo()
+```
+
