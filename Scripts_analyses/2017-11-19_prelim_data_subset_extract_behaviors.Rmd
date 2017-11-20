@@ -88,10 +88,170 @@ head(h4o4full)
 ```
 
 
+**h2b25**
 
+```{r h2b25}
+###entrainment
+h2b25<-subset(allm,monitor =="1" & time_step <30650 & time_step>22063, select=c("time_step","date","time","trik_status","light_status","monitor","t14")) 
 
+h2b25$experiment<-rep("Entrainment",length(h2b25$time_step))
 
+h2b25$trik_position<-rep(14,length(h2b25$time_step))
 
+names(h2b25)[7]<-c("counts") 
+
+###free run
+h2b25f<-subset(allm,monitor =="4" & time_step <52917 & time_step>30650, select=c("time_step","date","time","trik_status","light_status","monitor","t23"))
+dim(h2b25f)
+h2b25f$experiment<-rep("Free-run",length(h2b25f$time_step))
+h2b25f$trik_position<-rep(23,length(h2b25f$time_step))
+names(h2b25f)[7]<-c("counts")
+
+###stitching
+h2b25full<-rbind(h2b25,h2b25f)
+h2b25full$uniqueID<-rep("h2b25",length(h2b25full$time_step))
+head(h2b25full)
+```
+
+**h5o22**
+```{r h5o22}
+###entrainment
+h5o22<-subset(allm,monitor =="2" & time_step <34262 & time_step>26051, select=c("time_step","date","time","trik_status","light_status","monitor","t22")) 
+
+h5o22$experiment<-rep("Entrainment",length(h5o22$time_step))
+
+h5o22$trik_position<-rep(22,length(h5o22$time_step))
+
+names(h5o22)[7]<-c("counts") 
+
+###free run
+h5o22f<-subset(allm,monitor =="3" & time_step <52917 & time_step>34264, select=c("time_step","date","time","trik_status","light_status","monitor","t26"))
+dim(h5o22f)
+h5o22f$experiment<-rep("Free-run",length(h5o22f$time_step))
+h5o22f$trik_position<-rep(26,length(h5o22f$time_step))
+names(h5o22f)[7]<-c("counts")
+
+###stitching
+h5o22full<-rbind(h5o22,h5o22f)
+h5o22full$uniqueID<-rep("h5o22",length(h5o22full$time_step))
+head(h5o22full)
+```
+
+**12b6**
+```{r 12b6}
+###entrainment
+a12b6<-subset(allm,monitor =="1" & time_step <22157 & time_step>15806, select=c("time_step","date","time","trik_status","light_status","monitor","t17")) 
+
+a12b6$experiment<-rep("Entrainment",length(a12b6$time_step))
+
+a12b6$trik_position<-rep(17,length(a12b6$time_step))
+
+names(a12b6)[7]<-c("counts") 
+
+###free run
+a12b6f<-subset(allm,monitor =="4" & time_step <52917 & time_step>22157, select=c("time_step","date","time","trik_status","light_status","monitor","t19"))
+dim(h2b25f)
+a12b6f$experiment<-rep("Free-run",length(a12b6f$time_step))
+a12b6f$trik_position<-rep(19,length(a12b6f$time_step))
+names(a12b6f)[7]<-c("counts")
+
+###stitching
+a12b6full<-rbind(a12b6,a12b6f)
+a12b6full$uniqueID<-rep("a12b6",length(a12b6full$time_step))
+head(a12b6full)
+```
+
+**5w73**
+```{r 5w73}
+a5w73<-subset(allm,monitor =="2" & time_step <34905 & time_step>27492, select=c("time_step","date","time","trik_status","light_status","monitor","t11")) 
+
+a5w73$experiment<-rep("Entrainment",length(a5w73$time_step))
+
+a5w73$trik_position<-rep(11,length(a5w73$time_step))
+
+names(a5w73)[7]<-c("counts") 
+
+###free run
+a5w73f<-subset(allm,monitor =="5" & time_step <52917 & time_step>34905, select=c("time_step","date","time","trik_status","light_status","monitor","t22"))
+dim(a5w73f)
+a5w73f$experiment<-rep("Free-run",length(a5w73f$time_step))
+a5w73f$trik_position<-rep(22,length(a5w73f$time_step))
+names(a5w73f)[7]<-c("counts")
+
+###stitching
+a5w73full<-rbind(a5w73,a5w73f)
+a5w73full$uniqueID<-rep("a5w73",length(a5w73full$time_step))
+head(a5w73full)
+```
+
+**4w66**
+```{r 4w66}
+a4w66<-subset(allm,monitor =="2" & time_step <18896 & time_step>893, select=c("time_step","date","time","trik_status","light_status","monitor","t23")) 
+
+a4w66$experiment<-rep("Entrainment",length(a4w66$time_step))
+
+a4w66$trik_position<-rep(23,length(a4w66$time_step))
+
+names(a4w66)[7]<-c("counts") 
+
+###free run
+a4w66f<-subset(allm,monitor =="3" & time_step <33980 & time_step>18896, select=c("time_step","date","time","trik_status","light_status","monitor","t4"))
+dim(a4w66f)
+a4w66f$experiment<-rep("Free-run",length(a4w66f$time_step))
+a4w66f$trik_position<-rep(4,length(a4w66f$time_step))
+names(a4w66f)[7]<-c("counts")
+
+###stitching
+a4w66full<-rbind(a4w66,a4w66f)
+a4w66full$uniqueID<-rep("a4w66",length(a4w66full$time_step))
+head(a4w66full)
+```
+
+**10w12**
+```{r 10w12}
+a10w12<-subset(allm,monitor =="2" & time_step <18896 & time_step>8120, select=c("time_step","date","time","trik_status","light_status","monitor","t10")) 
+
+a10w12$experiment<-rep("Entrainment",length(a10w12$time_step))
+
+a10w12$trik_position<-rep(10,length(a10w12$time_step))
+
+names(a10w12)[7]<-c("counts") 
+
+###free run
+a10w12f<-subset(allm,monitor =="3" & time_step <52917 & time_step>18896, select=c("time_step","date","time","trik_status","light_status","monitor","t27"))
+dim(a10w12f)
+a10w12f$experiment<-rep("Free-run",length(a10w12f$time_step))
+a10w12f$trik_position<-rep(27,length(a10w12f$time_step))
+names(a10w12f)[7]<-c("counts")
+
+###stitching
+a10w12full<-rbind(a10w12,a10w12f)
+a10w12full$uniqueID<-rep("a10w12",length(a10w12full$time_step))
+head(a10w12full)
+```
+
+**10o49**
+```{r 10o49}
+a10o49<-subset(allm,monitor =="2" & time_step <18896 & time_step>8119, select=c("time_step","date","time","trik_status","light_status","monitor","t2")) 
+
+a10o49$experiment<-rep("Entrainment",length(a10o49$time_step))
+
+a10o49$trik_position<-rep(2,length(a10o49$time_step))
+
+names(a10o49)[7]<-c("counts") 
+
+###free run
+a10o49f<-subset(allm,monitor =="3" & time_step <52917 & time_step>18896, select=c("time_step","date","time","trik_status","light_status","monitor","t28"))
+dim(a10o49f)
+a10o49f$experiment<-rep("Free-run",length(a10o49f$time_step))
+a10o49f$trik_position<-rep(28,length(a10o49f$time_step))
+names(a10o49f)[7]<-c("counts")
+
+###stitching
+a10o49full<-rbind(a10o49,a10o49f)
+a10o49full$uniqueID<-rep("a10o49",length(a10o49full$time_step))
+head(a10o49full)
+```
 
 
 
