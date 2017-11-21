@@ -477,11 +477,12 @@ resp1_conv<-hour(resp1)+minute(resp1)/60
 
 ```{r}
 library(geosphere)
-lat<-c(40.1106,42.7325,43.3361)
-lon<-c(-88.2073,-84.5555,-85.8109)
-site<-c("Urbana","Lansing","Grant")
+lat<-c(40.1106,42.7325,43.3361,29.6516)
+lon<-c(-88.2073,-84.5555,-85.8109,-82.3248)
+site<-c("Urbana","Lansing","Grant","Florida")
 coords<-data.frame(lat,lon,site)
 coords
+
 ##from Filchak et al paper; nature
 
 ##mode for apple = Aug 5, 1991 (julian day 217)
@@ -490,14 +491,37 @@ coords
 doy=c("1991-08-05","1991-09-01")
 
 #daylength(coords,doy=doy)
-grantlight<-data.frame(daylight=daylength(coords$lat[1],1:365),day=seq(1,365))
+urb<-data.frame(daylight=daylength(coords$lat[1],1:365),day=seq(1,365),site=rep("Urbana",365))
+grant<-data.frame(daylight=daylength(coords$lat[3],1:365),day=seq(1,365),site=rep("Grant",365))
+fl<-data.frame(daylight=daylength(29.6516,1:365),day=seq(1,365),site=rep("Florida",365))
 
 
+li<-rbind(urb,grant,fl)
 #plot and then add vertical lines for the mode of emergence 
-ggplot(grantlight,aes(x=day,y=daylight))+geom_line()+geom_vline(xintercept=c(217,244))
-ggplot(grantlight,aes(x=day,y=daylight))+geom_line()+geom_vline(xintercept=c(217,244))
+ggplot(li,aes(x=day,y=daylight,colour=site))+geom_line()+scale_y_continuous(labels=seq(8,16,1),breaks=seq(8,16,1),limits=c(9,16))#+geom_vline(xintercept=c(217,244))
+#ggplot(grantlight,aes(x=day,y=daylight))+geom_line()+geom_vline(xintercept=c(217,244))
 
 #ddply(coords,.(site),summarize,daylength(lat,1:365))
+
+library(maps)
+library(mapdata)
+library(raster)
+library(rnoaa)
+
+
+
+#fort gratiot michigan 9014098
+# clearwater station 8726724
+#t<-coops_search(station_name = c(9014098,8726724), begin_date = 20160101,
+#end_date = 20170101, product = "air_temperature",)
+
+
+#install.packages("devtools")
+#library("devtools")
+#install_github("Ram-N/weatherData")
+library(weatherData)
+
+getSummarizedWeather(station_id="CDG",start_date="2013-09-30")#,end_date="2017-01-01"
 ```
 ### predictions: 
 
