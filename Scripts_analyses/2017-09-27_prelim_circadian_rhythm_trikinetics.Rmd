@@ -497,9 +497,15 @@ fl<-data.frame(daylight=daylength(29.6516,1:365),day=seq(1,365),site=rep("Florid
 
 
 li<-rbind(urb,grant,fl)
+li<-rbind(grant,fl)
 #plot and then add vertical lines for the mode of emergence 
 ggplot(li,aes(x=day,y=daylight,colour=site))+geom_line()+scale_y_continuous(labels=seq(8,16,1),breaks=seq(8,16,1),limits=c(9,16))#+geom_vline(xintercept=c(217,244))
 #ggplot(grantlight,aes(x=day,y=daylight))+geom_line()+geom_vline(xintercept=c(217,244))
+
+###
+sum(grant[,1]-fl[,1])
+plot(seq(1,365),(grant[,1]-fl[,1]),type="l")
+abline(h=0)
 
 #ddply(coords,.(site),summarize,daylength(lat,1:365))
 
@@ -517,11 +523,18 @@ library(rnoaa)
 
 
 #install.packages("devtools")
-#library("devtools")
+library("devtools")
 #install_github("Ram-N/weatherData")
 library(weatherData)
 
 getSummarizedWeather(station_id="CDG",start_date="2013-09-30")#,end_date="2017-01-01"
+
+
+
+
+devtools::install_github("ALShum/rwunderground")
+library(rwunderground)
+### my api key : bf083c6c74df0bc8
 ```
 ### predictions: 
 
