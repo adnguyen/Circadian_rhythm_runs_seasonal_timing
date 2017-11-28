@@ -88,6 +88,7 @@ head(h4o4full)
 ```
 
 
+
 **h2b25**
 
 ```{r h2b25}
@@ -620,6 +621,72 @@ h4w10$trik_position<-rep(9,length(h4w10$time_step))
 
 names(h4w10)[7]<-c("counts") 
 ```
+
+
+
+# some prelim analyses just on h4o4full   
+
+## plots  
+
+```{r}
+plot(h4o4full$counts,type="l")
+h4o4full$date<-as.factor(h4o4full$date)
+##adding time 
+head(h4o4full)
+
+h4o4full$time_hr<-hour(hms(h4o4full$time))+minute(hms(h4o4full$time))/60
+
+```
+
+## bin by 6 minutes
+```{r}
+bins6=c(paste0(rep(c(paste0(0,0:9),10:23), each=10),":", c("00","06",12,18,24,30,36,42,48,54))[-1],"24:00")
+
+h4o4full$bins6=cut(h4o4full$time_hr,breaks=seq(0,24,.1),labels=bins6)
+
+```
+
+## bin by 15 minutes 
+```{r}
+bins15=c(paste0(rep(c(paste0(0,0:9),10:23), each=4),":", c("00",15,30,45))[-1],"24:00")
+h4o4full$bins15=cut(h4o4full$time_hr,breaks=seq(0,24,.25),labels=bins15)
+
+```
+
+### summing based on bins   
+
+```{r}
+
+
+counts15<-ddply(h4o4full,.(date,experiment,bins15),summarize,counts15=sum(counts))
+
+dim(h4o4full)
+dim(counts15)
+
+plot(counts15$counts15,type="l")
+```
+
+
+### Spectral analysis 
+
+```{r}
+
+##15 min bins
+sa1<-spectrum(counts15$counts15)
+
+spx<-sa1$freq/.25
+spy<-2*sa1$spec
+
+plot(spy~spx,xlab="freq",ylab="spectral density",type="l",xlim=c(0,.5))
+
+#library(pracma)
+#findpeaks
+```
+
+
+### Discrete wavelet analysis   
+
+
 
 ### Session Information
 

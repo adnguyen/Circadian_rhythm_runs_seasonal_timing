@@ -20,7 +20,7 @@ library(dplyr)
 library(ggplot2)
 
 
-dat<-read.csv("../Data/2017-08-24_rhagoletis_data_sheet_2017-11-24_dataslice.csv")
+dat<-read.csv("../Data/2017-08-24_rhagoletis_data_sheet_2017-11-26_dataslice.csv")
 str(dat)
 ```
 
@@ -113,7 +113,7 @@ ggplot(dat4,aes(x=MSMR15,y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_
 
 ##day 11 vs day 15
 
-ggplot(dat4,aes(x=MSMR11,y=MSMR15,colour=Host))+geom_point(size=5)+stat_smooth()
+ggplot(dat4,aes(x=MSMR11,y=MSMR15,colour=factor(cohort_day)))+geom_point(size=5)
 
 ###eclosion days
 ggplot(dat4,aes(x=eclosion_days,fill=Host))+geom_histogram(alpha=.5)
