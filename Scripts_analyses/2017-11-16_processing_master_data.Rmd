@@ -36,24 +36,16 @@ str(dat)
 dat$purge1_conv<-hour(hm(dat$purge_time_1))+minute(hm(dat$purge_time_1))/60
 library(plyr)
 ddply(dat,.(collection_date,cohort_day,tape),summarize,sample_sample=length(tape))
-
+dat$purge2_conv<-hour(hm(dat$purge_time_2))+minute(hm(dat$purge_time_2))/60
 #seq(from=min(dat$purge1_conv,na.rm=TRUE),to=max(dat$purge1_conv,na.rm=TRUE),length.out=length(dat$tape))
 #dat2<-ddply(dat,.(collection_date,cohort_day,tape),transform,purge1_seq=seq(from=min(purge1_conv,na.rm=TRUE),to=max(purge1_conv,na.rm=TRUE),length.out=length(tape)))
-
-dim(dat2)
+dat2<-ddply(dat,.(collection_date,cohort_day,tape),transform,purge1_seq=seq(from=min(purge1_conv,na.rm=TRUE),to=max(purge1_conv,na.rm=TRUE),length.out=length(tape)),purge2_seq=seq(from=min(purge2_conv,na.rm=TRUE),to=max(purge2_conv,na.rm=TRUE),length.out=length(tape)))
 
 ###for the resp times, we just need to convert to hours 
 dat2$resp1_seq<-hour(hms(dat$resp_time_1))+minute(hms(dat$resp_time_1))/60
 
 dat2$total_time<-(24-dat2$purge1_seq)+dat2$resp1_seq
-```
 
-## day 15
-```{r}
-dat$purge2_conv<-hour(hm(dat$purge_time_2))+minute(hm(dat$purge_time_2))/60
-
-
-dat2<-ddply(dat,.(collection_date,cohort_day,tape),transform,purge1_seq=seq(from=min(purge1_conv,na.rm=TRUE),to=max(purge1_conv,na.rm=TRUE),length.out=length(tape)),purge2_seq=seq(from=min(purge2_conv,na.rm=TRUE),to=max(purge2_conv,na.rm=TRUE),length.out=length(tape)))
 
 dat2$resp2_seq<-hour(hms(dat$resp_time_2))+minute(hms(dat$resp_time_2))/60
 
