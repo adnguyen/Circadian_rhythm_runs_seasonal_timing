@@ -16,8 +16,10 @@ reading in the data
 
 ```{r}
 library(lubridate)
-dat<-read.csv("2017-08-24_rhagoletis_data_sheet_2017-11-16_dataslice.csv")
+dat<-read.csv("../Data/2017-08-24_rhagoletis_data_sheet_2017-11-26_dataslice.csv")
 str(dat)
+
+#
 ```
 
 
@@ -45,7 +47,32 @@ dat2$total_time<-(24-dat2$purge1_seq)+dat2$resp1_seq
 
 ## day 15
 ```{r}
+dat$purge2_conv<-hour(hm(dat$purge_time_2))+minute(hm(dat$purge_time_2))/60
+ddply(dat,.(collection_date,cohort_day,tape),summarize,sample_sample=length(tape))
 
+dat2<-ddply(dat,.(collection_date,cohort_day,tape),transform,purge2_seq=seq(from=min(purge2_conv,na.rm=TRUE),to=max(purge2_conv,na.rm=TRUE),length.out=length(tape)))
+dim(dat2)
+
+dat2$resp2_seq<-hour(hms(dat$resp_time_2))+minute(hms(dat$resp_time_2))/60
+
+dat2$total_time<-(24-dat2$purge2_seq)+dat2$resp2_seq
+##removing blanks##
+blank.dat<-subset(dat2,Site_name=="Blank")
+
+blank<-ddply(blank.dat,.(collection_date,cohort_day,tape),summarize,blank=mean(resp_day15,na.rm=TRUE))
+
+dat3<-left_join(dat2,blank,by=c("collection_date","cohort_day","tape"))
+dim(dat3)
+
+dat3$resp2_sub<-dat3$resp_day15-dat3$blank
+head(cbind(dat3$resp_day15,dat3$resp2_sub,dat3$blank))
+
+dat3$resp2_sub<-dat3$resp_day15-dat3$blank
+head(cbind(dat3$resp_day15,dat3$resp2_sub,dat3$blank))
+
+dat3$MSMR<-dat3$resp2_sub/dat3$total_time/dat3$mass_day14
+
+dat4<-subset(dat3,Site_name!="Blank")
 ```
 
 
@@ -62,9 +89,11 @@ dat3<-left_join(dat2,blank,by=c("collection_date","cohort_day","tape"))
 dim(dat3)
 
 dat3$resp1_sub<-dat3$resp_day11-dat3$blank
-head(cbind(dat3$resp_day11,dat3$resp1_sub,dat3$blank))
+head(cbind(dat3$resp_day11,dat3$resp2_sub,dat3$blank))
 
+dat3$MSMR<-dat3$resp1_sub/dat3$total_time/dat3$mass_day10
 
+dat4<-subset(dat3,Site_name!="Blank")
 ```
 
 

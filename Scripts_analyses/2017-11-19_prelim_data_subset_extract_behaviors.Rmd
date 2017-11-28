@@ -613,15 +613,23 @@ head(h4w10full)
 ###h8w4 and h8o14 both have not exited the trikinetics###
 **h8w4**
 ```{r h8w4}
-h8w4<-subset(allm,monitor =="1" & time_step <45272 & time_step>34784, select=c("time_step","date","time","trik_status","light_status","monitor","t12"))  
+h8w4<-subset(allm,monitor =="1" & time_step <52917 & time_step>34784, select=c("time_step","date","time","trik_status","light_status","monitor","t12"))
+h8w4$experiment<-rep("Entrainment",length(h8w4$time_step))
 
-h4w10$experiment<-rep("Entrainment",length(h4w10$time_step))
+h8w4$trik_position<-rep(12,length(h8w4$time_step))
 
-h4w10$trik_position<-rep(9,length(h4w10$time_step))
-
-names(h4w10)[7]<-c("counts") 
+names(h8w4)[7]<-c("counts") 
 ```
 
+***h8o14***
+```{r h8o14}
+h8o14<-subset(allm,monitor =="1" & time_step <52917 & time_step>34784, select=c("time_step","date","time","trik_status","light_status","monitor","t6"))
+h8o14$experiment<-rep("Entrainment",length(h8o14$time_step))
+
+h8o14$trik_position<-rep(6,length(h8o14$time_step))
+
+names(h8o14)[7]<-c("counts") 
+```
 
 
 # some prelim analyses just on h4o4full   
