@@ -1,0 +1,213 @@
+---
+title: "calculating mass specific metabolic rate"
+output: 
+  html_document: 
+    toc: yes
+---
+
+# Goal: calculate and visualize mass specific metabolic rate  
+
+resp(mL)/time(hr)/mass(mg) =mass specific metabolic rate 
+
+
+Then we want to compare it between apples and hawthornes   
+
+reading in the data   
+
+```{r}
+library(lubridate)
+library(dplyr)
+library(ggplot2)
+
+
+dat<-read.csv("../Data/2017-08-24_rhagoletis_data_sheet_2017-11-26_dataslice.csv")
+str(dat)
+```
+
+
+## Calculate total time 
+
+### convert time (house:minutes:seconds) to units of hours 
+
+### total time = (24-initial)+ respiormetry_time 
+### day 11
+```{r}
+####creating a sequence for the purge times
+dat$purge1_conv<-hour(hm(dat$purge_time_1))+minute(hm(dat$purge_time_1))/60
+library(plyr)
+ddply(dat,.(collection_date,cohort_day,tape),summarize,sample_sample=length(tape))
+dat$purge2_conv<-hour(hm(dat$purge_time_2))+minute(hm(dat$purge_time_2))/60
+#seq(from=min(dat$purge1_conv,na.rm=TRUE),to=max(dat$purge1_conv,na.rm=TRUE),length.out=length(dat$tape))
+#dat2<-ddply(dat,.(collection_date,cohort_day,tape),transform,purge1_seq=seq(from=min(purge1_conv,na.rm=TRUE),to=max(purge1_conv,na.rm=TRUE),length.out=length(tape)))
+dat2<-ddply(dat,.(collection_date,cohort_day,tape),transform,purge1_seq=seq(from=min(purge1_conv,na.rm=TRUE),to=max(purge1_conv,na.rm=TRUE),length.out=length(tape)),purge2_seq=seq(from=min(purge2_conv,na.rm=TRUE),to=max(purge2_conv,na.rm=TRUE),length.out=length(tape)))
+
+###for the resp times, we just need to convert to hours 
+dat2$resp1_seq<-hour(hms(dat$resp_time_1))+minute(hms(dat$resp_time_1))/60
+
+dat2$total_time<-(24-dat2$purge1_seq)+dat2$resp1_seq
+
+
+dat2$resp2_seq<-hour(hms(dat$resp_time_2))+minute(hms(dat$resp_time_2))/60
+
+dat2$total_time2<-(24-dat2$purge2_seq)+dat2$resp2_seq
+```
+
+
+## Subtract out blanks from each sample for every collection date, cohort day, and tape color  
+
+```{r}
+blank.dat<-subset(dat2,Site_name=="Blank")
+
+blank<-ddply(blank.dat,.(collection_date,cohort_day,tape),summarize,blank11=mean(resp_day11,na.rm=TRUE),blank15=mean(resp_day15,na.rm=TRUE))
+#temporarily adding values for blank cohort 12 haws; day 15 resp
+blank[44,5]<-blank[44,4]
+blank
+
+dat3<-left_join(dat2,blank,by=c("collection_date","cohort_day","tape"))
+dim(dat3)
+
+dat3$resp1_sub<-dat3$resp_day11-dat3$blank11
+dat3$resp2_sub<-dat3$resp_day15-dat3$blank15
+#head(cbind(dat3$resp_day11,dat3$resp1_sub,dat3$blank11))
+
+
+```
+
+
+## Actually doing the caluclation : 
+
+```{r}
+###metabolic rate
+dat3$MR11<-dat3$resp1_sub/dat3$total_time
+dat3$MR15<-dat3$resp2_sub/dat3$total_time
+
+### mass specific metabolic rate
+dat3$MSMR11<-dat3$resp1_sub/dat3$total_time/dat3$mass_day10
+dat3$MSMR15<-dat3$resp2_sub/dat3$total_time/dat3$mass_day14
+
+dat4<-subset(dat3,Site_name!="Blank" &  Resp_code == 1 & MSMR11 > 0 & organism!="wasp") # excluding blanks, wasps, msmr below 0, and experimental ones that don't have both day 11 and day 15
+
+dim(dat4)
+```
+
+# Visualize MSMR    
+
+```{r}
+ggplot(dat4,aes(x=Host,y=MSMR11))+geom_boxplot()
+
+#ggplot(dat4,aes(x=MSMR11,y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_smooth()+xlim(0,.01)+facet_grid(.~factor(Li.cor_1))+ylim(0,90)
+
+
+#day 11
+ggplot(dat4,aes(x=MSMR11,y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_smooth()+xlim(0,.015)+ylim(0,90)+xlab("Mass specific metabolic rate (mL/hr/mg)")
+
+ggplot(dat4,aes(x=log10(MSMR11),y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_smooth()+ylim(0,90)+xlab("Mass specific metabolic rate (mL/hr/mg)")+xlim(-3.5,-1.99)
+
+summary(lm(eclosion_days~log10(MSMR11),data=dat4))
+summary(lm(eclosion_days~log10(MSMR15),data=dat4))
+
+#day 15
+ggplot(dat4,aes(x=MSMR15,y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_smooth()+ylim(0,90)+xlab("Mass specific metabolic rate (mL/hr/mg)")+xlim(0,.01)
+
+##day 11 vs day 15
+
+ggplot(dat4,aes(x=MSMR11,y=MSMR15,colour=factor(cohort_day)))+geom_point(size=5)
+
+
+###subtracting day11-day15
+dat4$MSMR_diff<-dat4$MSMR11-dat4$MSMR15
+ggplot(dat4,aes(x=MSMR_diff,y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_smooth()+ylim(0,90)+xlab("Mass specific metabolic rate (mL/hr/mg)")+xlim(-.015,.01)
+
+
+###eclosion days
+ggplot(dat4,aes(x=eclosion_days,fill=Host))+geom_histogram(alpha=.5,position="identity")
+
+ggplot(dat4,aes(x=eclosion_days,fill=Host))+geom_density(alpha=.5,position="identity")
+
+#ggplot(dat4,aes(x=factor(Li.cor_1),y=MSMR11))+geom_boxplot()
+```
+
+# Visualize metabolic rate   
+
+```{r}
+
+#day 11
+ggplot(dat4,aes(x=MR11,y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_smooth()+ylim(0,90)+xlab("metabolic rate (hr/mg)")+xlim(0,.1)
+
+#day 15
+ggplot(dat4,aes(x=MR15,y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_smooth()+ylim(0,90)+xlab("metabolic rate (hr/mg)")+xlim(0,.1)
+
+
+
+```
+
+
+# Statistical analyses   
+### discriminant analysis using weights, eclosion days, MR to class individuals into diapause or non-diapause   
+
+```{r lda analysis }
+names(dat4)
+
+trait1<-dat4[,c("MSMR11","MSMR15","mass_day10","mass_day14","MR11","MR15","eclosion_days")]
+head(trait1)
+dim(trait1)
+dim(na.omit(trait1))
+trait2<-na.omit(trait1)
+
+library(MASS)
+#specifying groups    
+trait2$groups<-ifelse(trait2$MR15< 0.00375,ifelse(trait2$eclosion_days<35,"non-diapause_lowMR","diapause"),"non-diapause_highMR")
+
+fit1<-lda(groups~mass_day10+mass_day14+MR11+MR15+eclosion_days,data=trait2,CV=FALSE)
+fit1
+fit2<-qda(groups~mass_day10+mass_day14+MR11+MR15+eclosion_days,data=trait2,CV=FALSE)
+#cbind(as.character(fit1$class),trait2$groups)
+
+#predict.lda(oject=fit1,newdata=trait2[,3:7])
+trait3<-data.frame(trait2,predict=as.character(predict(fit1)$class),ld1=predict(fit1)$x[,1],ld2=predict(fit1)$x[,2])
+#trait4<-data.frame(trait2,predict=as.character(predict(fit2)$class),ld1=predict(fit2,b)$x[,1],ld2=predict(fit2)$x[,2])
+
+
+# based on predictions 
+ggplot(trait3,aes(x=ld1,y=ld2,colour=predict))+geom_point(size=5)
+ggplot(trait3,aes(x=ld1,fill=predict))+geom_histogram(alpha=.25,position="identity") 
+
+#comparing to pre-set designations   
+ggplot(trait3,aes(x=ld1,y=ld2,colour=groups))+geom_point(size=5)
+```
+
+
+#### messing with time intervals   
+
+```{r}
+
+t<-interval("2017-11-01 00:01:00","2017-11-13 23:00:00", tzone = tz(start))
+t
+
+s<-seq(as.Date("2017-09-01"),by="days",length.out=100)
+s
+
+x<-read.table("../Data/raw/Trikinetics/Monitor6.txt")
+x$V3<-match(x$V3,month.abb)
+
+
+head(x)
+time<-paste(paste("20",x$V4,"-",x$V3,"-",x$V2,sep=""),x$V5)
+
+test<-data.frame(time=strptime(time,"%Y-%m-%d %H:%M:%S",tz=tz(start)))
+head(test)
+
+
+head(subset(test,time %within% t))
+
+test[test$time %within% t,]
+```
+
+
+
+### Session Info
+
+```{r}
+sessionInfo()
+```
+
