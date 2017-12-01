@@ -38,10 +38,13 @@ m6<-read.table("../Data/raw/Trikinetics/Monitor6.txt")
 m6$monitor<-rep(6,length(m6$V1))
 
 allm<-rbind(m1,m2,m3,m4,m5,m6)
+allm$V3<-match(allm$V3,month.abb)
+
 
 allm$V2<-paste("20",allm$V4,"-",allm$V3,"-",allm$V2,sep="") # reformatting the date
 allm<-allm[,-3:-4] # excluding time we dont need
 head(allm)
+
 
 names(allm)<-c("time_step","date","time","trik_status","none1","none2","none3","none4","none5","light_status",paste("t",seq(1,32),sep=""),"monitor")
 
@@ -661,21 +664,63 @@ h4o4full$bins15=cut(h4o4full$time_hr,breaks=seq(0,24,.25),labels=bins15)
 
 ```
 
+## 30 min bins
+
+```{r}
+bins30=c(paste0(rep(c(paste0(0,0:9),10:23), each=2),":", c("00",30))[-1],"24:00")
+length(bins30)
+h4o4full$bins30=cut(h4o4full$time_hr,breaks=seq(0,24,.5),labels=bins30)
+
+#h4o4full<-h4o4full[order(as.Date(h4o4full$date,format ="%Y/%m/%d")),]
+```
+
+### 1 hour bins  
+
+```{r}
+bins60=c(paste0(rep(c(paste0(0,0:9),10:23), each=1),":", c("00"))[-1],"24:00")
+h4o4full$bins60=cut(h4o4full$time_hr,breaks=seq(0,24,1),labels=bins60)
+```
+
 ### summing based on bins   
 
 ```{r}
 
+## 60 min or 1 hr bins
 
-counts15<-ddply(h4o4full,.(date,experiment,bins15),summarize,counts15=sum(counts))
+counts60<-ddply(h4o4full,.(date,experiment,bins60),summarize,counts60=sum(counts))
 
+#lets try 30 min bins  
+
+counts30<-ddply(h4o4full,.(date,experiment,bins30),summarize,counts30=sum(counts))
+
+## 15 min bins
+counts15<-na.omit(ddply(h4o4full,.(date,experiment,bins15),summarize,counts15=sum(counts)))
+
+#counts15.1<-counts15[order(as.Date(counts15$date,format ="%Y/%m/%d")),]
+
+counts15$time<-seq(0,805.75,.25)[-3224]
+counts15$day<-counts15$time/24
 dim(h4o4full)
 dim(counts15)
 
-plot(counts15$counts15,type="l")
+plot(counts15$day,counts15$counts15,type="l")
+
+
+### 6 min bins
+
+counts06<-ddply(h4o4full,.(date,experiment,bins6),summarize,counts06=sum(counts))
+
+dim(h4o4full)
+dim(counts06)
+
+plot(counts06$counts06,type="l")
+
 ```
 
 
 ### Spectral analysis 
+
+allows smoothing
 
 ```{r}
 
@@ -686,13 +731,226 @@ spx<-sa1$freq/.25
 spy<-2*sa1$spec
 
 plot(spy~spx,xlab="freq",ylab="spectral density",type="l",xlim=c(0,.5))
+plot(spy~spx,xlab="freq",ylab="spectral density",type="l",xlim=c(0,.05))
+1/0.045
 
-#library(pracma)
-#findpeaks
+
+raw.spec1<-spec.pgram(counts15$counts15,taper=0,kernel=c(1,1,1),spans=3,detrend=TRUE)
+plot(raw.spec1,log="no",xlim=c(0,.02))
+(1/.01)/4/24
+
+rs2<-data.frame(f=raw.spec1$freq,s=raw.spec1$spec)
+rs3<-head(rs2[order(rs2$s,decreasing=TRUE),],10)
+## the units of frquency are #cycles/unit time; so in this case #cycles/0.25hr
+#multiply by .25 or divide 4 to get #cycles/hour 
+1/rs3[,1]/4 # hours
+1/rs3[,1]/4/24 # days
+
+
+#(1/head(rs2[order(rs2$s,decreasing=TRUE),],10)[,1])/4/24
+
+#1hr bin
+raw.spec2<-spec.pgram(counts60$counts60,taper=0,kernel=c(1,1,1),spans=3,detrend=TRUE)
+plot(raw.spec2,xlim=c(0,.1))
+1/0.05/24
+
+
+```
+
+### Periodogram ; Discrete fourier transform  
+http://www.di.fc.ul.pt/~jpn/r/fourier/fourier.html#fourier-transform    
+
+Fourier transform explained  https://www.r-bloggers.com/the-fourier-transform-explained-in-one-sentence/
+```{r}
+####
+#https://anomaly.io/detect-seasonality-using-fourier-transform-r/
+
+
+library(TSA)
+
+#60 min 
+pp<-periodogram(counts60$counts60,plot=TRUE,xlim=c(0,.1))
+dd00<-data.frame(freq=pp$freq,pp$spec)
+order00<-dd00[order(-dd00$pp.spec),]
+top00<-head(order00,10);top00
+1/top00$freq/24
+
+#30 min
+p0<-periodogram(counts30$counts30,plot=TRUE,xlim=c(0,.1))
+p0
+
+dd0<-data.frame(freq=p0$freq,p0$spec)
+order0<-dd0[order(-dd0$p0.spec),]
+top0<-head(order0,10);top0
+1/top0$freq/2/24
+
+# 15 min 
+p<-periodogram(counts15$counts15,plot=TRUE,xlim=c(0,.04))
+p
+
+dd<-data.frame(freq=p$freq,p$spec)
+order<-dd[order(-dd$p.spec),]
+top2<-head(order,10);top2
+
+1/top2$freq
+
+(1/top2$freq)/4 # to get hours 
+(1/top2$freq)/4/24 # days
+
+
+
+
+
+### 6 min
+p2<-periodogram(counts06$counts06,plot=TRUE,xlim=c(0,.02))
+dd2<-data.frame(freq=p2$freq,p2$spec)
+order2<-dd2[order(-dd2$p2.spec),]
+top10<-head(order2,10);top2
+1/top10$freq
+
+(1/top10$freq)*10 # to get hours 
+((1/top10$freq)/10)/24 # days
+
+
+plot(p2)
+```
+
+
+### Continuous wavelet analysis 
+http://rstudio-pubs-static.s3.amazonaws.com/9428_1197bd003ebd43c49b429f22ea4f36e5.html     
+
+finding the dominant period   
+
+```{r}
+library(dplR)
+
+# try 1 hour interval
+
+wave.out00 <- morlet(y1 = counts60$counts60, p2 = 8, dj = 0.1, siglvl = 0.95)
+#wave.out00$period <- wave.out00$period
+wavelet.plot(wave.out00)
+
+### 30 min
+wave.out0 <- morlet(y1 = counts30$counts30, p2 = 8, dj = 0.1, siglvl = 0.95)
+#wave.out0$period <- wave.out0$period/2/24
+wave.out0$period <- wave.out0$period/2
+wavelet.plot(wave.out0)
+
+##15 min
+wave.out <- morlet(y1 = counts15$counts15,counts15$day, p2 = 8, dj = 0.1, siglvl = 0.95)
+#wave.out$period <- wave.out$period/4/24
+wave.out$period <- wave.out$period/4
+
+#levs <- quantile(wave.out$Power, c(0, 0.25, 0.5, 0.75, 0.95, 1))
+#wavelet.plot(wave.out, wavelet.levels = levs)
+wavelet.plot(wave.out)
+
+
+wave.avg <- data.frame(power = apply(wave.out$Power, 2, mean), period = (wave.out$period))
+
+findpeaks(wave.avg$power)
+wave.avg[findpeaks(wave.avg$power)[2,2],] #period in hours 
+
+plot(wave.avg$period, wave.avg$power, type = "l")
+abline(v=wave.avg[findpeaks(wave.avg$power)[2,2],])
+
+##6 min
+wave.out2 <- morlet(y1 = counts06$counts06, p2 = 8, dj = 0.1, siglvl = 0.95)
+wave.out2$period <- wave.out2$period/10
+
+levs <- quantile(wave.out$Power, c(0, 0.25, 0.5, 0.75, 0.95, 1))
+#wavelet.plot(wave.out, wavelet.levels = levs)
+wavelet.plot(wave.out2)
+
+
+wave.avg2 <- data.frame(power = apply(wave.out2$Power, 2, mean), period = (wave.out2$period))
+
+findpeaks(wave.avg2$power)
+wave.avg2[findpeaks(wave.avg2$power)[3,2],] #period in days 
+
+plot(wave.avg2$period, wave.avg2$power, type = "l")
+abline(v=wave.avg2[findpeaks(wave.avg2$power)[3,2],])
+
+
+###just free run data 
+free<-subset(counts15,experiment=="Free-run")
+wave.out3 <- morlet(y1 = free$counts15,x1=free$day, p2 = 8, dj = 0.1, siglvl = 0.95)
+wave.out3$period <- wave.out3$period/4
+wavelet.plot(wave.out3)
+#plot(free$day,free$counts15,type="l")
 ```
 
 
 ### Discrete wavelet analysis   
+
+```{r}
+library(wmtsa)
+Jcirc <- floor(log2(round(24/.25)))
+#Jcirc <- floor(log2(round(18/.25)))
+
+#all details
+#DJt_circ <- wavMRDSum(counts15$counts15,levels=seq(1,8),keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+
+#circadian detail
+DJt_circ <- wavMRDSum(counts15$counts15,levels=Jcirc ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+
+#highest detail
+#DJt_circ <- wavMRDSum(counts15$counts15,levels=8 ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+
+DJt_circ
+
+plot(counts15$day,DJt_circ,col=rgb(0,0,.5,.5),type="l")
+points(counts15$day,counts15$counts15,type="l",col=rgb(.5,0,0,.5))
+
+library(pracma)
+IBL<-data.frame(findpeaks(DJt_circ))
+names(IBL)<-c("Height","mid_time","initial_time","final_time")
+IBL
+diff(IBL$mid_time)/4
+hist(diff(IBL$mid_time)/4)
+
+
+
+#plot(IBL$mid_time[-10]/4/24,diff(IBL$mid_time)/4/24)
+#lines(IBL$mid_time[-10]/4/24,diff(IBL$mid_time)/4/24)
+#y=diff(IBL$mid_time)/4/24
+#x=IBL$mid_time[-10]/4/24
+#lines(loess(y~x,span=1))
+dd<-data.frame(int=diff(IBL$mid_time)/4,time=IBL$mid_time[-10]/4/24,lighton=as.numeric(substr(dd$time,1,2))+6/24)
+head(dd)
+dd$zeit<-dd$time-dd$lighton
+plot(dd$time,dd$zeit)
+lines(dd$time,dd$zeit)
+
+
+
+#par(mfrow=c(2,1))
+#par(mar=c(1,5,1,5))
+#plot(IBL$mid_time[-31],diff(IBL$mid_time),xlab="time (.25 hr)",ylab="interval in .25 hr")
+#plot(IBL$mid_time[-5],diff(IBL$mid_time),xlab="time (.25 hr)",ylab="interval in .25 hr")
+plot(IBL$mid_time[-35]/4/24,diff(IBL$mid_time)/4,xlab="time (day)",ylab="interval in hr",las=1)
+#lines(loess(diff(IBL$mid_time)~IBL$mid_time[-31],span=1))
+s<-(IBL$mid_time[-35]/4/24)
+lines(loess(diff(IBL$mid_time)/4~s,span=1))
+abline(v=8,lty="dotdash")
+
+# fitting polynomial function? 
+model<-lm(diff(IBL$mid_time)/4~s+I(s^2)+I(s^3))
+summary(model)
+
+#plot(counts15$counts15,type="l")
+#abline(v=seq(0,4000,96),lty="dotdash")
+#points(IBL$mid_time,IBL$Height,pch=20,col="red")
+#par(mfrow=c(1,1))
+#par(mar=c(5,5,5,5))
+
+
+#t<-data.frame(bout=diff(IBL$mid_time),mid=IBL$mid_time[-5])
+t<-data.frame(bout=diff(IBL$mid_time),mid=IBL$mid_time[-35])
+ggplot(data=t,aes(y=bout,x=mid))+stat_smooth()+geom_point()
+
+#periodogram(t$bout)
+```
 
 
 
