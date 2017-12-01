@@ -735,7 +735,7 @@ plot(spy~spx,xlab="freq",ylab="spectral density",type="l",xlim=c(0,.05))
 1/0.045
 
 
-raw.spec1<-spec.pgram(counts15$counts15,taper=0,kernel=c(1,1,1),spans=3,detrend=TRUE)
+raw.spec1<-spec.pgram(counts15$counts15,taper=0,kernel=c(4),spans=4,detrend=TRUE,log="no")
 plot(raw.spec1,log="no",xlim=c(0,.02))
 (1/.01)/4/24
 
@@ -750,14 +750,17 @@ rs3<-head(rs2[order(rs2$s,decreasing=TRUE),],10)
 #(1/head(rs2[order(rs2$s,decreasing=TRUE),],10)[,1])/4/24
 spec.ar(counts15$counts15)
 spec.ar(counts15$counts15,method="burg")
+val<-spec.ar(counts15$counts15,method="burg")
 
 
 #1hr bin
-raw.spec2<-spec.pgram(counts60$counts60,taper=0.1,kernel=c(1,1,1),spans=3,detrend=TRUE,demean=TRUE)
-plot(raw.spec2,xlim=c(0,.1))
-1/0.05
+raw.spec2<-spec.pgram(counts60$counts60,taper=0.1,,kernel=c(5,5,5),spans=15,detrend=TRUE,demean=TRUE)
+#plot(raw.spec2,xlim=c(0,.1))
 
-
+rs21<-data.frame(f=raw.spec2$freq,s=raw.spec2$spec)
+rs31<-head(rs2[order(rs21$s,decreasing=TRUE),],10)
+1/rs31[,1]/4
+1/rs31[,1]/4/24
 ```
 
 ### Periodogram ; Discrete fourier transform  
