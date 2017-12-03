@@ -720,24 +720,72 @@ plot(counts06$counts06,type="l")
 
 ### Spectral analysis 
 
-allows smoothing
 
+```{r}
+spec.ar(counts15$counts15)
+spec.ar(counts15$counts15,method="burg")
+spec.ar(counts15$counts15,method="yule-walker")
+val<-spec.ar(counts15$counts15,method="burg")
+
+#detrending  
+
+spec.ar(ar(counts15$counts15),plot=TRUE)
+spec.ar(ar(counts15$counts15),method="yule-walker")
+```
+
+### Single spectrum analysis   
+https://cran.r-project.org/web/packages/Rssa/Rssa.pdf
+
+```{r}
+
+#install.packages("Rssa")
+library(Rssa)
+
+s<-ssa(counts15$counts15)
+summary(s)
+
+r<-reconstruct(s)
+plot(r)
+
+ss<-decompose(s)
+
+
+```
+
+
+### Periodogram ; Discrete fourier transform  
+http://www.di.fc.ul.pt/~jpn/r/fourier/fourier.html#fourier-transform    
+
+Fourier transform explained  https://www.r-bloggers.com/the-fourier-transform-explained-in-one-sentence/
 ```{r}
 
 ##15 min bins
 sa1<-spectrum(counts15$counts15)
 
-spx<-sa1$freq/.25
+spx<-sa1$freq
 spy<-2*sa1$spec
+
+pw<-data.frame(spx,spy)
+
 
 plot(spy~spx,xlab="freq",ylab="spectral density",type="l",xlim=c(0,.5))
 plot(spy~spx,xlab="freq",ylab="spectral density",type="l",xlim=c(0,.05))
-1/0.045
+#1/0.045
+
+cc<-head(pw[order(pw$spy,decreasing=TRUE),],4)
+1/cc[,1]/4  ## hours 
+1/cc[,1]/4/24  ## days 
 
 
-raw.spec1<-spec.pgram(counts15$counts15,taper=0,kernel=c(4),spans=4,detrend=TRUE,log="no")
+################################################################################
+##smoothing 
+
+#spec.pgram automatically detrends
+################################################################################
+
+raw.spec1<-spec.pgram(counts15$counts15,taper=0.1,kernel=c(4,4),spans=8,detrend=TRUE,log="no",demean = TRUE)
 plot(raw.spec1,log="no",xlim=c(0,.02))
-(1/.01)/4/24
+#(1/.01)/4/24
 
 rs2<-data.frame(f=raw.spec1$freq,s=raw.spec1$spec)
 rs3<-head(rs2[order(rs2$s,decreasing=TRUE),],10)
@@ -746,31 +794,24 @@ rs3<-head(rs2[order(rs2$s,decreasing=TRUE),],10)
 1/rs3[,1]/4 # hours
 1/rs3[,1]/4/24 # days
 
-
-#(1/head(rs2[order(rs2$s,decreasing=TRUE),],10)[,1])/4/24
-spec.ar(counts15$counts15)
-spec.ar(counts15$counts15,method="burg")
-val<-spec.ar(counts15$counts15,method="burg")
-
-
 #1hr bin
-raw.spec2<-spec.pgram(counts60$counts60,taper=0.1,,kernel=c(5,5,5),spans=15,detrend=TRUE,demean=TRUE)
+raw.spec2<-spec.pgram(counts60$counts60,taper=0.1,,kernel=c(4,4,4),spans=12,detrend=TRUE,demean=TRUE)
 #plot(raw.spec2,xlim=c(0,.1))
 
 rs21<-data.frame(f=raw.spec2$freq,s=raw.spec2$spec)
 rs31<-head(rs2[order(rs21$s,decreasing=TRUE),],10)
-1/rs31[,1]/4
-1/rs31[,1]/4/24
-```
+1/rs31[,1]/24
 
-### Periodogram ; Discrete fourier transform  
-http://www.di.fc.ul.pt/~jpn/r/fourier/fourier.html#fourier-transform    
 
-Fourier transform explained  https://www.r-bloggers.com/the-fourier-transform-explained-in-one-sentence/
-```{r}
-####
+#plots for 1 hr
+#plot(seq(1,nrow(counts60),1)/24,counts60$counts60,type="l")
+#plot(seq(1,nrow(counts60),1)/24,counts60$counts60,type="l",xlim=c(0,8))
+#plot(seq(1,nrow(counts60),1)/24,counts60$counts60,type="l",xlim=c(8,35))
+
+################################################################################
+################################################################################
 #https://anomaly.io/detect-seasonality-using-fourier-transform-r/
-
+################################################################################
 
 library(TSA)
 
@@ -805,7 +846,7 @@ dd<-data.frame(freq=p$freq,p$spec)
 order<-dd[order(-dd$p.spec),]
 top2<-head(order,10);top2
 
-1/top2$freq
+#1/top2$freq
 
 (1/top2$freq)/4 # to get hours 
 (1/top2$freq)/4/24 # days
@@ -819,7 +860,7 @@ p2<-periodogram(counts06$counts06,plot=TRUE,xlim=c(0,.02))
 dd2<-data.frame(freq=p2$freq,p2$spec)
 order2<-dd2[order(-dd2$p2.spec),]
 top10<-head(order2,10);top2
-1/top10$freq
+#1/top10$freq
 
 (1/top10$freq)/10 # to get hours 
 ((1/top10$freq)/10)/24 # days
@@ -917,28 +958,66 @@ wave.out3 <- morlet(y1 = free$counts15,x1=free$day, p2 = 8, dj = 0.1, siglvl = 0
 wave.out3$period <- wave.out3$period/4
 wavelet.plot(wave.out3)
 #plot(free$day,free$counts15,type="l")
+
+
 ```
 
+```{r}
+
+op<-wavCWT(counts15$counts15)
+plot(op)
+str(op)
+wavCWTPeaks(wavCWTTree(op))
+```
 
 ### Discrete wavelet analysis   
+
+
+```{r}
+#calculating period levels for each time step   
+detail.level<-seq(1,9)
+
+##.1 hr 
+2^(detail.level)*.1
+
+##.25 hr 
+2^(detail.level)*.25
+
+##.5 hr 
+2^(detail.level)*.5
+
+##1 hr 
+2^(detail.level)*1
+(2^(detail.level)*1)/24 # days
+
+##2 hr 
+2^(detail.level)*2
+(2^(detail.level)*2)/24 # days
+```
 
 ```{r}
 library(wmtsa)
 Jcirc <- floor(log2(round(24/.25)))
+floor(log2(round(24)))
 #Jcirc <- floor(log2(round(18/.25)))
 
 #all details
 #DJt_circ <- wavMRDSum(counts15$counts15,levels=seq(1,8),keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
 
 #circadian detail
+##15 min
 DJt_circ <- wavMRDSum(counts15$counts15,levels=Jcirc ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+
+##60 min 
+#DJt_circ <- wavMRDSum(counts60$counts60,levels=6 ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+
 
 #highest detail
 #DJt_circ <- wavMRDSum(counts15$counts15,levels=8 ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
 
 DJt_circ
 
-plot(counts15$day,DJt_circ,col=rgb(0,0,.5,.5),type="l")
+plot(DJt_circ,col=rgb(0,0,.5,.5),type="l")
 #points(counts15$day,counts15$counts15,type="l",col=rgb(.5,0,0,.5))
 
 library(pracma)
@@ -946,12 +1025,15 @@ IBL<-data.frame(findpeaks(DJt_circ))
 names(IBL)<-c("Height","mid_time","initial_time","final_time")
 IBL
 diff(IBL$mid_time)/4
+#diff(IBL$mid_time)/24
+#hist(diff(IBL$mid_time)/4/24)
 hist(diff(IBL$mid_time)/4)
+hist(diff(IBL$mid_time))
 
 
 
-#plot(IBL$mid_time[-10]/4/24,diff(IBL$mid_time)/4/24)
-#lines(IBL$mid_time[-10]/4/24,diff(IBL$mid_time)/4/24)
+plot(IBL$mid_time[-10]/4/24,diff(IBL$mid_time)/4/24)
+lines(IBL$mid_time[-10]/4/24,diff(IBL$mid_time)/4/24)
 #y=diff(IBL$mid_time)/4/24
 #x=IBL$mid_time[-10]/4/24
 #lines(loess(y~x,span=1))
@@ -968,7 +1050,7 @@ lines(dd$time,dd$zeit)
 #plot(IBL$mid_time[-31],diff(IBL$mid_time),xlab="time (.25 hr)",ylab="interval in .25 hr")
 #plot(IBL$mid_time[-5],diff(IBL$mid_time),xlab="time (.25 hr)",ylab="interval in .25 hr")
 plot(IBL$mid_time[-35]/4/24,diff(IBL$mid_time)/4,xlab="time (day)",ylab="interval in hr",las=1)
-#lines(loess(diff(IBL$mid_time)~IBL$mid_time[-31],span=1))
+#lines(loess(diff(IBL$mid_time)~IBL$mid_time[-35],span=1))
 s<-(IBL$mid_time[-35]/4/24)
 lines(loess(diff(IBL$mid_time)/4~s,span=1))
 abline(v=8,lty="dotdash")
