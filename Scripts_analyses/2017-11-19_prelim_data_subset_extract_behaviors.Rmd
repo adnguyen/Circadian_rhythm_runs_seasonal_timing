@@ -632,7 +632,55 @@ h8o14$experiment<-rep("Entrainment",length(h8o14$time_step))
 h8o14$trik_position<-rep(6,length(h8o14$time_step))
 
 names(h8o14)[7]<-c("counts") 
+
+h8o14$uniqueID<-rep("h8o14",nrow(h8o14))
+
 ```
+
+
+
+
+### Adding all of the data together: 
+
+```{r all.data stitch}
+
+all.data<-rbind(h4o4full,h2b25full,h5o22full,h8o14)   
+all.data$uniqueID<-as.factor(all.data$uniqueID)
+names(all.data)
+
+ggplot(all.data,aes(x=time_step,y=counts,colour=uniqueID))+geom_line()
+
+
+ggplot(all.data,aes(x=time_step,y=counts))+geom_line()+facet_grid(uniqueID~.)
+
+
+
+###convert time to hours   
+
+all.data$time2<-hour(hms(all.data$time))+minute(hms(all.data$time))/60
+
+
+bins60=c(paste0(rep(c(paste0(0,0:9),10:23), each=1),":", c("00"))[-1],"24:00")
+all.data$bins60=cut(all.data$time2,breaks=seq(0,24,1),labels=bins60)
+
+head(all.data)
+#all.data2<-ddply(all.data,.(date,uniqueID,experiment,bins60),transform,time=seq(1,length(bins60),1))
+nall.data<-ddply(all.data,.(uniqueID,date,experiment,bins60),summarize,counts=sum(counts))
+
+#nall.data2<-ddply(nall.data,.(date,uniqueID),transform,time=seq(1,length(bins60),1))
+
+#ddply(nall.data,.(date,uniqueID,experiment),summarize,time=length(seq(1,length(bins60),1)))
+nall.data2<-na.omit(ddply(nall.data2,.(uniqueID,date),transform,order(as.Date(date,format="%Y/%m/%d"))))
+nall.data3<-ddply(nall.data2,.(uniqueID),transform,time=seq(1,length(bins60),1))
+#counts15[order(as.Date(counts15$date,format ="%Y/%m/%d")),]
+
+dim(nall.data3)
+head(nall.data3)
+
+ggplot(nall.data3,aes(x=time,y=counts))+geom_line()+facet_grid(uniqueID~.)#+geom_vline(xintercept=seq(0,900,24))#+geom_vline(xintercept=192)
+
+```
+
 
 
 # some prelim analyses just on h4o4full   
@@ -697,8 +745,9 @@ counts30<-ddply(h4o4full,.(date,experiment,bins30),summarize,counts30=sum(counts
 counts15<-na.omit(ddply(h4o4full,.(date,experiment,bins15),summarize,counts15=sum(counts)))
 
 #counts15.1<-counts15[order(as.Date(counts15$date,format ="%Y/%m/%d")),]
+counts15<-counts15[-1:-18,]
 
-counts15$time<-seq(0,805.75,.25)[-3224]
+counts15$time<-seq(0.25,801.25,.25)#[-3224]
 counts15$day<-counts15$time/24
 dim(h4o4full)
 dim(counts15)
@@ -1050,9 +1099,9 @@ lines(dd$time,dd$zeit)
 #par(mar=c(1,5,1,5))
 #plot(IBL$mid_time[-31],diff(IBL$mid_time),xlab="time (.25 hr)",ylab="interval in .25 hr")
 #plot(IBL$mid_time[-5],diff(IBL$mid_time),xlab="time (.25 hr)",ylab="interval in .25 hr")
-plot(IBL$mid_time[-35]/4/24,diff(IBL$mid_time)/4,xlab="time (day)",ylab="interval in hr",las=1)
+plot(IBL$mid_time[-34]/4/24,diff(IBL$mid_time)/4,xlab="time (day)",ylab="interval in hr",las=1)
 #lines(loess(diff(IBL$mid_time)~IBL$mid_time[-35],span=1))
-s<-(IBL$mid_time[-35]/4/24)
+s<-(IBL$mid_time[-34]/4/24)
 lines(loess(diff(IBL$mid_time)/4~s,span=1))
 abline(v=8,lty="dotdash")
 
@@ -1075,6 +1124,7 @@ points(IBL$mid_time/4/24,IBL$Height,pch=20,col="red",cex=3)
 du<-data.frame(bi=diff(IBL$mid_time)/4,height=IBL$Height[-1])
 plot(du,pch=20,cex=3)
 abline(summary(lm(height~bi,data=du)))
+#summary(lm(height~I(bi^2),data=du))
 
 #summary(lm(height~bi+I(bi^2),data=du))
 ```
