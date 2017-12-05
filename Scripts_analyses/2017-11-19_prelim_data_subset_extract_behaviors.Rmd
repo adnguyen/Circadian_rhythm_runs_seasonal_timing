@@ -783,7 +783,7 @@ cc<-head(pw[order(pw$spy,decreasing=TRUE),],4)
 #spec.pgram automatically detrends
 ################################################################################
 
-raw.spec1<-spec.pgram(counts15$counts15,taper=0.1,kernel=c(4,4),spans=8,detrend=TRUE,log="no",demean = TRUE)
+raw.spec1<-spec.pgram(counts15$counts15,taper=0.1,kernel=c(5),spans=5,detrend=TRUE,log="no",demean = TRUE)
 plot(raw.spec1,log="no",xlim=c(0,.02))
 #(1/.01)/4/24
 
@@ -795,7 +795,7 @@ rs3<-head(rs2[order(rs2$s,decreasing=TRUE),],10)
 1/rs3[,1]/4/24 # days
 
 #1hr bin
-raw.spec2<-spec.pgram(counts60$counts60,taper=0.1,,kernel=c(4,4,4),spans=12,detrend=TRUE,demean=TRUE)
+raw.spec2<-spec.pgram(counts60$counts60,taper=0.1,,kernel=c(5),spans=5,detrend=TRUE,demean=TRUE)
 #plot(raw.spec2,xlim=c(0,.1))
 
 rs21<-data.frame(f=raw.spec2$freq,s=raw.spec2$spec)
@@ -1037,7 +1037,8 @@ lines(IBL$mid_time[-10]/4/24,diff(IBL$mid_time)/4/24)
 #y=diff(IBL$mid_time)/4/24
 #x=IBL$mid_time[-10]/4/24
 #lines(loess(y~x,span=1))
-dd<-data.frame(int=diff(IBL$mid_time)/4,time=IBL$mid_time[-10]/4/24,lighton=as.numeric(substr(dd$time,1,2))+6/24)
+dd<-data.frame(int=diff(IBL$mid_time)/4,time=IBL$mid_time[-35]/4/24)
+dd$lighton=as.numeric(substr(dd$time,1,2))+6/24
 head(dd)
 dd$zeit<-dd$time-dd$lighton
 plot(dd$time,dd$zeit)
@@ -1067,12 +1068,15 @@ summary(model)
 #par(mfrow=c(1,1))
 #par(mar=c(5,5,5,5))
 
+plot(IBL$mid_time/4/24,IBL$Height,pch=20,col="red",type="l")
+points(IBL$mid_time/4/24,IBL$Height,pch=20,col="red",cex=3)
 
-#t<-data.frame(bout=diff(IBL$mid_time),mid=IBL$mid_time[-5])
-t<-data.frame(bout=diff(IBL$mid_time),mid=IBL$mid_time[-35])
-ggplot(data=t,aes(y=bout,x=mid))+stat_smooth()+geom_point()
 
-#periodogram(t$bout)
+du<-data.frame(bi=diff(IBL$mid_time)/4,height=IBL$Height[-1])
+plot(du,pch=20,cex=3)
+abline(summary(lm(height~bi,data=du)))
+
+#summary(lm(height~bi+I(bi^2),data=du))
 ```
 
 
