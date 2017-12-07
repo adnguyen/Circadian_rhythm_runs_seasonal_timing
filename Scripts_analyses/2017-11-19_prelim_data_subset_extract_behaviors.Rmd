@@ -677,7 +677,7 @@ nall.data3<-ddply(nall.data2,.(uniqueID),transform,time=seq(1,length(bins60),1))
 dim(nall.data3)
 head(nall.data3)
 
-ggplot(nall.data3,aes(x=time,y=counts))+geom_line()+facet_grid(uniqueID~.)#+geom_vline(xintercept=seq(0,900,24))#+geom_vline(xintercept=192)
+ggplot(nall.data3,aes(x=time,y=counts))+geom_line()+facet_grid(uniqueID~.,scales="free")#+geom_vline(xintercept=seq(0,900,24))#+geom_vline(xintercept=192)
 
 ```
 
