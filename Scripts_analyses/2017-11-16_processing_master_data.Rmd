@@ -104,6 +104,10 @@ ggplot(dat4,aes(x=MSMR11,y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_
 ggplot(dat4,aes(x=log10(MSMR11),y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_smooth()+ylim(0,90)+xlab("Mass specific metabolic rate (mL/hr/mg)")+xlim(-3.5,-1.99)
 
 summary(lm(eclosion_days~log10(MSMR11),data=dat4))
+
+hist(resid(lm(eclosion_days~log10(MSMR11),data=dat4)))
+
+
 summary(lm(eclosion_days~log10(MSMR15),data=dat4))
 
 #day 15
@@ -158,7 +162,7 @@ library(MASS)
 #specifying groups    
 trait2$groups<-ifelse(trait2$MR15< 0.00375,ifelse(trait2$eclosion_days<35,"non-diapause_lowMR","diapause"),"non-diapause_highMR")
 
-fit1<-lda(groups~mass_day10+mass_day14+MR11+MR15+eclosion_days,data=trait2,CV=FALSE)
+fit1<-lda(groups~mass_day10+mass_day14+MR11+MR15+eclosion_days,data=trait2,CV=TRUE)
 fit1
 fit2<-qda(groups~mass_day10+mass_day14+MR11+MR15+eclosion_days,data=trait2,CV=FALSE)
 #cbind(as.character(fit1$class),trait2$groups)
@@ -174,6 +178,11 @@ ggplot(trait3,aes(x=ld1,fill=predict))+geom_histogram(alpha=.25,position="identi
 
 #comparing to pre-set designations   
 ggplot(trait3,aes(x=ld1,y=ld2,colour=groups))+geom_point(size=5)
+
+table(trait3$predict,trait3$groups)
+nrow(trait3)
+(21+120+4)/(145+17+2+26+3)
+
 ```
 
 

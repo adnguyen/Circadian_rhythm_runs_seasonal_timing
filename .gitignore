@@ -3,3 +3,6 @@
 .RData
 .Ruserdata
 /Scripts_analyses/wc10/*
+/Data/.DS_Store
+/Data/raw/.DS_Store
+.DS_Store*
