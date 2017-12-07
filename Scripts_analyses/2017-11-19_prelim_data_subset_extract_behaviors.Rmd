@@ -41,7 +41,9 @@ allm<-rbind(m1,m2,m3,m4,m5,m6)
 allm$V3<-match(allm$V3,month.abb)
 
 
-allm$V2<-paste("20",allm$V4,"-",allm$V3,"-",allm$V2,sep="") # reformatting the date
+allm$V2<-paste("20",allm$V4,"-",allm$V3,"-",formatC(allm$V2,width=2,flag="0"),sep="") # reformatting the date
+
+
 allm<-allm[,-3:-4] # excluding time we dont need
 head(allm)
 
@@ -646,9 +648,10 @@ h8o14$uniqueID<-rep("h8o14",nrow(h8o14))
 
 all.data<-rbind(h4o4full,h2b25full,h5o22full,h8o14)   
 all.data$uniqueID<-as.factor(all.data$uniqueID)
+all.data$date<-as.factor(all.data$date)
 names(all.data)
-
-ggplot(all.data,aes(x=time_step,y=counts,colour=uniqueID))+geom_line()
+head(all.data)
+#ggplot(all.data,aes(x=time_step,y=counts,colour=uniqueID))+geom_line()
 
 
 ggplot(all.data,aes(x=time_step,y=counts))+geom_line()+facet_grid(uniqueID~.)
@@ -667,17 +670,15 @@ head(all.data)
 #all.data2<-ddply(all.data,.(date,uniqueID,experiment,bins60),transform,time=seq(1,length(bins60),1))
 nall.data<-ddply(all.data,.(uniqueID,date,experiment,bins60),summarize,counts=sum(counts))
 
-#nall.data2<-ddply(nall.data,.(date,uniqueID),transform,time=seq(1,length(bins60),1))
-
-#ddply(nall.data,.(date,uniqueID,experiment),summarize,time=length(seq(1,length(bins60),1)))
-nall.data2<-na.omit(ddply(nall.data2,.(uniqueID,date),transform,order(as.Date(date,format="%Y/%m/%d"))))
+nall.data2<-na.omit(ddply(nall.data2,.(uniqueID,experiment),transform,order(date)))
 nall.data3<-ddply(nall.data2,.(uniqueID),transform,time=seq(1,length(bins60),1))
-#counts15[order(as.Date(counts15$date,format ="%Y/%m/%d")),]
+#counts15[order(as.Date(counts15$date,format ="%Y-%m-%d")),]
 
 dim(nall.data3)
 head(nall.data3)
 
 ggplot(nall.data3,aes(x=time,y=counts))+geom_line()+facet_grid(uniqueID~.,scales="free")#+geom_vline(xintercept=seq(0,900,24))#+geom_vline(xintercept=192)
+
 
 ```
 
@@ -694,7 +695,9 @@ h4o4full$date<-as.factor(h4o4full$date)
 head(h4o4full)
 
 h4o4full$time_hr<-hour(hms(h4o4full$time))+minute(hms(h4o4full$time))/60
+#write.csv(h4o4full[order(h4o4full$date),],"test.csv")
 
+h4o4full<-h4o4full[order(h4o4full$date),]
 ```
 
 ## bin by 6 minutes
@@ -1077,7 +1080,7 @@ diff(IBL$mid_time)/4
 #diff(IBL$mid_time)/24
 #hist(diff(IBL$mid_time)/4/24)
 hist(diff(IBL$mid_time)/4)
-hist(diff(IBL$mid_time))
+#hist(diff(IBL$mid_time))
 
 
 
@@ -1086,7 +1089,7 @@ lines(IBL$mid_time[-10]/4/24,diff(IBL$mid_time)/4/24)
 #y=diff(IBL$mid_time)/4/24
 #x=IBL$mid_time[-10]/4/24
 #lines(loess(y~x,span=1))
-dd<-data.frame(int=diff(IBL$mid_time)/4,time=IBL$mid_time[-35]/4/24)
+dd<-data.frame(int=diff(IBL$mid_time)/4,time=IBL$mid_time[-36]/4/24)
 dd$lighton=as.numeric(substr(dd$time,1,2))+6/24
 head(dd)
 dd$zeit<-dd$time-dd$lighton
@@ -1099,9 +1102,9 @@ lines(dd$time,dd$zeit)
 #par(mar=c(1,5,1,5))
 #plot(IBL$mid_time[-31],diff(IBL$mid_time),xlab="time (.25 hr)",ylab="interval in .25 hr")
 #plot(IBL$mid_time[-5],diff(IBL$mid_time),xlab="time (.25 hr)",ylab="interval in .25 hr")
-plot(IBL$mid_time[-34]/4/24,diff(IBL$mid_time)/4,xlab="time (day)",ylab="interval in hr",las=1)
+plot(IBL$mid_time[-36]/4/24,diff(IBL$mid_time)/4,xlab="time (day)",ylab="interval in hr",las=1)
 #lines(loess(diff(IBL$mid_time)~IBL$mid_time[-35],span=1))
-s<-(IBL$mid_time[-34]/4/24)
+s<-(IBL$mid_time[-36]/4/24)
 lines(loess(diff(IBL$mid_time)/4~s,span=1))
 abline(v=8,lty="dotdash")
 
