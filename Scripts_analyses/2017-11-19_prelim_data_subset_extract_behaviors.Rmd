@@ -49,7 +49,7 @@ head(allm)
 
 
 names(allm)<-c("time_step","date","time","trik_status","none1","none2","none3","none4","none5","light_status",paste("t",seq(1,32),sep=""),"monitor")
-
+#write.csv(allm,"2017-12-08_allm_all_monitorscombined.csv")
 ```
 
 
@@ -646,15 +646,17 @@ h8o14$uniqueID<-rep("h8o14",nrow(h8o14))
 
 ```{r all.data stitch}
 
-all.data<-rbind(h4o4full,h2b25full,h5o22full,h8o14)   
+#all.data<-rbind(h4o4full,h2b25full,h5o22full,h8o14)   
+all.data<-rbind(h4o4full,h2b25full,h5o22full,a12b6full,a5w73full,a4w66full,a10w12full,a10o49full,a12w40full,a12b43full,a13o28full,a13o11full,a5b25full,a10o73full,a3o51full,a10w15full,a2b23full,a2b26full,a4o15full,a5w63full,a11w26full,a5b25full,h4w10full)
 all.data$uniqueID<-as.factor(all.data$uniqueID)
 all.data$date<-as.factor(all.data$date)
 names(all.data)
 head(all.data)
+dim(all.data)
 #ggplot(all.data,aes(x=time_step,y=counts,colour=uniqueID))+geom_line()
 
 
-ggplot(all.data,aes(x=time_step,y=counts))+geom_line()+facet_grid(uniqueID~.)
+ggplot(all.data,aes(x=time_step,y=counts))+geom_line()+facet_grid(uniqueID~.,scale="free")
 
 
 
@@ -662,7 +664,10 @@ ggplot(all.data,aes(x=time_step,y=counts))+geom_line()+facet_grid(uniqueID~.)
 
 all.data$time2<-hour(hms(all.data$time))+minute(hms(all.data$time))/60
 
+```
 
+### 1 hour bin 
+```{r}
 bins60=c(paste0(rep(c(paste0(0,0:9),10:23), each=1),":", c("00"))[-1],"24:00")
 all.data$bins60=cut(all.data$time2,breaks=seq(0,24,1),labels=bins60)
 
@@ -670,7 +675,7 @@ head(all.data)
 #all.data2<-ddply(all.data,.(date,uniqueID,experiment,bins60),transform,time=seq(1,length(bins60),1))
 nall.data<-ddply(all.data,.(uniqueID,date,experiment,bins60),summarize,counts=sum(counts))
 
-nall.data2<-na.omit(ddply(nall.data2,.(uniqueID,experiment),transform,order(date)))
+nall.data2<-na.omit(ddply(nall.data,.(uniqueID,experiment),transform,order(date)))
 nall.data3<-ddply(nall.data2,.(uniqueID),transform,time=seq(1,length(bins60),1))
 #counts15[order(as.Date(counts15$date,format ="%Y-%m-%d")),]
 
@@ -678,10 +683,13 @@ dim(nall.data3)
 head(nall.data3)
 
 ggplot(nall.data3,aes(x=time,y=counts))+geom_line()+facet_grid(uniqueID~.,scales="free")#+geom_vline(xintercept=seq(0,900,24))#+geom_vline(xintercept=192)
-
-
 ```
 
+### 15 min bins   
+
+```{r}
+
+```
 
 
 # some prelim analyses just on h4o4full   
