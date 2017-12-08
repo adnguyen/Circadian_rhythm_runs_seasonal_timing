@@ -688,9 +688,26 @@ ggplot(nall.data3,aes(x=time,y=counts))+geom_line()+facet_grid(uniqueID~.,scales
 ### 15 min bins   
 
 ```{r}
+bins15=c(paste0(rep(c(paste0(0,0:9),10:23), each=4),":", c("00",15,30,45))[-1],"24:00")
+all.data$bins15=cut(all.data$time2,breaks=seq(0,24,.25),labels=bins15)
 
+nall.data15<-ddply(all.data,.(uniqueID,date,experiment,bins15),summarize,counts=sum(counts))
+nall.data15_2<-na.omit(ddply(nall.data15,.(uniqueID,experiment),transform,order(date)))
+nall.data15_3<-ddply(nall.data15_2,.(uniqueID),transform,time=seq(1,length(bins15),1))
+#write.csv(nall.data15_3,"2017-12-08_15min_bins_subset_behavior.csv")
+ggplot(nall.data15_3,aes(x=time,y=counts))+geom_line()+facet_grid(uniqueID~.,scales="free")
+
+###adding time in days
+nall.data15_3$days<-nall.data15_3$time/4/24
+ggplot(nall.data15_3,aes(x=days,y=counts))+geom_line()+facet_grid(uniqueID~.,scales="free")
 ```
 
+
+# scaling up   
+
+```{r}
+
+```
 
 # some prelim analyses just on h4o4full   
 
