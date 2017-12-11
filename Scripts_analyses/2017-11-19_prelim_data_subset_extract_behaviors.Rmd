@@ -705,9 +705,53 @@ ggplot(nall.data15_3,aes(x=days,y=counts))+geom_line()+facet_grid(uniqueID~.,sca
 
 # scaling up   
 
-```{r}
+### periodogram   
 
-```
+```{r}
+pmod1<-periodogram(nall.data15_3$counts,plot=TRUE,xlim=c(0,.015))
+pmod1.vals<-data.frame(freq=pmod1$freq,pmod1$spec)
+pmod1.order<-pmod1.vals[order(-pmod1.vals$pmod1.spec),]
+top10<-head(pmod1.order,10);top10
+
+1/top10$freq/4
+
+1/top10$freq/4/24
+
+##making a function to grab top period values 
+per.fun<-function(ts=nall.data15_3$counts){
+m<-data.frame(freq=periodogram(ts,plot=FALSE)$freq,spec=periodogram(ts,plot=FALSE)$spec)
+return(1/(m[order(m$spec,decreasing=TRUE),][1:3,1])/4/24)
+}
+
+### using function in ddply 
+## for each unique ID
+test<-ddply(nall.data15_3,.(uniqueID),function(sub) per.fun(sub$counts))
+#summary(nall.data15_3$uniqueID)
+test
+
+### for each unique ID and experiment  
+test2<-ddply(nall.data15_3,.(uniqueID,experiment),function(sub) per.fun(sub$counts))
+test2
+
+#tt<-subset(nall.data15_3,uniqueID=="a11w26")
+#per.fun(ts=tt$counts)
+#periodogram(tt$counts)
+
+
+### ok lets compare comparable rhythms  
+test2$min<-as.numeric(apply(test2,1,min))
+test2$max<-as.numeric(apply(test2[,-1:-2],1,max))
+test2$host<-ifelse(substr(test2$uniqueID,1,1)=="a","apple","haw")
+test2
+
+summary(aov(min~host*experiment,data=test2))
+summary(aov(log10(max)~host*experiment,data=test2))
+
+#ggplot(test2,aes(x=host,y=min))+geom_boxplot()
+#ggplot(test2,aes(x=host,y=max))+geom_boxplot()
+
+ggplot(test2,aes(x=experiment,y=log10(min)))+geom_boxplot()
+ ```
 
 # some prelim analyses just on h4o4full   
 
