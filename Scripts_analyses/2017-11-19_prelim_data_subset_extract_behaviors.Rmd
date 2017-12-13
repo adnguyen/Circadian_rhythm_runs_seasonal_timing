@@ -44,11 +44,16 @@ allm$V3<-match(allm$V3,month.abb)
 allm$V2<-paste("20",allm$V4,"-",allm$V3,"-",formatC(allm$V2,width=2,flag="0"),sep="") # reformatting the date
 
 
-allm<-allm[,-3:-4] # excluding time we dont need
+allm<-allm[,-3:-4]# excluding time we dont need
+allm<-allm[,-5:-9]# excluding time we dont need
 head(allm)
 
 
-names(allm)<-c("time_step","date","time","trik_status","none1","none2","none3","none4","none5","light_status",paste("t",seq(1,32),sep=""),"monitor")
+#names(allm)<-c("time_step","date","time","trik_status","none1","none2","none3","none4","none5","light_status",paste("t",seq(1,32),sep=""),"monitor")
+
+names(allm)<-c("time_step","date","time","trik_status","light_status",paste("t",seq(1,32),sep=""),"monitor")
+names(allm)
+#t1 - t32 = 6-37 
 #write.csv(allm,"2017-12-08_allm_all_monitorscombined.csv")
 ```
 
