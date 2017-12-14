@@ -20,7 +20,7 @@ library(dplyr)
 library(ggplot2)
 
 
-dat<-read.csv("../Data/2017-08-24_rhagoletis_data_sheet_2017-11-26_dataslice.csv")
+dat<-read.csv("../Data/2017-08-24_rhagoletis_data_sheet_2017-12-13_dataslice.csv")
 str(dat)
 ```
 
@@ -120,7 +120,7 @@ ggplot(dat4,aes(x=MSMR11,y=MSMR15,colour=factor(cohort_day)))+geom_point(size=5)
 
 ###subtracting day11-day15
 dat4$MSMR_diff<-dat4$MSMR11-dat4$MSMR15
-ggplot(dat4,aes(x=MSMR_diff,y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_smooth()+ylim(0,90)+xlab("Mass specific metabolic rate (mL/hr/mg)")+xlim(-.015,.01)
+#ggplot(dat4,aes(x=MSMR_diff,y=eclosion_days,colour=Host))+geom_point(,size=5)+stat_smooth()+ylim(0,90)+xlab("Mass specific metabolic rate (mL/hr/mg)")+xlim(-.015,.01)
 
 
 ###eclosion days

@@ -755,13 +755,70 @@ summary(aov(log10(max)~host*experiment,data=test2))
 #ggplot(test2,aes(x=host,y=min))+geom_boxplot()
 #ggplot(test2,aes(x=host,y=max))+geom_boxplot()
 
-ggplot(test2,aes(x=experiment,y=log10(min)))+geom_boxplot()
- ```
+a<-ggplot(test2,aes(x=experiment,y=log10(min)))+geom_boxplot()
+
+b<-ggplot(test2,aes(x=experiment,y=log(min),group=uniqueID,colour=host))+geom_point()+geom_line()
+
+grid.arrange(nrow=2,a,b)
+```
+
+
+### trying continuous wavelet analysis 
+
+```{r}
+cwa<-function(series=counts15$counts15){
+  wave.out <- morlet(y1 = series, p2 = 8, dj = 0.1, siglvl = 0.95)
+  wave.out$period <- wave.out$period/4
+  wave.avg <- data.frame(power = apply(wave.out$Power, 2, mean), period = (wave.out$period))
+  aa<-data.frame(findpeaks(wave.avg$power))
+  line<-aa[order(aa,decreasing=TRUE),][1,2]
+  return(wave.avg[line,][2])
+  }
+
+cwa()
+
+test3<-ddply(nall.data15_3,.(uniqueID,experiment),function(sub) cwa(sub$counts))
+knitr::kable(test3)
+
+
+ggplot(test3,aes(x=experiment,y=period,group=uniqueID,colour=uniqueID))+geom_point()+geom_line()
+```
+
+### ok discrete wavelet analysis  
+
+```{r}
+## creating function for discrete wavelet analysis
+### getting the circadian detail  
+dwa<-function(time,levels=6){
+  DJt_circ <- wavMRDSum(time,levels=levels ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+  IBL<-data.frame(findpeaks(DJt_circ))
+  names(IBL)<-c("Height","mid_time","initial_time","final_time")
+  #return(diff(IBL$mid_time)/4)
+  return(data.frame(cbind(IBL[,-3:-4],bout=as.numeric(c("NA",diff(IBL$mid_time)/4))),act_length=IBL[,4]-IBL[,3]))
+}
+plot(dwa(time=counts15$counts15))
+dwa(time=counts15$counts15)
+
+test4<-ddply(nall.data15_3,.(uniqueID),function(sub) dwa(sub$counts))
+test4
+
+ggplot(test4,aes(x=mid_time/4/24,y=bout))+geom_line()+facet_grid(uniqueID~.)
+
+test4.2<-ddply(nall.data15_3,.(uniqueID),function(sub) dwa(sub$counts,levels=7))
+test4.2
+
+ggplot(test4.2,aes(x=mid_time/4/24,y=bout))+geom_line()+facet_grid(uniqueID~.)
+ggplot(test4.2,aes(x=mid_time/4/24,y=bout,colour=uniqueID))+geom_line()
+#test5<-ddply(nall.data15_3,.(uniqueID,experiment),function(sub) dwa(sub$counts))
+#test5
+```
+
 
 # some prelim analyses just on h4o4full   
 
 ## plots  
 
+ 
 ```{r}
 plot(h4o4full$counts,type="l")
 h4o4full$date<-as.factor(h4o4full$date)
@@ -772,6 +829,7 @@ h4o4full$time_hr<-hour(hms(h4o4full$time))+minute(hms(h4o4full$time))/60
 #write.csv(h4o4full[order(h4o4full$date),],"test.csv")
 
 h4o4full<-h4o4full[order(h4o4full$date),]
+
 ```
 
 ## bin by 6 minutes
@@ -1038,7 +1096,10 @@ wavelet.plot(wave.out)
 wave.avg <- data.frame(power = apply(wave.out$Power, 2, mean), period = (wave.out$period))
 
 findpeaks(wave.avg$power)
-wave.avg[findpeaks(wave.avg$power)[2,2],] #period in hours 
+#aa<-data.frame(findpeaks(wave.avg$power))
+#aa[order(aa,decreasing=TRUE),][1,2]
+
+wave.avg[findpeaks(wave.avg$power)[2,2],][2] #period in hours 
 
 plot(wave.avg$period, wave.avg$power, type = "l")
 abline(v=wave.avg[findpeaks(wave.avg$power)[2,2],])
