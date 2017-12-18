@@ -807,7 +807,11 @@ ggplot(test10.merg,aes(y=eclosion_days,x=V1,colour=organism))+geom_point()+stat_
 
 ggplot(test10.merg,aes(y=eclosion_days,x=circ_time,colour=paste(experiment,organism)))+geom_point()+stat_smooth(method="lm")
 
+ggplot(test10.merg,aes(x=experiment,y=circ_time,group=uniqueID,colour=Host))+geom_point()+geom_line()
 
+ggplot(test10.merg,aes(x=experiment,y=circ_time))+geom_boxplot()
+
+###stats
 summary(aov(eclosion_days~organism*circ_time,data=test10.merg)) 
 
 summary(aov(circ_time~organism,data=test10.merg)) 
