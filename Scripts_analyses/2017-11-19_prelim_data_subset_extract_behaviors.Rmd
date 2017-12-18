@@ -762,6 +762,59 @@ b<-ggplot(test2,aes(x=experiment,y=log(min),group=uniqueID,colour=host))+geom_po
 grid.arrange(nrow=2,a,b)
 ```
 
+### spectral analysis   
+
+```{r}
+sa.an<-function(ts=counts15$counts15){
+  sa1<-spectrum(ts,method=c("pgram","ar"),plot=FALSE,demean=TRUE,detrend=TRUE,tape=.2)
+  spx<-sa1$freq
+  spy<-2*sa1$spec
+  pw<-data.frame(spx,spy)
+  cc<-head(pw[order(pw$spy,decreasing=TRUE),],4)
+  #return(1/cc[,1]/4)  ## hours 
+  return(1/cc[,1]/4/24)  ## days 
+  
+}
+sa.an()
+
+### for each unique ID and experiment  
+test10<-ddply(nall.data15_3,.(uniqueID,experiment),function(sub) sa.an(sub$counts))
+test10
+
+
+###match data with eclosion data 
+
+### have to adjust uniqueID dataframe in test10 to match orig.dat
+test10$uniqueID<-as.factor(ifelse(substr(test10$uniqueID,1,1)=="a",substr(test10$uniqueID,2,10),substr(test10$uniqueID,1,10)))
+
+##orig.dat
+orig.dat<-read.csv("../Data/2017-11-17_subset_host_comparison_trik_data_extract.csv")
+
+test10.merg<-inner_join(test10,orig.dat,by="uniqueID")
+head(test10.merg)
+str(test10.merg)
+
+##taking circadian value 
+
+test10.merg$circ_time<-apply(test10.merg[,3:6],1,function(x){mean(subset(x,x<30 & x > 20))})
+
+ggplot(test10.merg,aes(x=organism,y=V1))+geom_boxplot()
+
+ggplot(test10.merg,aes(x=organism,y=circ_time))+geom_boxplot()
+
+
+ggplot(test10.merg,aes(y=eclosion_days,x=V1,colour=organism))+geom_point()+stat_smooth(method="lm")
+
+ggplot(test10.merg,aes(y=eclosion_days,x=circ_time,colour=paste(experiment,organism)))+geom_point()+stat_smooth(method="lm")
+
+
+summary(aov(eclosion_days~organism*circ_time,data=test10.merg)) 
+
+summary(aov(circ_time~organism,data=test10.merg)) 
+
+tt<-subset(test10.merg,organism!="wasp")
+summary(aov(circ_time~Host,data=tt))
+```
 
 ### trying continuous wavelet analysis 
 
@@ -802,12 +855,13 @@ dwa(time=counts15$counts15)
 test4<-ddply(nall.data15_3,.(uniqueID),function(sub) dwa(sub$counts))
 test4
 
-ggplot(test4,aes(x=mid_time/4/24,y=bout))+geom_line()+facet_grid(uniqueID~.)
+ggplot(test4,aes(x=mid_time/4/24,y=bout))+geom_line()+geom_point(size=3)+facet_wrap(~uniqueID,ncol=2)
 
-test4.2<-ddply(nall.data15_3,.(uniqueID),function(sub) dwa(sub$counts,levels=7))
+test4.2<-ddply(nall.data15_3,.(uniqueID),function(sub) dwa(sub$counts,levels=seq(3:7)))
 test4.2
 
-ggplot(test4.2,aes(x=mid_time/4/24,y=bout))+geom_line()+facet_grid(uniqueID~.)
+ggplot(test4.2,aes(x=mid_time/4/24,y=bout))+geom_line()+facet_wrap(~uniqueID,ncol=2)#+geom_point(size=3)
+
 ggplot(test4.2,aes(x=mid_time/4/24,y=bout,colour=uniqueID))+geom_line()
 #test5<-ddply(nall.data15_3,.(uniqueID,experiment),function(sub) dwa(sub$counts))
 #test5
@@ -915,6 +969,12 @@ val<-spec.ar(counts15$counts15,method="burg")
 
 spec.ar(ar(counts15$counts15),plot=TRUE)
 spec.ar(ar(counts15$counts15),method="yule-walker")
+
+
+
+acf(counts15$counts15)
+pacf(counts15$counts15)
+
 ```
 
 ### Single spectrum analysis   
@@ -944,7 +1004,8 @@ Fourier transform explained  https://www.r-bloggers.com/the-fourier-transform-ex
 ```{r}
 
 ##15 min bins
-sa1<-spectrum(counts15$counts15)
+sa1<-spectrum(counts15$counts15,method=c("pgram","ar"))
+sa1<-spectrum(counts15$counts15,method=c("pgram","ar"),demean=TRUE,detrend=TRUE,tape=.2)
 
 spx<-sa1$freq
 spy<-2*sa1$spec
