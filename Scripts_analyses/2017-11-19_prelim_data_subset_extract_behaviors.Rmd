@@ -865,7 +865,7 @@ ggplot(test10.merg,aes(y=eclosion_days,x=day_time,colour=paste(experiment,organi
 
 ###stats
 summary(aov(eclosion_days~organism+circ_time,data=test10.merg)) 
-summary(aov(eclosion_days~organism*ult_time*experiment,data=test10.merg)) 
+summary(aov(eclosion_days~organism+ult_time,data=test10.merg)) 
 #summary(lm(eclosion_days~organism*circ_time*experiment,data=test10.merg)) 
 
 
