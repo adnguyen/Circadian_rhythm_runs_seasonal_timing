@@ -834,24 +834,28 @@ str(test10.merg)
 
 ##taking circadian value 
 
-test10.merg$circ_time<-apply(test10.merg[,3:6],1,function(x){mean(subset(x,x<35 & x > 20))})
+test10.merg$circ_time<-apply(test10.merg[,3:7],1,function(x){mean(subset(x,x<35 & x > 20))})
 
-test10.merg$ult_time<-apply(test10.merg[,3:6],1,function(x){mean(subset(x,x<20))})
-test10.merg$day_time<-apply(test10.merg[,3:6],1,function(x){mean(subset(x,x>48))})
+test10.merg$ult_time<-apply(test10.merg[,3:7],1,function(x){mean(subset(x,x<20))})
+test10.merg$day_time<-apply(test10.merg[,3:7],1,function(x){mean(subset(x,x>48))})
 
 
 
 
 ggplot(test10.merg,aes(x=organism,y=V1))+geom_boxplot()
 
-ggplot(test10.merg,aes(x=organism,y=circ_time))+geom_boxplot()
-ggplot(test10.merg,aes(x=organism,y=ult_time))+geom_boxplot()
+ab<-ggplot(test10.merg,aes(x=organism,y=circ_time))+geom_boxplot()
+cd<-ggplot(test10.merg,aes(x=organism,y=ult_time))+geom_boxplot()
 ggplot(test10.merg,aes(x=organism,y=day_time))+geom_boxplot()
 
+grid.arrange(cd,ab,ncol=2)
 
 #ggplot(test10.merg,aes(y=eclosion_days,x=V1,colour=organism))+geom_point()+stat_smooth(method="lm")
 
 ggplot(test10.merg,aes(y=eclosion_days,x=circ_time,colour=paste(experiment,organism)))+geom_point()+stat_smooth(method="lm")+ylim(0,100)
+
+#knitr::kable(ddply(test10.merg,.(organism,experiment,Host),summarize,count=length(organism)))
+
 
 ggplot(test10.merg,aes(y=eclosion_days,x=ult_time,colour=paste(experiment,organism)))+geom_point()+stat_smooth(method="lm")+ylim(0,100)
 
@@ -859,16 +863,9 @@ ggplot(test10.merg,aes(y=eclosion_days,x=day_time,colour=paste(experiment,organi
 
 
 
-ggplot(test10.merg,aes(x=experiment,y=V1,group=uniqueID,colour=Host))+geom_point()+geom_line()
-
-ggplot(test10.merg,aes(x=experiment,y=circ_time))+geom_boxplot()
-
-
-
-####ult_time
-
 ###stats
-summary(aov(eclosion_days~organism*circ_time,data=test10.merg)) 
+summary(aov(eclosion_days~organism+circ_time,data=test10.merg)) 
+summary(aov(eclosion_days~organism*ult_time*experiment,data=test10.merg)) 
 #summary(lm(eclosion_days~organism*circ_time*experiment,data=test10.merg)) 
 
 
