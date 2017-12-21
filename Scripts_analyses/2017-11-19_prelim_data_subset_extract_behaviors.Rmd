@@ -707,6 +707,23 @@ nall.data15_3$days<-nall.data15_3$time/4/24
 ggplot(nall.data15_3,aes(x=days,y=counts))+geom_line()+facet_grid(uniqueID~.,scales="free")
 ```
 
+###6 min bins
+
+```{r}
+bins6=c(paste0(rep(c(paste0(0,0:9),10:23), each=10),":", c("00","06",12,18,24,30,36,42,48,54))[-1],"24:00")
+
+all.data$bins06=cut(all.data$time2,breaks=seq(0,24,.1),labels=bins6)
+
+nall.data06<-ddply(all.data,.(uniqueID,date,experiment,bins06),summarize,counts=sum(counts))
+nall.data06_2<-na.omit(ddply(nall.data06,.(uniqueID,experiment),transform,order(date)))
+nall.data06_3<-ddply(nall.data06_2,.(uniqueID),transform,time=seq(1,length(bins06),1))
+#write.csv(nall.data06_3,"2017-12-08_15min_bins_subset_behavior.csv")
+ggplot(nall.data06_3,aes(x=time,y=counts))+geom_line()+facet_grid(uniqueID~.,scales="free")
+
+###adding time in days
+nall.data06_3$days<-nall.data06_3$time/10/24
+ggplot(nall.data06_3,aes(x=days,y=counts))+geom_line()+facet_grid(uniqueID~.,scales="free")
+```
 
 # scaling up   
 
@@ -775,6 +792,26 @@ sa.an<-function(ts=counts15$counts15){
   return(1/cc[,1]/4/24)  ## days 
   
 }
+sa.an<-function(ts=counts15$counts15){
+  sa1<-spectrum(ts,method=c("pgram","ar"),plot=FALSE,demean=TRUE,detrend=TRUE,tape=.2)
+  spx<-sa1$freq
+  spy<-2*sa1$spec
+  pw<-data.frame(spx,spy)
+  cc1<-pw[order(pw$spy,decreasing=TRUE),]
+  cc2<-subset(cc1,spx<0.05)
+  cc2$density<-density(cc2$spy,n=length(cc2$spy))$y
+  cc2$t<-density(cc2$spy,n=length(cc2$spy))$x
+  #cc<-findpeaks(cc2[,3],minpeakheight=1E-6)
+  cc<-findpeaks(cc2[,1])
+  cc2[order(cc2$density,decreasing=TRUE),]
+  out<-1/cc2[cc[,2],][,1]/4
+  #out<-1/cc2[cc[,2],][,1]/4/24
+  return(out[1:4])
+  ## hours 
+  
+  
+}
+
 sa.an()
 
 ### for each unique ID and experiment  
@@ -794,38 +831,64 @@ test10.merg<-inner_join(test10,orig.dat,by="uniqueID")
 head(test10.merg)
 str(test10.merg)
 
+
 ##taking circadian value 
 
-test10.merg$circ_time<-apply(test10.merg[,3:6],1,function(x){mean(subset(x,x<30 & x > 20))})
+test10.merg$circ_time<-apply(test10.merg[,3:6],1,function(x){mean(subset(x,x<35 & x > 20))})
+
+test10.merg$ult_time<-apply(test10.merg[,3:6],1,function(x){mean(subset(x,x<20))})
+test10.merg$day_time<-apply(test10.merg[,3:6],1,function(x){mean(subset(x,x>48))})
+
+
+
 
 ggplot(test10.merg,aes(x=organism,y=V1))+geom_boxplot()
 
 ggplot(test10.merg,aes(x=organism,y=circ_time))+geom_boxplot()
+ggplot(test10.merg,aes(x=organism,y=ult_time))+geom_boxplot()
+ggplot(test10.merg,aes(x=organism,y=day_time))+geom_boxplot()
 
 
-ggplot(test10.merg,aes(y=eclosion_days,x=V1,colour=organism))+geom_point()+stat_smooth(method="lm")
+#ggplot(test10.merg,aes(y=eclosion_days,x=V1,colour=organism))+geom_point()+stat_smooth(method="lm")
 
-ggplot(test10.merg,aes(y=eclosion_days,x=circ_time,colour=paste(experiment,organism)))+geom_point()+stat_smooth(method="lm")
+ggplot(test10.merg,aes(y=eclosion_days,x=circ_time,colour=paste(experiment,organism)))+geom_point()+stat_smooth(method="lm")+ylim(0,100)
 
-ggplot(test10.merg,aes(x=experiment,y=circ_time,group=uniqueID,colour=Host))+geom_point()+geom_line()
+ggplot(test10.merg,aes(y=eclosion_days,x=ult_time,colour=paste(experiment,organism)))+geom_point()+stat_smooth(method="lm")+ylim(0,100)
+
+ggplot(test10.merg,aes(y=eclosion_days,x=day_time,colour=paste(experiment,organism)))+geom_point()+stat_smooth(method="lm")+ylim(0,100)
+
+
+
+ggplot(test10.merg,aes(x=experiment,y=V1,group=uniqueID,colour=Host))+geom_point()+geom_line()
 
 ggplot(test10.merg,aes(x=experiment,y=circ_time))+geom_boxplot()
 
+
+
+####ult_time
+
 ###stats
 summary(aov(eclosion_days~organism*circ_time,data=test10.merg)) 
+#summary(lm(eclosion_days~organism*circ_time*experiment,data=test10.merg)) 
+
+
+summary(aov(eclosion_days~organism*V1,data=test10.merg)) 
 
 summary(aov(circ_time~organism,data=test10.merg)) 
 
+
 tt<-subset(test10.merg,organism!="wasp")
 summary(aov(circ_time~Host,data=tt))
+
 ```
 
 ### trying continuous wavelet analysis 
 
 ```{r}
-cwa<-function(series=counts15$counts15){
-  wave.out <- morlet(y1 = series, p2 = 8, dj = 0.1, siglvl = 0.95)
-  wave.out$period <- wave.out$period/4
+#, p2 = 8
+cwa<-function(series=counts15$counts15,N=4){
+  wave.out <- morlet(y1 = series,p2=8, dj = 0.1, siglvl = 0.95)
+  wave.out$period <- wave.out$period/N
   wave.avg <- data.frame(power = apply(wave.out$Power, 2, mean), period = (wave.out$period))
   aa<-data.frame(findpeaks(wave.avg$power))
   line<-aa[order(aa,decreasing=TRUE),][1,2]
@@ -834,11 +897,87 @@ cwa<-function(series=counts15$counts15){
 
 cwa()
 
+
+###15 min
 test3<-ddply(nall.data15_3,.(uniqueID,experiment),function(sub) cwa(sub$counts))
 knitr::kable(test3)
 
 
 ggplot(test3,aes(x=experiment,y=period,group=uniqueID,colour=uniqueID))+geom_point()+geom_line()
+
+###6 min
+test3.6<-ddply(nall.data06_3,.(uniqueID,experiment),function(sub) cwa(sub$counts,N=10))
+knitr::kable(test3.6)
+
+ggplot(test3.6,aes(x=experiment,y=period,group=uniqueID,colour=uniqueID))+geom_point()+geom_line()
+
+ggplot(test3.6,aes(y=period,x=experiment))+geom_boxplot()
+
+n<-subset(nall.data06_3,uniqueID=="a4o15"&experiment=="Entrainment")
+nn<-morlet(n$counts)
+wave.avg <- data.frame(power = apply(nn$Power, 2, mean), period = (nn$period))
+
+######
+cwa.1<-function(series=counts15$counts15,N=4){
+  wave.out <- morlet(y1 = series, p2 = 8, dj = 0.1, siglvl = 0.95)
+  wave.out$period <- wave.out$period/N
+  x<-data.frame(power = apply(wave.out$Power, 2, mean), period = (wave.out$period))
+  x$density<-density(x$power,n=length(x$power))$y
+  return(x)
+  #return(data.frame(findpeaks(wave.avg$power)))
+  #line<-aa[order(aa,decreasing=TRUE),][1,2]
+  #return(wave.avg[line,][2])
+  }
+
+plot(cwa.1()[,2:1],type="line")
+
+tt3<-ddply(nall.data06_3,.(uniqueID,experiment),function(sub) cwa.1(sub$counts,N=10))
+
+#ggplot(tt3,aes(x=period,y=power))+facet_wrap(uniqueID~experiment,scale="free")+geom_line()
+
+ggplot(tt3,aes(x=period,y=density))+facet_wrap(uniqueID~experiment,scale="free")+geom_line()
+
+
+
+###retaining all peaks   
+
+allpeaks<-function(series=counts15$counts15,N=4){
+  wave.out <- morlet(y1 = series, p2 = 8, dj = 0.1, siglvl = 0.95)
+  wave.out$period <- wave.out$period/N
+  wave.avg <- data.frame(power = apply(wave.out$Power, 2, mean), period = (wave.out$period))
+  aa<-data.frame(findpeaks(wave.avg$power))[,1:2]
+  aa$period<-wave.avg[aa$X2,2]
+  names(aa)<-c("Power","time","period")
+  return(aa)
+}
+
+allpeaks()
+
+tt4<-ddply(nall.data06_3,.(uniqueID,experiment),function(sub) allpeaks(sub$counts,N=10))
+
+tt5<-subset(tt4,Power>100)
+tt5
+
+tt5$hr<-as.numeric(substr(tt5$period,0,2))
+
+ddply(tt5,.(uniqueID,experiment,hr),summarize,count=length(hr))
+
+tt5$hr.trans<-ifelse(tt5$hr>20,"24",ifelse(tt5$hr <9,"4-8","9-13"))
+
+ddply(tt5,.(experiment,hr.trans),summarize,count=length(hr.trans))
+
+table(ddply(tt5,.(uniqueID,experiment,hr.trans),summarize,count=length(hr.trans)))
+
+rhythm.num<-ddply(subset(tt5,experiment=="Free-run"),.(uniqueID),summarize,length=length(hr.trans))
+
+rhythm.num$num<-ifelse(rhythm.num$length>1,"1","0")
+
+rhythm.num$uniqueID<-as.factor(ifelse(substr(rhythm.num$uniqueID,1,1)=="a",substr(rhythm.num$uniqueID,2,10),substr(rhythm.num$uniqueID,1,10)))
+b<-inner_join(rhythm.num,orig.dat,by="uniqueID")
+
+ggplot(b,aes(x=num,y=eclosion_days))+geom_boxplot()
+
+summary(aov(eclosion_days~as.factor(num),data=b))
 ```
 
 ### ok discrete wavelet analysis  
@@ -846,29 +985,48 @@ ggplot(test3,aes(x=experiment,y=period,group=uniqueID,colour=uniqueID))+geom_poi
 ```{r}
 ## creating function for discrete wavelet analysis
 ### getting the circadian detail  
-dwa<-function(time,levels=6){
+dwa<-function(time,levels=seq(5,7)){
   DJt_circ <- wavMRDSum(time,levels=levels ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
   IBL<-data.frame(findpeaks(DJt_circ))
   names(IBL)<-c("Height","mid_time","initial_time","final_time")
   #return(diff(IBL$mid_time)/4)
-  return(data.frame(cbind(IBL[,-3:-4],bout=as.numeric(c("NA",diff(IBL$mid_time)/4))),act_length=IBL[,4]-IBL[,3]))
+  return(data.frame(cbind(IBL[,-3:-4],bout=as.numeric(c("NA",diff(IBL$mid_time)))),act_length=IBL[,4]-IBL[,3]))
 }
 plot(dwa(time=counts15$counts15))
-dwa(time=counts15$counts15)
+#dwa(time=counts15$counts15)
 
-test4<-ddply(nall.data15_3,.(uniqueID),function(sub) dwa(sub$counts))
+#plot(dwa(time=counts15$counts15)[,2]/4/24,dwa(time=counts15$counts15)[,1],type="l")
+
+ll<-subset(nall.data15_3,experiment=="Free-run")
+#ll<-subset(nall.data3,experiment=="Free-run")
+#ll<-subset(nall.data06_3,experiment=="Free-run")
+
+test4<-ddply(ll,.(uniqueID),function(sub) dwa(sub$counts,levels=c(6)))
+#test4<-ddply(nall.data06_3,.(uniqueID),function(sub) dwa(sub$counts))
 test4
+test4$uniqueID<-as.factor(ifelse(substr(test4$uniqueID,1,1)=="a",substr(test4$uniqueID,2,10),substr(test4$uniqueID,1,10)))
 
-ggplot(test4,aes(x=mid_time/4/24,y=bout))+geom_line()+geom_point(size=3)+facet_wrap(~uniqueID,ncol=2)
+#ggplot(test4.2,aes(x=bout,y=Height))+geom_point()+facet_wrap(~uniqueID,ncol=2)+stat_smooth()
+sumtest4<-ddply(test4,.(uniqueID),summarize,bouts=mean(bout,na.rm=TRUE),sd=sd(bout,na.rm=TRUE))
+sumtest4
+rt<-inner_join(sumtest4,orig.dat,by="uniqueID")
+
+
+ggplot(rt,aes(x=bouts/4,y=eclosion_days))+geom_point()+stat_smooth(method="lm")
+#ggplot(rt,aes(x=sd,y=eclosion_days))+geom_point()+stat_smooth(method="lm")
+summary(lm(eclosion_days~bouts,data=rt))
+
+#plot(lm(eclosion_days~bouts,data=rt))
+###############
+
+
+
 
 test4.2<-ddply(nall.data15_3,.(uniqueID),function(sub) dwa(sub$counts,levels=seq(3:7)))
 test4.2
 
 ggplot(test4.2,aes(x=mid_time/4/24,y=bout))+geom_line()+facet_wrap(~uniqueID,ncol=2)#+geom_point(size=3)
 
-ggplot(test4.2,aes(x=mid_time/4/24,y=bout,colour=uniqueID))+geom_line()
-#test5<-ddply(nall.data15_3,.(uniqueID,experiment),function(sub) dwa(sub$counts))
-#test5
 ```
 
 
@@ -972,13 +1130,26 @@ val<-spec.ar(counts15$counts15,method="burg")
 #detrending  
 
 spec.ar(ar(counts15$counts15),plot=TRUE)
-spec.ar(ar(counts15$counts15),method="yule-walker")
+#spec.ar(ar(counts15$counts15),method="yule-walker",detrend=TRUE,demean = TRUE,log="no",spans=9,taper=0)
+spec.pgram(counts15$counts15,method="yule-walker",detrend=TRUE,demean = TRUE,log="no",spans=c(6,6),taper=0,xlim=c(0,.02))
+
+h<-spec.ar(ar(counts15$counts15),method="yule-walker")
+str(h)
+h<-data.frame(freq=h$freq,spec=h$spec)
+tt<-h[order(h$spec,decreasing=TRUE),]
+head(tt,20)
+
+1/head(tt,20)[,1]/4/24
 
 
-
-acf(counts15$counts15)
+acf(counts15$counts15,type="correlation")
 pacf(counts15$counts15)
 
+
+library(psd)
+
+xx<-pspectrum(counts15$counts15,AR=TRUE,niter=10)
+plot(xx)
 ```
 
 ### Single spectrum analysis   
