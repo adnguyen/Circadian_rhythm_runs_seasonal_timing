@@ -854,6 +854,8 @@ grid.arrange(cd,ab,ncol=2)
 
 ggplot(test10.merg,aes(y=eclosion_days,x=circ_time,colour=paste(experiment,organism)))+geom_point()+stat_smooth(method="lm")+ylim(0,100)
 
+ggplot(test10.merg,aes(y=eclosion_days,x=V1,colour=paste(experiment,organism)))+geom_point()+stat_smooth(method="lm")+ylim(0,100)
+
 #knitr::kable(ddply(test10.merg,.(organism,experiment,Host),summarize,count=length(organism)))
 
 
