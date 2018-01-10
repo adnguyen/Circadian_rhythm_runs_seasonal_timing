@@ -53,8 +53,41 @@ head(allm)
 
 names(allm)<-c("time_step","date","time","trik_status","light_status",paste("t",seq(1,32),sep=""),"monitor")
 names(allm)
+
+allm$fulltime<-ymd_hms(paste(allm$date,allm$time,sep=""),tz="US/Eastern")
+
 #t1 - t32 = 6-37 
 #write.csv(allm,"2017-12-08_allm_all_monitorscombined.csv")
+#################################################
+library(tidyr)
+monitors.long<-gather(allm,position,counts,t1:t32)
+monitors.long$position<-as.numeric(substr(monitors.long$position,2,4))
+head(monitors.long)
+
+#################################################
+
+
+
+library(data.table)
+test<-fread("https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs_seasonal_timing/master/Data/2017-08-24_rhagoletis_data_sheet_2017-12-13_dataslice.csv")
+head(test)
+#entrainment time 1
+test$et1<-ymd_hm(paste(test$eclosion_date,test$Trikinetics_entry_LD_time,sep=" "),tz="US/Eastern")
+#entrainment time 2
+test$et2<-ymd_hm(paste(test$Trikinetic_exit_date,test$Trikinetics_exit_LD_time,sep=" "),tz="US/Eastern")
+
+library(lubridate)
+test$int1<-interval(test$et1,test$et2)
+
+
+
+
+
+for(i in test){
+  a<-ifelse(ymd_hms(i[44]) %within% ymd_hms(monitors.long$fulltime),assign("z",i[,23]),)
+  print(rep(i,length(a)),a)}
+head(a,100)
+
 ```
 
 

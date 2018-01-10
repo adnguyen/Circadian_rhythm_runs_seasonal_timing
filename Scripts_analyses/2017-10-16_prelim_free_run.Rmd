@@ -53,6 +53,16 @@ dat.long2<-ddply(dat.long, .(read_day,Free_run_trik_position,bins), summarise, c
 
 head(dat.long2)
 
+x<-read.csv("2017-12-08_allm_all_monitorscombined.csv")
+str(x)
+library(lubridate)
+t<-ymd_hms(paste(x$date,x$time,sep=""),tz="US/Eastern")
+
+
+range(t)
+head(t)
+tail(t)
+
 
 ```
 
