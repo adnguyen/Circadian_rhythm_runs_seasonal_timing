@@ -22,24 +22,50 @@ imm making make change
 ### Repository Layout
 
 * **Data/**:
-  * 2017-08-24_rhagoletis_data_sheet.xlsx : master datasheet where we collated data; metadata below
-  * 2017-10-03_dataslice.csv; a snapshot of the data(017-08-24_rhagoletis_data_sheet.xlsx data_collect tab) on 2017-10-03 
-  * 2017-10-10_Trikinetics_cohorts_eclosion.csv : csv of trikinetics cohorts 
+  * 2017-08-24_rhagoletis_data_sheet.xlsx : master datasheet where we collated data; metadata below 
+  * 2017-08-24_rhagoletis_data_sheet_2017-12-13_dataslice.csv; a snapshot of the data on 2017-12-13 
   * 2017-10-12_trik_cohort_list_free_run.xlsx : table indicating when each cohort needs to be put into free run experiment (day 8) 
-  * Sampling_mass_purgetimes.xlsx : data collection sheet that we print out and fill in and put into our physical notebook   
+  * 2017-10-16_Trikinetics_cohorts_eclosion.csv : csv of trikinetics cohorts 
+  * 2017-10-22_skipped_apple_cohort_eclosions.xlsx : data collected of skipped cohorts
+  * 2017-11-17_subset_host_comparison_trik_data_extract.csv
+  * 2017-12-03_summary_table_finding_periods.xlsx
+  * 2017-12-05-overwintering_table_of_months.xlsx
+  * 2018-01-08__overwintering_exit_timing_5months.xlsx
   * **randomizing/**: Folder used to save cohorts into separate files to randomize and includes the randomized outputs with uniqueIDs
   * **raw/**: 
     * **Respirometry/**: expedata and csv files 	
     * **Trikinetics/**:  trikinetics monitor data sets; raw  
+  * Sampling_mass_purgetimes.xlsx : datacollection sheet that we print out  and fill in to put into our physical notebook 
+
 * **Documents/**:
   * Detailed Experimental workflow.md : markdown file using mermaid to draw a workflow
   * Detailed Experimental workflow.png : png version
+  * Methods.md
   * Rhagoletis_handling_processing.md : protocols for handling *Rhagoletis*
   * Rhagoletis_handling_processing.pdf : pdf version
+  * Workflow_for_trikinetics_data_transformation.md : markdown file of the workflow for trikinetics data 
+  * Workflow_for_trikinetics_data_transformation.pdf : pdf version 
+
 * **Results/**: Preliminary figures right now 
+
 * **Scripts_analyses/**:
+
+  * 2017-09-04_randomization.Rmd
+  * 2017-09-27_prelim_circadian_rhythm_trikinetics.Rmd
+  * 2017-10-16_prelim_free_run.Rmd
+  * 2017-11-16_processing_master_data.html
+  * 2017-11-16_processing_master_data.Rmd
+  * 2017-11-19_prelim_data_subset_extract_behaviors.Rmd
+  * 2017-12-08_15min_bins_subset_behavior.csv
+  * 2017-12-08_allm_all_monitorscombined.csv
+  * 2017-12-08_subset_inds_15min_bins_vsdays.png 
+  * Scripts_analyses.Rproj
+
 * Readme.md : ...this file...
+
 * Research_Plan.md : initial research plan 
+
+  ​
 
 ------
 
@@ -71,7 +97,6 @@ imm making make change
   * Day11_respirometry_date: day 11 date for when we measure co2 for a given cohort
   * Day14_weights_date : day 14 date for when to weigh and purge a given cohort
   * Day15_respirometry_date: day 15 date for when we measure co2 for a given cohort   
-
 * Data_collect tab: Datasheet where we entered cohort details; weights, purge times, and respirometry data; trikinetics handling details; as well as notes   
   * Ind_ID: initial numerical ID
   * tape : tape associated with Ind_ID
@@ -79,6 +104,7 @@ imm making make change
   * mass_day10: mass values at day 10 in mgs
   * purge_time_1: purge time in military time (hours: minutes) at day 10
   * purge1: going to convert military time to hours decimals at day 10
+  * collection_date: Date the fruit was collected 
   * day10: day 10 date
   * cohort_date: initial cohort date from which we collected maggots
   * cohort_day: the cohort day 
@@ -92,6 +118,7 @@ imm making make change
   * resp_day15:  raw respirometry values day 15
   * Li_cor2: additional licor id if different licor was used between days
   * notes: notes for respirometry; weights; indication of deaths and observations
+  * Resp_code: either 0 or 1, depending on if CO2 was produced during respirometry 
   * treatment: whether sample was split into the genetic control, rearing temperature (RT eclosion), or in the fridge (simulated overwintering)  
   * uniqueID: for apple, the ID is a combination of cohort day, first letter of tape color, and Ind_ID number; for haw, it is the same thing but uniqueIDs start with an "h" to indicate haw
   * eclosion_date: eclosion day defined as an adult at least 50% emerged from pupal case. 
@@ -108,5 +135,7 @@ imm making make change
   * Free_run_trik_position: trikinetics position for free - run experiment
   * Free_run_entry_date: the date when a sample entered the free- run experiment
   * Free_run_entry_time: the time when a sample entered the free- run experiment
+  * Free_run_exit_date: the date when a sample exited the free run experiment due to death 
+  * Free_run_exit_time: the time when a sample exited the free-run experiment 
   * notes_3: notes for free run experiment
 
