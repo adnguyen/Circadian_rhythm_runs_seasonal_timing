@@ -57,36 +57,71 @@ names(allm)
 allm$fulltime<-ymd_hms(paste(allm$date,allm$time,sep=""),tz="US/Eastern")
 
 #t1 - t32 = 6-37 
-#write.csv(allm,"2017-12-08_allm_all_monitorscombined.csv")
+#write.csv(allm,"2017-12-17_allm_all_monitorscombined.csv")
 #################################################
 library(tidyr)
 monitors.long<-gather(allm,position,counts,t1:t32)
 monitors.long$position<-as.numeric(substr(monitors.long$position,2,4))
 head(monitors.long)
-
+#monitors.long$fulltime<-ymd_hms(head(monitors.long$fulltime),tz="US/Eastern")
+monitors.long$fulltime<-chron(dates=monitors.long$date,times=monitors.long$time,format=c('y-m-d','h:m:s'))
+#write.csv(monitors.long,"2018-01-17_trik_dat_long.csv")
 #################################################
 
 
-
+library(lubridate)
 library(data.table)
 test<-fread("https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs_seasonal_timing/master/Data/2017-08-24_rhagoletis_data_sheet_2017-12-13_dataslice.csv")
 head(test)
 #entrainment time 1
-test$et1<-ymd_hm(paste(test$eclosion_date,test$Trikinetics_entry_LD_time,sep=" "),tz="US/Eastern")
+#test$et1<-ymd_hm(paste(test$eclosion_date,test$Trikinetics_entry_LD_time,sep=" "),tz="US/Eastern")
+test$et1<-chron(dates=test$eclosion_date,times=test$Trikinetics_entry_LD_time,format=c('y-m-d','h:m:s'))
+
 #entrainment time 2
-test$et2<-ymd_hm(paste(test$Trikinetic_exit_date,test$Trikinetics_exit_LD_time,sep=" "),tz="US/Eastern")
+#test$et2<-ymd_hm(paste(test$Trikinetic_exit_date,test$Trikinetics_exit_LD_time,sep=" "),tz="US/Eastern")
+test$et2<-chron(dates=test$Trikinetic_exit_date,times=test$Trikinetics_exit_LD_time,format=c('y-m-d','h:m:s'))
 
-library(lubridate)
 test$int1<-interval(test$et1,test$et2)
+str(test)
+
+
+ifelse(ymd_hms(head(monitors.long$fulltime),tz="US/Eastern") %within% test$int1,1,0)
+
+output<-matrix(ncol=2,nrow=100)
+
+for(i in head(monitors.long,100)){
+  
+  print(i[1])
+  }
+
+
+parse_fun<-function(fulltime=ymd_hms("2017-10-29 03:34:00",tz="US/Eastern"),monitor=1,position=8,data=test){
+  #apply(test,1,function(x){ifelse(date %within%x$int1 & monitor==x$Trik_monitor & position==x$Trikinetics_position,"uniqueID","")})
+  vec<-data.frame(x=ifelse(fulltime %within% test$int1 & monitor==test$Trik_monitor & position==test$Trikinetics_position,test$uniqueID,""))
+  return(subset(vec,x !="<NA>" & x !=""))
+}
+parse_fun()
+
+
+#ddply(head(monitors.long,100),.(time_step),transform,unique_row=if(fulltime %within% test$int1){return()})
+ddply(head(monitors.long,100),.(time_step),transform,unique_row=fulltime)
+ddply(head(monitors.long,100),.(time_step),transform,unique_row=ifelse(fulltime %within% test$int1 & ,row.names(test$int1),""))
 
 
 
+apply(monitors.long[1:10,],1,FUN=parse_fun(fulldate=monitors.long$fulltime,monitor=monitors.long$monitor,position=monitors.long$position))
 
 
-for(i in test){
-  a<-ifelse(ymd_hms(i[44]) %within% ymd_hms(monitors.long$fulltime),assign("z",i[,23]),)
-  print(rep(i,length(a)),a)}
-head(a,100)
+apply(monitors.long[1:10,],1,function(fulltime=ymd_hms(monitors.long$fulltime,tz="US/Eastern"),monitor=monitors.long$monitor,position=monitors.long$position,data=test){
+  return(subset(data.frame(x=ifelse(fulltime %within% test$int1 & monitor==test$Trik_monitor & position==test$Trikinetics_position,test$uniqueID,"")),x !="<NA>" & x !=""))})
+
+
+###install.packages("chron")
+library(chron)
+
+apply(monitors.long[1:10,],1,function(p){
+  return(subset(data.frame(x=ifelse(p$monitor==test$Trik_monitor & position==p$position & p$fulltime < test$et2 & p$fulltime>test$et1,test$uniqueID,"")),x !="<NA>" & x !=""))})
+
 
 ```
 
