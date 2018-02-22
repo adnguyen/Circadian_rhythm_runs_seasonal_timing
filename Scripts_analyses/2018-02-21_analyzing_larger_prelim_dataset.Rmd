@@ -1,0 +1,169 @@
+---
+title: "2018-02-21_analyzing_larger_prelim_dataset"
+output: 
+  html_document: 
+    highlight: espresso
+    theme: spacelab
+    toc: yes
+---
+
+# Load Libraries
+```{r}
+library(ggplot2) #plotting
+library(data.table) # faster way of reading in data sets
+library(plyr) # manipualte data
+library(lubridate) # to manipualte time
+library(pracma) ## using this package for time series analysis,mainly the findpeaks function 
+library(dplyr)
+```
+
+
+# Data Wrangling 
+
+## Load data and get some summary stats. How many unique IDs in this sample data set? 
+
+```{r}
+dat<-fread("MergeComplete.csv")
+
+str(dat)# structure
+
+dim(dat) # dimensions
+
+# how many unique ids and how many records they have
+rec<-ddply(dat,.(uniqueID),summarize,counts=length(uniqueID))
+dim(rec);rec
+
+##there are 237 individuals!...with varying records
+
+##converting time to hours
+dat$time.conv<-lubridate::hms(dat$time) # convert to time object
+dat$time2<-lubridate::hour(dat$time.conv)+lubridate::minute(dat$time.conv)/60+lubridate::second(dat$time.conv)/3600
+head(dat$time2)
+
+
+
+
+```
+
+## Binning based on a set of time intervals
+
+### 15 minute bins 
+```{r}
+bins15=c(paste0(rep(c(paste0(0,0:9),10:23), each=4),":", c("00",15,30,45))[-1],"24:00") ## set bin categories within a day
+bins15
+
+##create a vector of bin categories that matches the dataset
+dat$bins15=cut(dat$time2,breaks=seq(0,24,.25),labels=bins15)
+
+##checking to see if there are NAs
+head(dat$bins15,300)
+#dat[235,14:15]
+#dat[235,1:10]
+```
+
+### SUmming counts based on bins 
+
+**For each unique id, date, experiment, and bin15, sum the counts for these subsets**
+
+```{r}
+dat.sum.counts<-ddply(dat,.(uniqueID,date,experiment,bins15),summarize,counts15=sum(counts)) # timing start 11:35 AM 
+dim(dat.sum.counts)
+str(dat.sum.counts)
+
+
+
+##checking if the manipulations are what I expect them to be. Are the same number of individuals retained? How many are in entrainment, how many in free run? 
+rec.sum15<-ddply(dat.sum.counts,.(uniqueID,experiment),summarize,length=length(bins15))
+dim(rec.sum15)
+treatment.table<-table(rec.sum15[,1:2]);treatment.table
+treatment.table<-data.frame(cbind(treatment.table[,1],treatment.table[,2]))
+treatment.table$uniqueID<-rownames(treatment.table)
+dim(table(rec.sum15[,1:2])) # ok checking for the same number of individuals are retained through all of these manipulations. You can also see that all of them have an entrainment, and some don't have a free run.   
+
+```
+
+## Estimate Dominant Frequency with spectral analysis 
+
+
+### Making a function to get top periodograms with spectral analysis
+```{r spectral analysis function}
+sa.an<-function(ts=counts15$counts15){
+  sa1<-spectrum(ts,method=c("pgram","ar"),plot=FALSE,demean=TRUE,detrend=TRUE,tape=.2)
+  spx<-sa1$freq
+  spy<-2*sa1$spec
+  pw<-data.frame(spx,spy)
+  cc1<-pw[order(pw$spy,decreasing=TRUE),]
+  cc2<-subset(cc1,spx<0.05)
+  cc2$density<-density(cc2$spy,n=length(cc2$spy))$y
+  cc2$t<-density(cc2$spy,n=length(cc2$spy))$x
+  #cc<-findpeaks(cc2[,3],minpeakheight=1E-6)
+  cc<-findpeaks(cc2[,1])
+  cc2[order(cc2$density,decreasing=TRUE),]
+  out<-1/cc2[cc[,2],][,1]/4
+  #out<-1/cc2[cc[,2],][,1]/4/24
+  return(out[1:4])
+  ## hours 
+  
+  
+}
+```
+
+### Spectral analysis on a single case just to check function 
+
+```{r eval=FALSE}
+#take 10o20
+test<-subset(dat.sum.counts,uniqueID=="10o20")
+ddply(test,.(experiment),function(sub) sa.an(sub$counts15))
+
+sa1<-spectrum(test$counts15,method=c("pgram","ar"),demean=TRUE,detrend=TRUE,tape=.2)
+spx<-sa1$freq
+spy<-2*sa1$spec
+pw<-data.frame(spx,spy)
+cc1<-pw[order(pw$spy,decreasing=TRUE),]
+cc2<-subset(cc1,spx<0.05)
+cc2$density<-density(cc2$spy,n=length(cc2$spy))$y
+cc2$t<-density(cc2$spy,n=length(cc2$spy))$x
+cc<-findpeaks(cc2[,1])
+cc2[order(cc2$density,decreasing=TRUE),]
+out<-1/cc2[cc[,2],][,1]/4
+#out<-1/cc2[cc[,2],][,1]/4/24
+out[1:4]
+```
+
+
+### Implementing function across whole dataset
+
+```{r spectral analysis functin applied to whole dataset}
+
+##subset the data that has both entrainment and free run 
+dat.sum.count.treatment<-inner_join(dat.sum.counts,treatment.table,by="uniqueID")
+#subsetting if the unique ID has X1 and X2 > 0. 
+dsct.sub<-subset(dat.sum.count.treatment,X1>0 & X2 > 0)
+dim(dat.sum.count.treatment)
+dim(dsct.sub)
+#how many individuals left? 
+length(unique(dsct.sub$uniqueID)) # 112
+
+whole.sa.dat<-ddply(dsct.sub,.(uniqueID,experiment),function(sub) sa.an(sub$counts15))
+
+whole.sa.dat
+
+
+
+```
+
+### Making some plots 
+
+raw data actograms 
+
+```{r}
+#create time sequence for data set
+dsct.sub.timeseq<-ddply(dsct.sub,.(uniqueID),transform,time=seq(1,length(uniqueID)))
+
+ggplot(dsct.sub,aes(x=))
+```
+
+# SessionINfo
+
+```{r}
+```
