@@ -37,12 +37,12 @@ dim(rec);rec
 
 ##converting time to hours
 dat$time.conv<-lubridate::hms(dat$time) # convert to time object
-dat$time2<-lubridate::hour(dat$time.conv)+lubridate::minute(dat$time.conv)/60+lubridate::second(dat$time.conv)/3600
+dat$time2<-lubridate::hour(dat$time.conv)+lubridate::minute(dat$time.conv)/60+lubridate::second(dat$time.conv)/3600+0.0001#need to add a small value so that there are no 0 hour values and they get counted into the 15 min bin
 head(dat$time2)
 
 
-
-
+dim(subset(dat,time2==0))
+#fwrite(dat,"2018-02-23_datamanipu_check.csv")
 ```
 
 ## Binning based on a set of time intervals
@@ -66,7 +66,7 @@ head(dat$bins15,300)
 **For each unique id, date, experiment, and bin15, sum the counts for these subsets**
 
 ```{r}
-dat.sum.counts<-ddply(dat,.(uniqueID,date,experiment,bins15),summarize,counts15=sum(counts)) # timing start 11:35 AM 
+dat.sum.counts<-ddply(dat,.(uniqueID,date,experiment,bins15),summarize,counts15=sum(counts)) # timing start 11:35 AM ...even past 1:35PM...2:39PM
 dim(dat.sum.counts)
 str(dat.sum.counts)
 
@@ -144,9 +144,19 @@ dim(dsct.sub)
 #how many individuals left? 
 length(unique(dsct.sub$uniqueID)) # 112
 
-whole.sa.dat<-ddply(dsct.sub,.(uniqueID,experiment),function(sub) sa.an(sub$counts15))
 
+###time manipulation, gotta re-order the dates
+dsct.sub$dt<-paste(dsct.sub$date,dsct.sub$bins15)
+dsct.order<-ddply(dsct.sub,.(uniqueID,experiment),transform,order(date))
+dsct.order2<-ddply(dsct.order,.(uniqueID),transform,time=seq(1,length(bins15),1))
+
+
+
+###fitting
+whole.sa.dat<-ddply(dsct.order2,.(uniqueID,experiment),function(sub) sa.an(sub$counts15))
 whole.sa.dat
+
+
 
 
 
@@ -157,10 +167,8 @@ whole.sa.dat
 raw data actograms 
 
 ```{r}
-#create time sequence for data set
-dsct.sub.timeseq<-ddply(dsct.sub,.(uniqueID),transform,time=seq(1,length(uniqueID)))
+ggplot(dsct.order2,aes(x=time,y=counts15,colour=experiment))+geom_line()+facet_wrap(~uniqueID,nrow=10,scales="free")
 
-ggplot(dsct.sub,aes(x=))
 ```
 
 # SessionINfo
