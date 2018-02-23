@@ -149,17 +149,14 @@ length(unique(dsct.sub$uniqueID)) # 112
 dsct.sub$dt<-paste(dsct.sub$date,dsct.sub$bins15)
 dsct.order<-ddply(dsct.sub,.(uniqueID,experiment),transform,order(date))
 dsct.order2<-ddply(dsct.order,.(uniqueID),transform,time=seq(1,length(bins15),1))
-
+length(unique(dsct.order2$uniqueID))
 
 
 ###fitting
 whole.sa.dat<-ddply(dsct.order2,.(uniqueID,experiment),function(sub) sa.an(sub$counts15))
 whole.sa.dat
 
-
-
-
-
+#fwrite(whole.sa.dat,"whole.sa.dat.csv")
 ```
 
 ### Making some plots 
@@ -168,6 +165,94 @@ raw data actograms
 
 ```{r}
 ggplot(dsct.order2,aes(x=time,y=counts15,colour=experiment))+geom_line()+facet_wrap(~uniqueID,nrow=10,scales="free")
+
+```
+
+
+
+## Merge eclosion data with fitted period data 
+
+```{r}
+#read in eclosion data
+ecl<-fread("../Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
+str(ecl)
+
+merg.dat<-inner_join(whole.sa.dat,ecl,by="uniqueID")
+length(unique(merg.dat$uniqueID))
+
+ddply(merg.dat,.(Host,organism),summarize,counts=length(Host))
+ddply(merg.dat,.(Host,organism,experiment),summarize,mean=mean(V1),sd=sd(V1))
+```
+
+### Statistics Plots! Eclosion vs circ timing 
+
+```{r}
+haw<-subset(merg.dat,Host=="Haw")
+
+mod<-aov(V1~organism*experiment,data=haw)
+summary(mod)
+ggplot(data=haw,aes(x=experiment,y=V1))+geom_boxplot()
+
+haw.free<-subset(haw,experiment=="free run")
+mod10<-aov(V1~organism,data=haw.free)
+summary(mod10)
+
+
+
+haw.e<-subset(haw,experiment=="entrainment")
+mod11<-aov(V1~organism,data=haw.e)
+summary(mod11)
+```
+
+
+
+
+
+
+```{r}
+merg.dat<-subset(merg.dat,V1<50)
+#mod1<-lmer(eclosion_days~V1*experiment+(1|cohort_day),merg.dat)
+#summary(mod1)
+
+
+mod1<-glm(eclosion_days~V1*experiment,family=gaussian,merg.dat)
+summary(mod1)
+
+v1.ave<-ddply(merg.dat,.(uniqueID,eclosion_days),summarize,mean=mean(V1))
+ggplot(v1.ave,aes(x=mean,y=eclosion_days))+geom_point()+stat_smooth(method="lm")
+
+merg.dat$biorhythm.time<-apply(merg.dat[,3:4],1,mean)
+merg.dat2<-subset(merg.dat,biorhythm.time<50)
+mod2<-glm(eclosion_days~biorhythm.time*experiment,family=gaussian,merg.dat2)
+summary(mod2)
+
+ggplot(merg.dat2,aes(x=biorhythm.time,y=eclosion_days,colour=organism))+geom_point()+stat_smooth()
+
+
+mod3<-glm(biorhythm.time~organism,family=gaussian,merg.dat2)
+summary(mod3)
+
+#
+ggplot(data=merg.dat,aes(x=V1,y=eclosion_days,colour=Host))+stat_smooth(se=FALSE)+geom_point(size=3)+facet_grid(experiment~.,scales="free")+ylim(0,100)+xlim(0,50)
+
+
+#
+flies<-subset(merg.dat,organism=="fly")
+
+ggplot(data=flies,aes(x=V1,y=eclosion_days,colour=Host))+stat_smooth(se=FALSE)+geom_point(size=3)+facet_grid(experiment~.,scales="free")+ylim(0,100)+xlim(0,50)
+
+
+###histogram of rep eclosion dates
+
+ggplot(merg.dat,aes(x=eclosion_days,fill=Host))+geom_histogram(,alpha=.5)
+ggplot(merg.dat,aes(x=eclosion_days,fill=organism))+geom_histogram(,alpha=.5)
+
+
+```
+
+
+
+```{r}
 
 ```
 
