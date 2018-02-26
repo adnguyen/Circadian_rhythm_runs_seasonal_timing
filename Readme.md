@@ -117,6 +117,8 @@ imm making make change
   * resp_time_2: time of when we measured sample respirometrically day 15  
   * resp_day15:  raw respirometry values day 15
   * Li_cor2: additional licor id if different licor was used between days
+  * treatment_day15: date cohort was split into one of three treatments 
+  * exit_fridge_date: date silmulated overwinter cohorts were removed from fridge
   * notes: notes for respirometry; weights; indication of deaths and observations
   * Resp_code: either 0 or 1, depending on if CO2 was produced during respirometry 
   * treatment: whether sample was split into the genetic control, rearing temperature (RT eclosion), or in the fridge (simulated overwintering)  
