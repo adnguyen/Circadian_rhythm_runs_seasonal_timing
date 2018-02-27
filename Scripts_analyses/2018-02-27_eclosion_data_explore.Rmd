@@ -1,7 +1,9 @@
 ---
 title: "2018-02-27_eclosion_summaries"
 output:
-  pdf_document: default
+  pdf_document: 
+    highlight: monochrome
+    toc: yes
   html_document: default
 ---
 
@@ -13,15 +15,18 @@ library(ggplot2)
 library(plyr)
 ```
 
-
+## Loading in the data
 
 ```{r}
 ##grabbing data if git cloned
 #eclosions<-fread("../Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
 #grabbing from online
 eclosions<-fread("https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs_seasonal_timing/master/Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
+
 head(eclosions,10)
-tail(eclosions,10)
+names(eclosions)
+dim(eclosions)
+#tail(eclosions,10)
 
 
 ### getting numbers for eclosions without simulated overwintering, so these pupae were left at rearing temperature
@@ -29,13 +34,27 @@ sub<-subset(eclosions,eclosion_days>1)
 t1<-ddply(sub,.(Host,organism),summarize,counts=length(eclosion_days))
 knitr::kable(t1)
 
+```
 
-# plotting distributions
+## plotting distributions with Ggplot
 
+```{r}
+#histogram
 ggplot(eclosions,aes(x=eclosion_days,fill=paste(Host,organism)))+geom_histogram(position="identity",alpha=.52)
 
+#density of flies only
 flies<-subset(eclosions,organism=="fly")
 ggplot(flies,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="identity",alpha=.52)
 
 ```
 
+# Skipped eclosion data
+
+1. Load in the data from skipped cohorts 
+  * Use this link: https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs_seasonal_timing/master/Data/2017-10-22_skipped_apple_cohort_eclosions.csv
+  
+2. Plot (using ggplot) a histogram of eclosion_days 
+
+```{r}
+
+```
