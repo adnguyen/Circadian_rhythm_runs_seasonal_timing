@@ -57,6 +57,7 @@ ggplot(flies,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="ident
 
 ```{r}
 
+eclosions<-fread("https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs_seasonal_timing/master/Data/2017-10-22_skipped_apple_cohort_eclosions.csv")
 
 
 ```
