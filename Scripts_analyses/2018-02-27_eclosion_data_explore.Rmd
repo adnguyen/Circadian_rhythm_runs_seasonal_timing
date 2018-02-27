@@ -1,6 +1,8 @@
 ---
 title: "2018-02-27_eclosion_summaries"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 # Eclosion data 
@@ -18,6 +20,9 @@ library(plyr)
 #eclosions<-fread("../Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
 #grabbing from online
 eclosions<-fread("https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs_seasonal_timing/master/Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
+head(eclosions,10)
+tail(eclosions,10)
+
 
 ### getting numbers for eclosions without simulated overwintering, so these pupae were left at rearing temperature
 sub<-subset(eclosions,eclosion_days>1)
