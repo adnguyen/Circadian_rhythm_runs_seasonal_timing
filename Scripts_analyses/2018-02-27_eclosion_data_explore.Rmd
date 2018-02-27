@@ -28,5 +28,9 @@ knitr::kable(t1)
 # plotting distributions
 
 ggplot(eclosions,aes(x=eclosion_days,fill=paste(Host,organism)))+geom_histogram(position="identity",alpha=.52)
+
+flies<-subset(eclosions,organism=="fly")
+ggplot(flies,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="identity",alpha=.52)
+
 ```
 
