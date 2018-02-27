@@ -57,4 +57,9 @@ ggplot(flies,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="ident
 
 ```{r}
 
+
+
 ```
+
+
+
