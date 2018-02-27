@@ -106,6 +106,18 @@ sa.an<-function(ts=counts15$counts15){
   
   
 }
+
+sa.an<-function(ts=counts15$counts15){
+  sa1<-spectrum(ts,method=c("pgram","ar"),plot=FALSE,demean=TRUE,detrend=TRUE,tape=.2)
+  spx<-sa1$freq
+  spy<-2*sa1$spec
+  pw<-data.frame(spx,spy)
+  cc<-head(pw[order(pw$spy,decreasing=TRUE),],4)
+  return(1/cc[,1]/4)  ## hours 
+  #return(1/cc[,1]/4/24)  ## days 
+  
+}
+sa.an()
 ```
 
 ### Spectral analysis on a single case just to check function 
@@ -181,17 +193,36 @@ merg.dat<-inner_join(whole.sa.dat,ecl,by="uniqueID")
 length(unique(merg.dat$uniqueID))
 
 ddply(merg.dat,.(Host,organism),summarize,counts=length(Host))
-ddply(merg.dat,.(Host,organism,experiment),summarize,mean=mean(V1),sd=sd(V1))
+ddply(merg.dat,.(Host,organism,experiment),summarize,mean=mean(V1),sd=sd(V1),n=length(Host))
 ```
 
 ### Statistics Plots! Eclosion vs circ timing 
+
+
+```{r stats}
+merg.dat<-subset(merg.dat,V1<50)
+merg.dat$circ<-apply(merg.dat[,3:6],1,function(x){mean(subset(x,x<30 & x > 20))})
+#mod1<-lmer(eclosion_days~V1*experiment+(1|cohort_day),merg.dat)
+#summary(mod1)
+
+ggplot(merg.dat,aes(x=circ,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
+
+ggplot(merg.dat,aes(x=paste(Host,organism),y=circ))+geom_boxplot()
+summary(aov(circ~organism,data=merg.dat))
+
+
+ggplot(merg.dat,aes(x=V1,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
+```
+
+
+#subset haw
 
 ```{r}
 haw<-subset(merg.dat,Host=="Haw")
 
 mod<-aov(V1~organism*experiment,data=haw)
 summary(mod)
-ggplot(data=haw,aes(x=experiment,y=V1))+geom_boxplot()
+ggplot(data=haw,aes(x=experiment,y=V1))+geom_boxplot()+ylim(0,30)
 
 haw.free<-subset(haw,experiment=="free run")
 mod10<-aov(V1~organism,data=haw.free)
@@ -204,56 +235,48 @@ mod11<-aov(V1~organism,data=haw.e)
 summary(mod11)
 ```
 
-
-
-
-
+### subset apple
 
 ```{r}
-merg.dat<-subset(merg.dat,V1<50)
-#mod1<-lmer(eclosion_days~V1*experiment+(1|cohort_day),merg.dat)
-#summary(mod1)
+apple<-subset(merg.dat,Host=="Apple")
 
-
-mod1<-glm(eclosion_days~V1*experiment,family=gaussian,merg.dat)
-summary(mod1)
-
-v1.ave<-ddply(merg.dat,.(uniqueID,eclosion_days),summarize,mean=mean(V1))
-ggplot(v1.ave,aes(x=mean,y=eclosion_days))+geom_point()+stat_smooth(method="lm")
-
-merg.dat$biorhythm.time<-apply(merg.dat[,3:4],1,mean)
-merg.dat2<-subset(merg.dat,biorhythm.time<50)
-mod2<-glm(eclosion_days~biorhythm.time*experiment,family=gaussian,merg.dat2)
-summary(mod2)
-
-ggplot(merg.dat2,aes(x=biorhythm.time,y=eclosion_days,colour=organism))+geom_point()+stat_smooth()
-
-
-mod3<-glm(biorhythm.time~organism,family=gaussian,merg.dat2)
-summary(mod3)
-
-#
-ggplot(data=merg.dat,aes(x=V1,y=eclosion_days,colour=Host))+stat_smooth(se=FALSE)+geom_point(size=3)+facet_grid(experiment~.,scales="free")+ylim(0,100)+xlim(0,50)
-
-
-#
-flies<-subset(merg.dat,organism=="fly")
-
-ggplot(data=flies,aes(x=V1,y=eclosion_days,colour=Host))+stat_smooth(se=FALSE)+geom_point(size=3)+facet_grid(experiment~.,scales="free")+ylim(0,100)+xlim(0,50)
-
-
-###histogram of rep eclosion dates
-
-ggplot(merg.dat,aes(x=eclosion_days,fill=Host))+geom_histogram(,alpha=.5)
-ggplot(merg.dat,aes(x=eclosion_days,fill=organism))+geom_histogram(,alpha=.5)
-
-
+ggplot(apple,aes(x=V1,y=eclosion_days))+geom_point()+stat_smooth(method="lm")+facet_grid(.~experiment,scales="free")
+apmod<-lm(eclosion_days~V1*experiment,data=apple)
+summary(apmod)
 ```
 
+## Try discrete wavelet analysis
 
 
 ```{r}
+library(wmtsa)
 
+test
+
+Jcirc <- floor(log2(round(24/.25)))
+floor(log2(round(24/.25)))
+
+#DJt_circ <- wavMRDSum(test$counts15,levels=Jcirc ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+DJt_circ <- wavMRDSum(test$counts15,levels=4 ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+
+DJt_circ
+plot(DJt_circ,col=rgb(0,0,.5,.5),type="l")
+
+###finding peaks
+#library(pracma)
+IBL<-data.frame(findpeaks(DJt_circ))
+names(IBL)<-c("Height","mid_time","initial_time","final_time")
+IBL
+diff(IBL$mid_time)/4
+#diff(IBL$mid_time)/24
+#hist(diff(IBL$mid_time)/4/24)
+hist(diff(IBL$mid_time)/4)
+mean(diff(IBL$mid_time)/4)
+
+
+
+plot(IBL$mid_time[-10]/4,diff(IBL$mid_time)/4)
+lines(IBL$mid_time[-10]/4,diff(IBL$mid_time)/4)
 ```
 
 # SessionINfo

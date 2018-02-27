@@ -1,0 +1,32 @@
+---
+title: "2018-02-27_eclosion_summaries"
+output: html_document
+---
+
+# Eclosion data 
+
+```{r}
+library(data.table)
+library(ggplot2)
+library(plyr)
+```
+
+
+
+```{r}
+##grabbing data if git cloned
+#eclosions<-fread("../Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
+#grabbing from online
+eclosions<-fread("https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs_seasonal_timing/master/Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
+
+### getting numbers for eclosions without simulated overwintering, so these pupae were left at rearing temperature
+sub<-subset(eclosions,eclosion_days>1)
+t1<-ddply(sub,.(Host,organism),summarize,counts=length(eclosion_days))
+knitr::kable(t1)
+
+
+# plotting distributions
+
+ggplot(eclosions,aes(x=eclosion_days,fill=paste(Host,organism)))+geom_histogram(position="identity",alpha=.52)
+```
+
