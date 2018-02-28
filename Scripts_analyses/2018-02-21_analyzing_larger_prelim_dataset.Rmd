@@ -11,7 +11,7 @@ output:
 ```{r}
 library(ggplot2) #plotting
 library(data.table) # faster way of reading in data sets
-library(plyr) # manipualte data
+#library(plyr) # manipualte data
 library(lubridate) # to manipualte time
 library(pracma) ## using this package for time series analysis,mainly the findpeaks function 
 library(dplyr)
@@ -66,14 +66,26 @@ head(dat$bins15,300)
 **For each unique id, date, experiment, and bin15, sum the counts for these subsets**
 
 ```{r}
-dat.sum.counts<-ddply(dat,.(uniqueID,date,experiment,bins15),summarize,counts15=sum(counts)) # timing start 11:35 AM ...even past 1:35PM...2:39PM
+#dat.sum.counts<-ddply(dat,.(uniqueID,date,experiment,bins15),summarize,counts15=sum(counts)) # timing start 11:35 AM ...even past 1:35PM...2:39PM
+#dat$uniqueID<-as.factor(dat$uniqueID)
+#dat$date<-as.factor(dat$date)
+#dat$experiment<-as.factor(dat$experiment)
+#dat$bins15<-as.character(dat$bins15)
+dat.sum.counts<-dat %>% 
+  dplyr::group_by(uniqueID,date,experiment,bins15)%>%
+  dplyr::summarise(counts15=sum(counts))
+
 dim(dat.sum.counts)
 str(dat.sum.counts)
 
 
 
 ##checking if the manipulations are what I expect them to be. Are the same number of individuals retained? How many are in entrainment, how many in free run? 
-rec.sum15<-ddply(dat.sum.counts,.(uniqueID,experiment),summarize,length=length(bins15))
+rec.sum15<-dat.sum.counts%>%
+  group_by(uniqueID,experiment)%>%
+  summarise(length=length(bins15))
+
+
 dim(rec.sum15)
 treatment.table<-table(rec.sum15[,1:2]);treatment.table
 treatment.table<-data.frame(cbind(treatment.table[,1],treatment.table[,2]))
@@ -125,7 +137,14 @@ sa.an()
 ```{r eval=FALSE}
 #take 10o20
 test<-subset(dat.sum.counts,uniqueID=="10o20")
-ddply(test,.(experiment),function(sub) sa.an(sub$counts15))
+#ddply(test,.(experiment),function(sub) sa.an(sub$counts15))
+test %>% 
+  group_by(experiment)%>%select(experiment)%>%summarise(n=length(experiment))
+  
+  
+test %>% 
+  group_by(experiment)%>%
+  summarise(V1=sa.an(ts=counts15)[1],V2=sa.an(ts=counts15)[2],V3=sa.an(ts=counts15)[3])
 
 sa1<-spectrum(test$counts15,method=c("pgram","ar"),demean=TRUE,detrend=TRUE,tape=.2)
 spx<-sa1$freq
@@ -159,13 +178,21 @@ length(unique(dsct.sub$uniqueID)) # 112
 
 ###time manipulation, gotta re-order the dates
 dsct.sub$dt<-paste(dsct.sub$date,dsct.sub$bins15)
-dsct.order<-ddply(dsct.sub,.(uniqueID,experiment),transform,order(date))
-dsct.order2<-ddply(dsct.order,.(uniqueID),transform,time=seq(1,length(bins15),1))
+dsct.order2<-dsct.sub%>%
+  group_by(uniqueID,experiment)%>%
+  arrange(date)%>%
+  mutate(time=seq(1,length(bins15),1))
+#dsct.order<-ddply(dsct.sub,.(uniqueID,experiment),transform,order(date))
+#dsct.order2<-ddply(dsct.order,.(uniqueID),transform,time=seq(1,length(bins15),1))
 length(unique(dsct.order2$uniqueID))
 
 
 ###fitting
-whole.sa.dat<-ddply(dsct.order2,.(uniqueID,experiment),function(sub) sa.an(sub$counts15))
+
+#whole.sa.dat<-ddply(dsct.order2,.(uniqueID,experiment),function(sub) sa.an(sub$counts15))
+whole.sa.dat<-dsct.order2%>%
+  group_by(uniqueID,experiment)%>%
+  summarise(V1=sa.an(ts=counts15)[1],V2=sa.an(ts=counts15)[2],V3=sa.an(ts=counts15)[3])
 whole.sa.dat
 
 #fwrite(whole.sa.dat,"whole.sa.dat.csv")
@@ -192,8 +219,16 @@ str(ecl)
 merg.dat<-inner_join(whole.sa.dat,ecl,by="uniqueID")
 length(unique(merg.dat$uniqueID))
 
-ddply(merg.dat,.(Host,organism),summarize,counts=length(Host))
-ddply(merg.dat,.(Host,organism,experiment),summarize,mean=mean(V1),sd=sd(V1),n=length(Host))
+#ddply(merg.dat,.(Host,organism),summarize,counts=length(Host))
+#ddply(merg.dat,.(Host,organism,experiment),summarize,mean=mean(V1),sd=sd(V1),n=length(Host))
+merg.dat%>%
+  group_by(Host,organism)%>%
+  summarise(counts=length(Host))
+
+
+merg.dat%>%
+  group_by(Host,organism)%>%
+  summarise(mean=mean(V1),sd=sd(V1),n=length(Host))
 ```
 
 ### Statistics Plots! Eclosion vs circ timing 
@@ -202,6 +237,7 @@ ddply(merg.dat,.(Host,organism,experiment),summarize,mean=mean(V1),sd=sd(V1),n=l
 ```{r stats}
 merg.dat<-subset(merg.dat,V1<50)
 merg.dat$circ<-apply(merg.dat[,3:6],1,function(x){mean(subset(x,x<30 & x > 20))})
+
 #mod1<-lmer(eclosion_days~V1*experiment+(1|cohort_day),merg.dat)
 #summary(mod1)
 
@@ -218,7 +254,9 @@ ggplot(merg.dat,aes(x=V1,y=eclosion_days,colour=paste(Host,organism)))+geom_poin
 #subset haw
 
 ```{r}
-haw<-subset(merg.dat,Host=="Haw")
+#haw<-subset(merg.dat,Host=="Haw")
+haw<-merg.dat%>%
+  filter(Host=="Haw")
 
 mod<-aov(V1~organism*experiment,data=haw)
 summary(mod)
@@ -257,7 +295,7 @@ Jcirc <- floor(log2(round(24/.25)))
 floor(log2(round(24/.25)))
 
 #DJt_circ <- wavMRDSum(test$counts15,levels=Jcirc ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
-DJt_circ <- wavMRDSum(test$counts15,levels=4 ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+DJt_circ <- wavMRDSum(test$counts15,levels=7 ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
 
 DJt_circ
 plot(DJt_circ,col=rgb(0,0,.5,.5),type="l")
@@ -277,6 +315,74 @@ mean(diff(IBL$mid_time)/4)
 
 plot(IBL$mid_time[-10]/4,diff(IBL$mid_time)/4)
 lines(IBL$mid_time[-10]/4,diff(IBL$mid_time)/4)
+```
+
+## Creating discrete wavelet function to apply to a dataset
+
+```{r}
+
+globdwf<-function(vec=test$counts15,Jcirc=6){
+  DJt_circ <- wavMRDSum(vec,levels=Jcirc ,keep.smooth=FALSE, keep.details=TRUE,reflect=TRUE,wavelet="s12",xform="modwt")
+  IBL<-data.frame(findpeaks(DJt_circ))
+  names(IBL)<-c("Height","mid_time","initial_time","final_time")
+  return(mean(diff(IBL$mid_time)/4))
+}
+
+globdwf()
+
+
+```
+
+
+### Applying globdwf() function for whole dataset
+
+```{r}
+# sort data that enables estimation of circ rhythm 
+nam.vec.exclude<-dsct.order2%>%
+  group_by(uniqueID,experiment)%>%
+  summarise(n=length(experiment))%>%
+  filter(n<768)%>%
+  select(uniqueID)
+as.vector(nam.vec.exclude)
+
+#v<-c("12b32","5b31","5w42","h2b12","h2r23","h4o4")
+#data.table example
+
+#par.dat<-dsct.order2%>%
+ # filter(uniqueID!="12b32"&uniqueID!="5b31"&uniqueID!="5w42"&uniqueID!="h2b12"&uniqueID!="h4o4"&uniqueID!="h2r23")
+par.dat<-dsct.order2%>%
+  filter(!uniqueID%in%nam.vec.exclude$uniqueID)
+
+dwf.fits<-par.dat%>%
+  group_by(uniqueID,experiment)%>%
+  summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5))
+
+
+
+ggplot(dwf.fits,aes(y=int,x=experiment))+geom_boxplot()
+ggplot(dwf.fits,aes(y=circ,x=experiment))+geom_boxplot()
+ggplot(dwf.fits,aes(y=ult,x=experiment))+geom_boxplot()
+
+
+
+```
+
+
+### Merge dat sets 
+
+
+```{r}
+
+merg.dat2<-inner_join(dwf.fits,ecl,by="uniqueID")
+length(unique(merg.dat2$uniqueID))
+
+
+ggplot(data=merg.dat2,aes(x=circ,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
+
+ggplot(data=merg.dat2,aes(x=int,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
+
+ggplot(data=merg.dat2,aes(x=ult,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
+
 ```
 
 # SessionINfo
