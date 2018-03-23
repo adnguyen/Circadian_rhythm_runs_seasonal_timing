@@ -36,8 +36,8 @@ dim(rec);rec
 ##there are 237 individuals!...with varying records
 
 ##converting time to hours
-dat$time.conv<-lubridate::hms(dat$time) # convert to time object
-dat$time2<-lubridate::hour(dat$time.conv)+lubridate::minute(dat$time.conv)/60+lubridate::second(dat$time.conv)/3600+0.0001#need to add a small value so that there are no 0 hour values and they get counted into the 15 min bin
+time.conv<-lubridate::hms(dat$time) # convert to time object
+dat$time2<-lubridate::hour(time.conv)+lubridate::minute(time.conv)/60+lubridate::second(time.conv)/3600+0.0001#need to add a small value so that there are no 0 hour values and they get counted into the 15 min bin
 head(dat$time2)
 
 
@@ -56,7 +56,7 @@ bins15
 dat$bins15=cut(dat$time2,breaks=seq(0,24,.25),labels=bins15)
 
 ##checking to see if there are NAs
-head(dat$bins15,300)
+head(dat,300)
 #dat[235,14:15]
 #dat[235,1:10]
 ```
