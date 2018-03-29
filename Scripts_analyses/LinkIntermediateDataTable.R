@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 setwd("~/HahnLab/Circadian_rhythm_runs_seasonal_timing/")
+=======
+#setwd("~/Circadian_rhythm_runs_seasonal_timing/")
+>>>>>>> 4be93ccd383d4a5d9cc53d81085680079e4c7512
 library(magrittr)
 library(data.table)
 library(Hmisc)
