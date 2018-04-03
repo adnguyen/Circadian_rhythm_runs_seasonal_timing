@@ -1,6 +1,11 @@
+<<<<<<< HEAD
+setwd("~/HahnLab/Circadian_rhythm_runs_seasonal_timing/")
+=======
 #setwd("~/Circadian_rhythm_runs_seasonal_timing/")
+>>>>>>> 4be93ccd383d4a5d9cc53d81085680079e4c7512
 library(magrittr)
 library(data.table)
+library(Hmisc)
 
 #read in combined dataset with all monitors
 activity.dt <- fread("~/HahnLab/Circadian_rhythm_runs_seasonal_timing/Data/2018-01-17_trik_dat_long.csv", header = TRUE, stringsAsFactors = FALSE)
@@ -118,5 +123,98 @@ for (i in 1:nrow(fly.dt))
 }
 
 big_data = do.call(rbind, datalist)
-big_data$experiment %>% is.na() %>% as.numeric() %>% sum()
 
+#big_data$experiment %>% is.na() %>% as.numeric() %>% sum()
+
+#Bin by 6 min, 15, min, 30 min, 60 min, 1 hr
+
+big_data_flies = unique(big_data, by="uniqueID")
+
+####Bin 6 min
+time_bin_6min = list()
+
+for (i in 1:nrow(big_data_flies))
+{
+  uniqueFly = big_data
+  uniqueFly = subset(big_data, big_data$uniqueID == big_data_flies$uniqueID[i])
+  sequence = seq(from = min(uniqueFly$fulltime), to=max(uniqueFly$fulltime), by="6 min")
+  if(max(uniqueFly$fulltime) > max(sequence)) {
+    sequence <- c(sequence, (max(sequence) + 6*60))
+  }
+  bins = cut(uniqueFly$fulltime, breaks = sequence)
+  counts = as.data.frame(tapply(uniqueFly$counts, bins, sum))
+  colnames(counts) = "Counts"
+  time_bin_6min[[i]] = counts
+  print(big_data_flies$uniqueID[i])
+}
+
+####Bin 15 min
+time_bin_15min = list()
+
+for (i in 1:nrow(big_data_flies))
+{
+  uniqueFly = big_data
+  uniqueFly = subset(big_data, big_data$uniqueID == big_data_flies$uniqueID[i])
+  sequence = seq(from = min(uniqueFly$fulltime), to=max(uniqueFly$fulltime), by="15 min")
+  if(max(uniqueFly$fulltime) > max(sequence)) {
+    sequence <- c(sequence, (max(sequence) + 15*60))
+  }
+  bins = cut(uniqueFly$fulltime, breaks = sequence)
+  counts = as.data.frame(tapply(uniqueFly$counts, bins, sum))
+  colnames(counts) = "Counts"
+  time_bin_15min[[i]] = counts
+  print(big_data_flies$uniqueID[i])
+}
+
+####Bin 30 min
+time_bin_30min = list()
+
+for (i in 1:nrow(big_data_flies))
+{
+  uniqueFly = big_data
+  uniqueFly = subset(big_data, big_data$uniqueID == big_data_flies$uniqueID[i])
+  sequence = seq(from = min(uniqueFly$fulltime), to=max(uniqueFly$fulltime), by="30 min")
+  if(max(uniqueFly$fulltime) > max(sequence)) {
+    sequence <- c(sequence, (max(sequence) + 30*60))
+  }
+  bins = cut(uniqueFly$fulltime, breaks = sequence)
+  counts = as.data.frame(tapply(uniqueFly$counts, bins, sum))
+  colnames(counts) <- "Counts"
+  time_bin_30min[[i]] <- counts
+  print(big_data_flies$uniqueID[i])
+}
+
+####Bin 60 min
+time_bin_60min = list()
+
+for (i in 1:nrow(big_data_flies))
+{
+  uniqueFly = big_data
+  uniqueFly = subset(big_data, big_data$uniqueID == big_data_flies$uniqueID[i])
+  sequence = seq(from = min(uniqueFly$fulltime), to=max(uniqueFly$fulltime), by="hour")
+  if(max(uniqueFly$fulltime) > max(sequence)) {
+    sequence <- c(sequence, (max(sequence) + 60*60))
+  }
+  bins = cut(uniqueFly$fulltime, breaks = sequence)
+  counts = as.data.frame(tapply(uniqueFly$counts, bins, sum))
+  colnames(counts) <- c("fulltime", "counts")
+  time_bin_60min[[i]] = counts
+  print(big_data_flies$uniqueID[i])
+}
+colnames <- c("fulltime", "counts")
+lapply(time_bin_60min, setNames, colnames)
+
+
+
+
+uniqueFly = big_data
+uniqueFly = subset(big_data, big_data$uniqueID == big_data_flies$uniqueID[1])
+sequence = seq(from = min(uniqueFly$fulltime), to=max(uniqueFly$fulltime), by="hour")
+if(max(uniqueFly$fulltime) > max(sequence)) {
+  sequence <- c(sequence, (max(sequence) + 60*60))
+}
+bins = cut(uniqueFly$fulltime, breaks = sequence)
+bins = as.data.frame(tapply(uniqueFly$counts, bins, FUN=sum))
+colnames(counts) <- c("fulltime", "counts")
+final = counts
+print(big_data_flies$uniqueID[i])
