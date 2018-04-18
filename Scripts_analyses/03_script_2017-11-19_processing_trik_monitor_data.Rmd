@@ -116,11 +116,16 @@ monitors.long$position<-as.numeric(substr(monitors.long$position,2,4))
 head(monitors.long)
 #monitors.long$fulltime<-ymd_hms(head(monitors.long$fulltime),tz="US/Eastern")
 monitors.long$fulltime<-chron(dates=monitors.long$date,times=monitors.long$time,format=c('y-m-d','h:m:s'))
-#write.csv(monitors.long,"2018-01-17_trik_dat_long.csv")
+# write out dataset, long format
+fwrite(monitors.long,"../Data/raw/Trikinetics/02_2018-04-18_trik_dat_long.csv")
 #################################################
 
+```
 
-#testing out whether we can read data from URL
+# testing out whether we can read data from URL
+
+```{r}
+
 test<-fread("https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs_seasonal_timing/master/Data/2017-08-24_rhagoletis_data_sheet_2017-12-13_dataslice.csv")
 head(test)
 #entrainment time 1
