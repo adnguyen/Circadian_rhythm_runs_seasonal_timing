@@ -1,21 +1,18 @@
-<<<<<<< HEAD
-setwd("~/HahnLab/Circadian_rhythm_runs_seasonal_timing/")
-=======
-#setwd("~/Circadian_rhythm_runs_seasonal_timing/")
->>>>>>> 4be93ccd383d4a5d9cc53d81085680079e4c7512
+
 library(magrittr)
 library(data.table)
 library(Hmisc)
+#clean dates in both datasets
+library(lubridate)
+
 
 #read in combined dataset with all monitors
-activity.dt <- fread("~/HahnLab/Circadian_rhythm_runs_seasonal_timing/Data/2018-01-17_trik_dat_long.csv", header = TRUE, stringsAsFactors = FALSE)
+#activity.dt <- fread("Data/2018-01-17_trik_dat_long.csv", header = TRUE, stringsAsFactors = FALSE)
+activity.dt <- fread("Data/2018-01-17_trik_dat_long.csv", header = TRUE)
 
 #This isn't reading last row id:h12w5
 fly.dt <- fread("~/HahnLab/Circadian_rhythm_runs_seasonal_timing/Data/2018-01-26_rhagoletis_masterdata_data_slice.csv", header = TRUE, stringsAsFactors = FALSE)
 fly.dt <- fly.dt[,c(23:39)] #limit to columns of interest
-
-#clean dates in both datasets
-library(lubridate)
 
 
 fly.dt <- subset(fly.dt, Trikinetics_monitor !="NA" )
