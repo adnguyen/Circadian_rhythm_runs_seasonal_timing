@@ -11,17 +11,37 @@ output:
 
 We're taking a subset set of samples out.  
 
-### Load libraries
+## Load libraries
 ```{r loading libraries}
 library(ggplot2)
-library(plyr)
+library(dplyr)
 
 ```
 
-### Load in monitor data   
+## Load in monitor data   
 
 * add header names to the data   
 * for every unique ID, extract behavioral counts
+
+2018-04-18
+additional notes: 
+
+We were running low on trikinetics space, so we had to switch some monitors around. First, #1 and 2 are in entrainment, while 3,4,5,6 are in free-run conditions. We took out #6 from free run to entrainment on 2018-03-23,20:00 or 8:00PM (nb#002,page 178, parse on 227487) and then switched it back on 2018-04-05(parse on count number 241326; nb#003,page14-15). 
+
+To deal with monitor #6 having a combination of free-run and entrainment data counts, we will need to subset out the data from when #6 was in entrainment. We can take this subset and call it a diff monitor altogether ("6.2") and then assign different experimental classes for #6 and #6.2. 
+
+Another complication: There are samples in the move from entrainment to free-run in monitor #6 that needed to be moved to monitors #1 and #2. So this means some flies have had entrainment that were in 2 monitors. See notebook #003, page 14-15. Here is the list: 
+
+```{r,echo=FALSE}
+knitr::kable(fread("../Data/raw/Trikinetics/2018-04-18_nb3_pg14_multiple_entrainments_trik.csv"))
+
+
+```
+
+
+
+
+### Trikinetics monitor data
 
 ```{r load monitor data}
 m1<-read.table("../Data/raw/Trikinetics/Monitor1.txt")
