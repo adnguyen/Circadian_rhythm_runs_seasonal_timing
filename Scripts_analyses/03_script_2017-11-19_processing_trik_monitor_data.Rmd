@@ -1,5 +1,5 @@
 ---
-title: "Grabbing behavioral rhythm data for a subset of individuals"
+title: "Processing monitor data"
 author: "Andrew D. Nguyen"
 date: "11/19/2017"
 output: 
@@ -7,15 +7,18 @@ output:
     toc: yes
 ---
 
-# Goal is to extract behavioral data and link it with master data   
+# Processing monitor data
 
-We're taking a subset set of samples out.  
+Take raw counts which is in different monitors and conditions and combine them. 
+
 
 ## Load libraries
 ```{r loading libraries}
 library(ggplot2)
 library(dplyr)
-
+library(lubridate)
+library(data.table)
+library(tidyr)
 ```
 
 ## Load in monitor data   
@@ -24,7 +27,7 @@ library(dplyr)
 * for every unique ID, extract behavioral counts
 
 2018-04-18
-additional notes: 
+**additional notes:** 
 
 We were running low on trikinetics space, so we had to switch some monitors around. First, #1 and 2 are in entrainment, while 3,4,5,6 are in free-run conditions. We took out #6 from free run to entrainment on 2018-03-23,20:00 or 8:00PM (nb#002,page 178, parse on 227487) and then switched it back on 2018-04-05(parse on count number 241326; nb#003,page14-15). 
 
@@ -32,7 +35,7 @@ To deal with monitor #6 having a combination of free-run and entrainment data co
 
 Another complication: There are samples in the move from entrainment to free-run in monitor #6 that needed to be moved to monitors #1 and #2. So this means some flies have had entrainment that were in 2 monitors. See notebook #003, page 14-15. Here is the list: 
 
-```{r,echo=FALSE}
+```{r table of samples with 2 entrainment trik monitores,echo=FALSE}
 knitr::kable(fread("../Data/raw/Trikinetics/2018-04-18_nb3_pg14_multiple_entrainments_trik.csv"))
 
 
@@ -41,9 +44,11 @@ knitr::kable(fread("../Data/raw/Trikinetics/2018-04-18_nb3_pg14_multiple_entrain
 
 
 
-### Trikinetics monitor data
+### Trikinetics monitor data processing
 
 ```{r load monitor data}
+######################################################
+######################################################
 m1<-read.table("../Data/raw/Trikinetics/Monitor1.txt")
 m1$monitor<-rep(1,length(m1$V1))
 m2<-read.table("../Data/raw/Trikinetics/Monitor2.txt")
@@ -54,15 +59,31 @@ m4<-read.table("../Data/raw/Trikinetics/Monitor4.txt")
 m4$monitor<-rep(4,length(m4$V1))
 m5<-read.table("../Data/raw/Trikinetics/Monitor5.txt")
 m5$monitor<-rep(5,length(m5$V1))
-m6<-read.table("../Data/raw/Trikinetics/Monitor6.txt")
-m6$monitor<-rep(6,length(m6$V1))
+#monitor 6 needs to be handled differently because there is a mixture of free-run and entrainment data
 
-allm<-rbind(m1,m2,m3,m4,m5,m6)
-allm$V3<-match(allm$V3,month.abb)
+m6<-read.table("../Data/raw/Trikinetics/Monitor6.txt")
+
+#grabbing entrainment
+m6.1<-m6%>%
+  filter(V1<227487 | V1 > 241326)
+m6.1$monitor<-rep(6,length(m6.1$V1))
+#grabbing free-run
+m6.2<-m6%>%
+  filter(V1>227487 & V1 < 241326)
+m6.2$monitor<-rep(7,length(m6.2$V1)) ### setting free run data for this monitor as number 7
+######################################################
+######################################################
+
+#allm<-rbind(m1,m2,m3,m4,m5,m6) # combining all of the monitor data
+allm<-rbind(m1,m2,m3,m4,m5,m6.1,m6.2) # combining all of the monitor data
+allm$V3<-match(allm$V3,month.abb) # converint month to numeric
 
 
 allm$V2<-paste("20",allm$V4,"-",allm$V3,"-",formatC(allm$V2,width=2,flag="0"),sep="") # reformatting the date
 
+#parse out values that are not 1 (not reading) in V6 ( it is column 4 in the trik manaul but the dates are separated when reading into R)
+allm<-allm%>%
+  filter(V6==1)
 
 allm<-allm[,-3:-4]# excluding time we dont need
 allm<-allm[,-5:-9]# excluding time we dont need
@@ -77,9 +98,19 @@ names(allm)
 allm$fulltime<-ymd_hms(paste(allm$date,allm$time,sep=""),tz="US/Eastern")
 
 #t1 - t32 = 6-37 
-#write.csv(allm,"2017-12-17_allm_all_monitorscombined.csv")
+#writing out the dataset
+fwrite(allm,"../Data/raw/Trikinetics/01_2018-04-18_allm_all_monitorscombined.csv")###wide format; gitignore because file is too large (> 100mb)
+######################################################
+######################################################
+```
+
+# Manipulating monitor data  
+
+converting from wide to long format
+
+```{r manipulating monitor data}
 #################################################
-library(tidyr)
+
 monitors.long<-gather(allm,position,counts,t1:t32)
 monitors.long$position<-as.numeric(substr(monitors.long$position,2,4))
 head(monitors.long)
@@ -89,8 +120,7 @@ monitors.long$fulltime<-chron(dates=monitors.long$date,times=monitors.long$time,
 #################################################
 
 
-library(lubridate)
-library(data.table)
+#testing out whether we can read data from URL
 test<-fread("https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs_seasonal_timing/master/Data/2017-08-24_rhagoletis_data_sheet_2017-12-13_dataslice.csv")
 head(test)
 #entrainment time 1
@@ -105,46 +135,10 @@ test$int1<-interval(test$et1,test$et2)
 str(test)
 
 
-ifelse(ymd_hms(head(monitors.long$fulltime),tz="US/Eastern") %within% test$int1,1,0)
-
-output<-matrix(ncol=2,nrow=100)
-
-for(i in head(monitors.long,100)){
-  
-  print(i[1])
-  }
-
-
-parse_fun<-function(fulltime=ymd_hms("2017-10-29 03:34:00",tz="US/Eastern"),monitor=1,position=8,data=test){
-  #apply(test,1,function(x){ifelse(date %within%x$int1 & monitor==x$Trik_monitor & position==x$Trikinetics_position,"uniqueID","")})
-  vec<-data.frame(x=ifelse(fulltime %within% test$int1 & monitor==test$Trik_monitor & position==test$Trikinetics_position,test$uniqueID,""))
-  return(subset(vec,x !="<NA>" & x !=""))
-}
-parse_fun()
-
-
-#ddply(head(monitors.long,100),.(time_step),transform,unique_row=if(fulltime %within% test$int1){return()})
-ddply(head(monitors.long,100),.(time_step),transform,unique_row=fulltime)
-ddply(head(monitors.long,100),.(time_step),transform,unique_row=ifelse(fulltime %within% test$int1 & ,row.names(test$int1),""))
-
-
-
-apply(monitors.long[1:10,],1,FUN=parse_fun(fulldate=monitors.long$fulltime,monitor=monitors.long$monitor,position=monitors.long$position))
-
-
-apply(monitors.long[1:10,],1,function(fulltime=ymd_hms(monitors.long$fulltime,tz="US/Eastern"),monitor=monitors.long$monitor,position=monitors.long$position,data=test){
-  return(subset(data.frame(x=ifelse(fulltime %within% test$int1 & monitor==test$Trik_monitor & position==test$Trikinetics_position,test$uniqueID,"")),x !="<NA>" & x !=""))})
-
-
-###install.packages("chron")
-library(chron)
-
-apply(monitors.long[1:10,],1,function(p){
-  return(subset(data.frame(x=ifelse(p$monitor==test$Trik_monitor & position==p$position & p$fulltime < test$et2 & p$fulltime>test$et1,test$uniqueID,"")),x !="<NA>" & x !=""))})
-
 
 ```
 
+# Manually parsing out a subset of individuals
 
 **h4o4**  
 
