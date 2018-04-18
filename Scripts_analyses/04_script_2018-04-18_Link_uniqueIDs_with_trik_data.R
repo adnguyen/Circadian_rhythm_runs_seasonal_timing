@@ -10,7 +10,7 @@ library(lubridate)
 
 #read in combined dataset with all monitors
 #activity.dt <- fread("Data/2018-01-17_trik_dat_long.csv", header = TRUE, stringsAsFactors = FALSE)
-activity.dt <- fread("Data/2018-01-17_trik_dat_long.csv", header = TRUE)
+activity.dt <- fread("../Data/raw/Trikinetics/02_2018-04-18_trik_dat_long.csv", header = TRUE)
 
 #This isn't reading last row id:h12w5
 fly.dt <- fread("~/HahnLab/Circadian_rhythm_runs_seasonal_timing/Data/2018-01-26_rhagoletis_masterdata_data_slice.csv", header = TRUE, stringsAsFactors = FALSE)
