@@ -9,3 +9,5 @@
 .DS_Store
 /Scripts_analyses/2018-01-17_trik_dat_long.csv
 /Scripts_analyses/Merge*
+/Data/raw/Trikinetics/01_2018-04-18_allm_all_monitorscombined*
+/Data/raw/Trikinetics/02_2018-04-18_trik_dat_long*
