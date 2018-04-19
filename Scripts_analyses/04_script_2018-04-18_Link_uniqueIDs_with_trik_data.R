@@ -13,11 +13,14 @@ library(lubridate)
 activity.dt <- fread("../Data/raw/Trikinetics/02_2018-04-18_trik_dat_long.csv", header = TRUE)
 
 #This isn't reading last row id:h12w5
-fly.dt <- fread("~/HahnLab/Circadian_rhythm_runs_seasonal_timing/Data/2018-01-26_rhagoletis_masterdata_data_slice.csv", header = TRUE, stringsAsFactors = FALSE)
+#fly.dt <- fread("~/HahnLab/Circadian_rhythm_runs_seasonal_timing/Data/2018-01-26_rhagoletis_masterdata_data_slice.csv", header = TRUE, stringsAsFactors = FALSE)
+fly.dt <- fread("../Data/2018-04-18_rhagoletis_masterdata_data_slice.csv", header = TRUE, stringsAsFactors = FALSE)
 fly.dt <- fly.dt[,c(23:39)] #limit to columns of interest
 
 
-fly.dt <- subset(fly.dt, Trikinetics_monitor !="NA" )
+#fly.dt <- subset(fly.dt, Trikinetics_monitor !="NA" )
+fly.dt <- subset(fly.dt, Trik_monitor !="NA" )
+#dim(fly.dt)
 #convert date field from char --> date
 #activity.dt$date <- ymd(activity.dt$date)#convert date field from char --> date
 activity.dt$fulltime <- ymd_hms(activity.dt$fulltime, tz = "US/Eastern")
@@ -57,12 +60,14 @@ match.activities <- function(fly, activities = activity.dt)
   activities = activity.dt
   trik_activities <- data.table()
   fr_activities <- data.table()
-  if(fly[,"Trikinetics_monitor"] %in% c(1,2) && !is.na(fly[,"Trikinetics_entry_LD_time"]))
+  #if(fly[,"Trikinetics_monitor"] %in% c(1,2) && !is.na(fly[,"Trikinetics_entry_LD_time"]))
+  if(fly[,"Trik_monitor"] %in% c(1,2) && !is.na(fly[,"Trikinetics_entry_LD_time"]))
   {
     #subset activities to those for the appropriate monitor (for the fly's position)
     #activities <- subset(activities, monitor == fly[,"Trikinetics_monitor"])
     
-    trik_activities <- activities %>% subset(monitor == as.data.frame(fly)[,"Trikinetics_monitor"]) %>% subset(position == as.data.frame(fly)[,"Trikinetics_position"])
+    #trik_activities <- activities %>% subset(monitor == as.data.frame(fly)[,"Trikinetics_monitor"]) %>% subset(position == as.data.frame(fly)[,"Trikinetics_position"])
+    trik_activities <- activities %>% subset(monitor == as.data.frame(fly)[,"Trik_monitor"]) %>% subset(position == as.data.frame(fly)[,"Trikinetics_position"])
     #create an interval object for the fly's time in the monitor
     current.fly.interval <- interval(fly$Trikinetics_entry_LD_time, fly$Trikinetics_exit_LD_time)
     
@@ -70,10 +75,10 @@ match.activities <- function(fly, activities = activity.dt)
     trik_activities <- trik_activities %>% subset(fulltime %within% current.fly.interval)
     trik_activities$experiment<-rep("entrainment", length(trik_activities$monitor))
   }
-  if(fly[,"Free_run_monitor"] %in% c(3,4,5,6) && !is.na(fly[,"Free_run_entry_time"]) && !is.na(fly[,"Free_run_monitor"]))
+  if(fly[,"Free_run_trik_monitor"] %in% c(3,4,5,6) && !is.na(fly[,"Free_run_entry_time"]) && !is.na(fly[,"Free_run_trik_monitor"]))
   {
     #subset activities to those for the appropriate monitor (for the fly's position)
-    fr_activities <- activities %>% subset(monitor == as.data.frame(fly)[,"Free_run_monitor"]) %>% subset(position ==  as.data.frame(fly)[,"Free_run_position"])
+    fr_activities <- activities %>% subset(monitor == as.data.frame(fly)[,"Free_run_trik_monitor"]) %>% subset(position ==  as.data.frame(fly)[,"Free_run_trik_position"])
     
     #create an interval object for the fly's time in the monitor
     current.fly.interval <- interval(fly$Free_run_entry_time,
@@ -122,7 +127,9 @@ for (i in 1:nrow(fly.dt))
 }
 
 big_data = do.call(rbind, datalist)
-
+head(big_data)
+dim(big_data)
+#fwrite(big_data,"../Data/04_2018-04-19_unique_ID_trikinetics_behavioral_counts.csv")
 #big_data$experiment %>% is.na() %>% as.numeric() %>% sum()
 
 #Bin by 6 min, 15, min, 30 min, 60 min, 1 hr
