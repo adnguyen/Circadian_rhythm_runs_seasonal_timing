@@ -10,12 +10,13 @@ library(lubridate)
 
 #read in combined dataset with all monitors
 #activity.dt <- fread("Data/2018-01-17_trik_dat_long.csv", header = TRUE, stringsAsFactors = FALSE)
-activity.dt <- fread("../Data/raw/Trikinetics/02_2018-04-18_trik_dat_long.csv", header = TRUE)
+activity.dt <- fread("../Data/raw/Trikinetics/02_2018-04-18_trik_dat_long.csv", header = TRUE,stringsAsFactors = FALSE)
 
 #This isn't reading last row id:h12w5
 #fly.dt <- fread("~/HahnLab/Circadian_rhythm_runs_seasonal_timing/Data/2018-01-26_rhagoletis_masterdata_data_slice.csv", header = TRUE, stringsAsFactors = FALSE)
 fly.dt <- fread("../Data/2018-04-18_rhagoletis_masterdata_data_slice.csv", header = TRUE, stringsAsFactors = FALSE)
-fly.dt <- fly.dt[,c(23:39)] #limit to columns of interest
+#fly.dt <- fly.dt[,c(23:39)] #limit to columns of interest
+fly.dt <- fly.dt[,c(25:41)] #limit to columns of interest
 
 
 #fly.dt <- subset(fly.dt, Trikinetics_monitor !="NA" )
@@ -129,6 +130,8 @@ for (i in 1:nrow(fly.dt))
 big_data = do.call(rbind, datalist)
 head(big_data)
 dim(big_data)
+summary(as.factor(big_data$monitor))
+summary(as.factor(big_data$uniqueID))
 #fwrite(big_data,"../Data/04_2018-04-19_unique_ID_trikinetics_behavioral_counts.csv")
 #big_data$experiment %>% is.na() %>% as.numeric() %>% sum()
 

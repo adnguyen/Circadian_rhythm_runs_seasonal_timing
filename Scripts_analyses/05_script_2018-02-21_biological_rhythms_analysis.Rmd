@@ -23,17 +23,21 @@ library(dplyr)
 ## Load data and get some summary stats. How many unique IDs in this sample data set? 
 
 ```{r}
-dat<-fread("MergeComplete.csv")
+#dat<-fread("MergeComplete.csv")
+dat<-fread("../Data/04_2018-04-19_unique_ID_trikinetics_behavioral_counts.csv")
 
 str(dat)# structure
 
 dim(dat) # dimensions
 
 # how many unique ids and how many records they have
-rec<-ddply(dat,.(uniqueID),summarize,counts=length(uniqueID))
+rec<-dat%>%
+  group_by(uniqueID)%>%
+  summarise(counts=length(uniqueID))
+#rec<-ddply(dat,.(uniqueID),summarize,counts=length(uniqueID))
 dim(rec);rec
 
-##there are 237 individuals!...with varying records
+##there are 406 individuals!
 
 ##converting time to hours
 time.conv<-lubridate::hms(dat$time) # convert to time object
@@ -173,7 +177,7 @@ dsct.sub<-subset(dat.sum.count.treatment,X1>0 & X2 > 0)
 dim(dat.sum.count.treatment)
 dim(dsct.sub)
 #how many individuals left? 
-length(unique(dsct.sub$uniqueID)) # 112
+length(unique(dsct.sub$uniqueID)) # 159
 
 
 ###time manipulation, gotta re-order the dates
@@ -213,7 +217,7 @@ ggplot(dsct.order2,aes(x=time,y=counts15,colour=experiment))+geom_line()+facet_w
 
 ```{r}
 #read in eclosion data
-ecl<-fread("../Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
+ecl<-fread("../Data/2018-04-18_rhagoletis_masterdata_data_slice.csv")
 str(ecl)
 
 merg.dat<-inner_join(whole.sa.dat,ecl,by="uniqueID")
@@ -258,9 +262,9 @@ ggplot(merg.dat,aes(x=V1,y=eclosion_days,colour=paste(Host,organism)))+geom_poin
 haw<-merg.dat%>%
   filter(Host=="Haw")
 
-mod<-aov(V1~organism*experiment,data=haw)
+mod<-aov(V1~organism*experiment+uniqueID,data=haw)
 summary(mod)
-ggplot(data=haw,aes(x=experiment,y=V1))+geom_boxplot()+ylim(0,30)
+ggplot(data=haw,aes(x=experiment,y=V1,fill=organism))+geom_boxplot()+ylim(0,30)+ylab("Dominant Activity Rhythm (hours)")
 
 haw.free<-subset(haw,experiment=="free run")
 mod10<-aov(V1~organism,data=haw.free)
@@ -271,6 +275,7 @@ summary(mod10)
 haw.e<-subset(haw,experiment=="entrainment")
 mod11<-aov(V1~organism,data=haw.e)
 summary(mod11)
+
 ```
 
 ### subset apple
