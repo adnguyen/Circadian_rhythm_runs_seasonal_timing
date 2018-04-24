@@ -98,6 +98,15 @@ dim(table(rec.sum15[,1:2])) # ok checking for the same number of individuals are
 
 ```
 
+
+### plotting out individuals  
+
+```{r}
+ggplot(dat.sum.count)
+
+```
+
+
 ## Estimate Dominant Frequency with spectral analysis 
 
 
@@ -208,6 +217,16 @@ raw data actograms
 
 ```{r}
 ggplot(dsct.order2,aes(x=time,y=counts15,colour=experiment))+geom_line()+facet_wrap(~uniqueID,nrow=10,scales="free")
+
+
+sub5b21<-subset(dsct.order2,uniqueID=="5b21")
+ggplot(sub5b21,aes(x=time,y=counts15,colour=experiment))+geom_line()
+
+dsct.order3<-dsct.order2%>%
+  arrange(uniqueID,date)
+
+ggplot(dsct.order3,aes(y=counts15,colour=experiment))+geom_line()+facet_wrap(~uniqueID,nrow=10,scales="free")
+
 
 ```
 
