@@ -291,7 +291,12 @@ haw<-merg.dat%>%
 
 mod<-aov(V1~organism*experiment+uniqueID,data=haw)
 summary(mod)
-ggplot(data=haw,aes(x=experiment,y=V1,fill=organism))+geom_boxplot()+ylim(0,30)+ylab("Dominant Activity Rhythm (hours)")
+ggplot(data=haw,aes(x=experiment,y=V1,fill=organism))+geom_boxplot()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")+T
+
+haw%>%
+  group_by(experiment,organism)%>%
+  summarise(n=length(experiment))
+
 
 haw.free<-subset(haw,experiment=="free run")
 mod10<-aov(V1~organism,data=haw.free)
