@@ -12,7 +12,7 @@ output:
 ```{r}
 library(data.table)
 library(ggplot2)
-library(plyr)
+library(dplyr)
 ```
 
 ## Loading in the data
@@ -21,7 +21,7 @@ library(plyr)
 ##grabbing data if git cloned
 #eclosions<-fread("../Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
 #grabbing from online
-eclosions<-fread("https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs_seasonal_timing/master/Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
+eclosions<-fread("../Data/2018-04-26_rhagoletis_masterdata_data_slice.csv")
 
 head(eclosions,10)
 names(eclosions)
@@ -30,21 +30,48 @@ dim(eclosions)
 
 
 ### getting numbers for eclosions without simulated overwintering, so these pupae were left at rearing temperature
-sub<-subset(eclosions,eclosion_days>1)
-t1<-ddply(sub,.(Host,organism),summarize,counts=length(eclosion_days))
+t1<-eclosions%>%
+  filter(eclosion_days>1)%>%
+  group_by(Host,organism,treatment)%>%
+  summarise(counts=length(eclosion_days))
+t1
+
 knitr::kable(t1)
 
+#2018-04-26 notes
+#there is a apple host with no orgnaism
+#eclosions%>%
+ # filter(eclosion_days>1 & organism =="")%>%
+  #select(uniqueID)
+#eclosed on 2017-11-30; nb 002 pg 19; designating as a fly; it eclosed but died same day
+
+#Sample missing treatment 
+#eclosions%>%
+ # filter(eclosion_days>1 & Host == "Apple"&organism=="fly",treatment=="")%>%
+  #select(uniqueID)
+  
+  
 ```
 
 ## plotting distributions with Ggplot
 
 ```{r}
 #histogram
-ggplot(eclosions,aes(x=eclosion_days,fill=paste(Host,organism)))+geom_histogram(position="identity",alpha=.52)
+treat.filt<-eclosions%>%
+  filter(treatment!="" & treatment !="GC" & treatment !="F1")
+
+#ggplot(treat.filt,aes(x=eclosion_days,fill=paste(Host,organism)))+geom_histogram(position="identity",alpha=.52)
+
+
+ggplot(treat.filt,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~.)
+
 
 #density of flies only
 flies<-subset(eclosions,organism=="fly")
-ggplot(flies,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="identity",alpha=.52)
+ggplot(flies,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~.)
+
+ggplot(flies,aes(x=eclosion_days,fill=paste(Host)))+geom_histogram(position="identity",alpha=.52)+facet_grid(treatment~.)
+
 
 ```
 
