@@ -58,12 +58,12 @@ knitr::kable(t1)
 ```{r}
 #histogram
 treat.filt<-eclosions%>%
-  filter(treatment!="" & treatment !="GC" & treatment !="F1")
+  filter(treatment!="" & treatment !="GC" & treatment !="F1"&organism!="")
 
 #ggplot(treat.filt,aes(x=eclosion_days,fill=paste(Host,organism)))+geom_histogram(position="identity",alpha=.52)
+ggplot(treat.filt,aes(x=eclosion_days,fill=paste(Host,organism)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~.)
 
-
-ggplot(treat.filt,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~.)
+ggplot(treat.filt,aes(x=eclosion_days,fill=paste(Host)))+geom_histogram(position="identity",alpha=.52)+facet_grid(treatment~organism)+xlab("Eclosion(days)")
 
 
 #density of flies only
