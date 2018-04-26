@@ -13,6 +13,7 @@ output:
 library(data.table)
 library(ggplot2)
 library(dplyr)
+library(lubridate)
 ```
 
 ## Loading in the data
@@ -113,6 +114,33 @@ str(skipped)
 
 ggplot(skipped,aes(x=Eclosion_day,fill=Host))+geom_histogram(position="identity",alpha=.5)
 ggplot(skipped,aes(x=Eclosion_day,fill=Host))+geom_density(position="identity",alpha=.5)
+```
+
+
+
+# Quantifying days until eclosion
+
+```{r}
+glimpse(eclosions)
+#mdy(eclosions$exit_fridge_date)
+
+eclosions$Eclosion_reference_date
+eclosions$eclosion_date
+
+##subtracting date of eclosion from day 15 treatment for RT and out of winter date for SO treatment to estimate the number of days until eclosions
+#BOTH RT and SO don't have the 15 day pre-winter time, so I'm adding it on to the end
+eclosions$new.eclosions<-difftime(as.Date(eclosions$eclosion_date),as.Date(eclosions$Eclosion_reference_date),units=c("days"))+15
+
+ggplot(eclosions,aes(x=new.eclosions,eclosion_days))+geom_point()
+
+
+subecl<-eclosions%>%
+  filter(organism=="fly"&treatment!="" &treatment !="GC")
+
+mod2<-aov(new.eclosions~Host*treatment,data=subecl)
+summary(mod2)
+
+ggplot(subecl,aes(y=new.eclosions,x=Host))+geom_boxplot()+facet_grid(.~treatment)
 ```
 
 
