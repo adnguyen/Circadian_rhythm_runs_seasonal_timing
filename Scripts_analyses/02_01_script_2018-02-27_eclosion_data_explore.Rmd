@@ -61,17 +61,39 @@ treat.filt<-eclosions%>%
   filter(treatment!="" & treatment !="GC" & treatment !="F1"&organism!="")
 
 #ggplot(treat.filt,aes(x=eclosion_days,fill=paste(Host,organism)))+geom_histogram(position="identity",alpha=.52)
-ggplot(treat.filt,aes(x=eclosion_days,fill=paste(Host,organism)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~.)
+ggplot(treat.filt,aes(x=eclosion_days,fill=paste(Host,organism)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~organism)
 
 ggplot(treat.filt,aes(x=eclosion_days,fill=paste(Host)))+geom_histogram(position="identity",alpha=.52)+facet_grid(treatment~organism)+xlab("Eclosion(days)")
 
 
 #density of flies only
-flies<-subset(eclosions,organism=="fly")
+#flies<-subset(eclosions,organism=="fly")
+flies<-eclosions%>%
+  filter(treatment!="" & treatment !="GC" & treatment !="F1"&organism=="fly")
+
 ggplot(flies,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~.)
 
 ggplot(flies,aes(x=eclosion_days,fill=paste(Host)))+geom_histogram(position="identity",alpha=.52)+facet_grid(treatment~.)
 
+##instead of plotting distributions, let's plot averages
+
+ggplot(treat.filt,aes(y=eclosion_days,x=Host))+geom_boxplot()+facet_grid(treatment~organism,scales="free")+ylab("Eclosion (days)")
+#lets try some stats
+
+#on the flies only dataset
+mod1<-aov(eclosion_days~Host*treatment,data=flies)
+summary(mod1)
+
+
+##simulated overwintering
+ap.ks<-subset(flies,Host=="Apple"&treatment=="SO")
+haw.ks<-subset(flies,Host=="Haw"&treatment=="SO")
+ks.test(ap.ks$eclosion_days,haw.ks$eclosion_days)
+
+###Rearing temperature
+rtap.ks<-subset(flies,Host=="Apple"&treatment=="RT")
+rthaw.ks<-subset(flies,Host=="Haw"&treatment=="RT")
+ks.test(rtap.ks$eclosion_days,rthaw.ks$eclosion_days)
 
 ```
 
@@ -90,6 +112,7 @@ skipped<-fread("https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs
 str(skipped)
 
 ggplot(skipped,aes(x=Eclosion_day,fill=Host))+geom_histogram(position="identity",alpha=.5)
+ggplot(skipped,aes(x=Eclosion_day,fill=Host))+geom_density(position="identity",alpha=.5)
 ```
 
 
