@@ -14,6 +14,9 @@ library(data.table)
 library(ggplot2)
 library(dplyr)
 library(lubridate)
+
+#ggplot graph settings
+T<-theme_bw()+theme(,text=element_text(size=25),axis.text=element_text(size=25), panel.grid.major=element_blank(), panel.grid.minor.x = element_blank(), panel.grid = element_blank(), legend.key = element_blank(),axis.title.y=element_text(margin=margin(t=0,r=15,b=0,l=0)),axis.title.x=element_text(margin=margin(t=15,r=,b=0,l=0)))+ theme(legend.position="none")
 ```
 
 ## Loading in the data
@@ -133,7 +136,55 @@ eclosions$new.eclosions<-difftime(as.Date(eclosions$eclosion_date),as.Date(eclos
 
 ggplot(eclosions,aes(x=new.eclosions,eclosion_days))+geom_point()
 
+```
 
+# Comparing flies and wasps
+
+
+```{r}
+ecl.filter<-eclosions%>%
+  filter(treatment!=""&treatment!="GC",organism!="")
+
+ggplot(ecl.filter,aes(x=new.eclosions,fill=paste(Host,organism)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~organism)
+
+ggplot(ecl.filter,aes(x=new.eclosions,fill=paste(Host)))+geom_histogram(position="identity",alpha=.52)+facet_grid(treatment~organism)+xlab("Eclosion(days)")
+
+ggplot(ecl.filter,aes(x=new.eclosions,fill=paste(Host,organism)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~.)+xlab("Eclosion(days)")
+
+
+## overall sample sizes
+
+ecl.filter%>%
+  group_by(Host,organism,treatment)%>%
+  summarise(n=length(Host))
+
+###sample sizes for RT
+RT.sub<-subset(ecl.filter,treatment=="RT")
+sample.sizes<-RT.sub%>%
+  group_by(Host,organism)%>%
+  summarise(n=length(Host))
+#ggplot(sample.sizes,aes(y=n,x=paste(Host,organism)))+geom_bar()
+
+# samples for RT and haw
+RT.sub.haw<-subset(ecl.filter,treatment=="RT"& Host=="Haw")
+RT.sub.haw%>%
+  group_by(Host,organism)%>%
+  summarise(n=length(Host))
+
+
+mod6<-aov(new.eclosions~organism,data=RT.sub.haw)
+summary(mod6)
+
+#split out plot by host and plot organism within each host
+ggplot(ecl.filter,aes(x=new.eclosions,fill=paste(Host,organism)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~Host)+xlab("Eclosion(days)")+T
+
+ggplot(ecl.filter,aes(y=eclosion_days,x=Host,colour=organism))+geom_boxplot()+facet_grid(treatment~.,scales="free")+ylab("Eclosion (days)")
+```
+
+
+# Just analyzing flies 
+
+```{r}
 subecl<-eclosions%>%
   filter(organism=="fly"&treatment!="" &treatment !="GC")
 
@@ -141,7 +192,24 @@ mod2<-aov(new.eclosions~Host*treatment,data=subecl)
 summary(mod2)
 
 ggplot(subecl,aes(y=new.eclosions,x=Host))+geom_boxplot()+facet_grid(.~treatment)
+
+ggplot(subecl,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~.)
+ggplot(subecl,aes(x=eclosion_days,fill=paste(Host)))+geom_histogram(position="identity",alpha=.52)+facet_grid(treatment~.)
+
+
+#comparing similar sites only 
+subecl.site<-subecl%>%
+  filter(Site_name!="Milford"& Site_name!="Coll Hall" & Site_name!="MSU")
+
+mod3<-aov(new.eclosions~Host*treatment,data=subecl.site)
+summary(mod3)
+ggplot(subecl.site,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~Site_name)
+
 ```
 
+### Write out processed dataset
 
+```{r}
+write.csv(eclosions,"05_master_dataset_eclosions_IDs.csv")
+```
 

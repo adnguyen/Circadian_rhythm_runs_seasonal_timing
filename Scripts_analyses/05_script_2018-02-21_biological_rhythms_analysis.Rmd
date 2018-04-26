@@ -98,15 +98,6 @@ dim(table(rec.sum15[,1:2])) # ok checking for the same number of individuals are
 
 ```
 
-
-### plotting out individuals  
-
-```{r}
-ggplot(dat.sum.count)
-
-```
-
-
 ## Estimate Dominant Frequency with spectral analysis 
 
 
@@ -236,7 +227,9 @@ ggplot(dsct.order3,aes(y=counts15,colour=experiment))+geom_line()+facet_wrap(~un
 
 ```{r}
 #read in eclosion data
-ecl<-fread("../Data/2018-04-18_rhagoletis_masterdata_data_slice.csv")
+#ecl<-fread("../Data/2018-04-18_rhagoletis_masterdata_data_slice.csv")
+ecl<-fread("05_master_dataset_eclosions_IDs.csv")
+ecl<-ecl[,-1]
 str(ecl)
 
 merg.dat<-inner_join(whole.sa.dat,ecl,by="uniqueID")
@@ -254,6 +247,21 @@ merg.dat%>%
   summarise(mean=mean(V1),sd=sd(V1),n=length(Host))
 ```
 
+### Filter out unique IDs that have not accounted for the monitor 6 switch
+
+```{r}
+#list of samples that need to be filtered out 
+
+list<-c("2b15","19r23","4o72","18w11","13r12","10w6","11o16","12o67","11o40","11w11","18w22","12w53")
+
+merg.dat%>%
+  filter(uniqueID %in% list)
+#none match
+s11w5<-subset(dsct.order2,uniqueID=="11w5")
+ggplot(s11w5,aes(x=time,y=counts15,colour=experiment))+geom_line()
+```
+
+
 ### Statistics Plots! Eclosion vs circ timing 
 
 
@@ -264,13 +272,13 @@ merg.dat$circ<-apply(merg.dat[,3:6],1,function(x){mean(subset(x,x<30 & x > 20))}
 #mod1<-lmer(eclosion_days~V1*experiment+(1|cohort_day),merg.dat)
 #summary(mod1)
 
-ggplot(merg.dat,aes(x=circ,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
+ggplot(merg.dat,aes(x=circ,y=new.eclosions,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
 
 ggplot(merg.dat,aes(x=paste(Host,organism),y=circ))+geom_boxplot()
 summary(aov(circ~organism,data=merg.dat))
 
 
-ggplot(merg.dat,aes(x=V1,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
+ggplot(merg.dat,aes(x=V1,y=new.eclosions,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
 ```
 
 
