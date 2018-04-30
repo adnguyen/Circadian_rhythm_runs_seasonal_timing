@@ -5,6 +5,8 @@ date: "11/19/2017"
 output: 
   html_document: 
     toc: yes
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Processing monitor data
