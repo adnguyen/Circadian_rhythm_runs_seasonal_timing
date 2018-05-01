@@ -27,7 +27,7 @@ T<-theme_bw()+theme(,text=element_text(size=25),axis.text=element_text(size=25),
 ##grabbing data if git cloned
 #eclosions<-fread("../Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
 #grabbing from online
-eclosions<-fread("../Data/2018-04-26_rhagoletis_masterdata_data_slice.csv")
+eclosions<-fread("../Data/2018-05-01_rhagoletis_masterdata_data_slice.csv")
 
 head(eclosions,10)
 names(eclosions)
