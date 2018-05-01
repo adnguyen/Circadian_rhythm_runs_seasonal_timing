@@ -5,6 +5,8 @@ output:
     highlight: espresso
     theme: spacelab
     toc: yes
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Load Libraries

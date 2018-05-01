@@ -5,6 +5,8 @@ output:
     highlight: monochrome
     toc: yes
   html_document: default
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Eclosion data 
@@ -134,7 +136,7 @@ eclosions$eclosion_date
 #BOTH RT and SO don't have the 15 day pre-winter time, so I'm adding it on to the end
 eclosions$new.eclosions<-difftime(as.Date(eclosions$eclosion_date),as.Date(eclosions$Eclosion_reference_date),units=c("days"))+15
 
-ggplot(eclosions,aes(x=new.eclosions,eclosion_days))+geom_point()
+#ggplot(eclosions,aes(x=new.eclosions,eclosion_days))+geom_point()
 
 ```
 
@@ -178,7 +180,12 @@ summary(mod6)
 #split out plot by host and plot organism within each host
 ggplot(ecl.filter,aes(x=new.eclosions,fill=paste(Host,organism)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~Host)+xlab("Eclosion(days)")+T
 
-ggplot(ecl.filter,aes(y=eclosion_days,x=Host,colour=organism))+geom_boxplot()+facet_grid(treatment~.,scales="free")+ylab("Eclosion (days)")
+ggplot(ecl.filter,aes(y=eclosion_days,x=Host,fill=organism))+geom_boxplot()+facet_grid(treatment~.,scales="free")+ylab("Adult Emergence (days)")+T
+
+##for the biological rhythms conference, I just need to take the RT for Haw samples
+ecl.filter.haw<-ecl.filter%>%
+  filter(Host=="Haw"&treatment=="RT")
+ggplot(ecl.filter.haw,aes(y=eclosion_days,x=organism,fill=organism))+geom_boxplot()+T+ylab("Adult Emergence (days)")
 ```
 
 
