@@ -143,7 +143,17 @@ sa.an()
 ```{r eval=FALSE}
 #take 10o20
 test<-subset(dat.sum.counts,uniqueID=="10o20")
+
+#plot it just to look at it and I need for a psoter
+test$n<-seq(1,length(test$uniqueID),length.out = length(test$uniqueID))
+test$days<-test$n/96
+
+ggplot(test,aes(x=days,y=counts15,colour=experiment))+geom_line()+xlab("Days")+ylab("Activity Counts")+scale_color_manual(values=c("blue","black"))+T
+
+
 #ddply(test,.(experiment),function(sub) sa.an(sub$counts15))
+
+
 test %>% 
   group_by(experiment)%>%select(experiment)%>%summarise(n=length(experiment))
   
@@ -212,8 +222,8 @@ raw data actograms
 ggplot(dsct.order2,aes(x=time,y=counts15,colour=experiment))+geom_line()+facet_wrap(~uniqueID,nrow=10,scales="free")
 
 
-sub5b21<-subset(dsct.order2,uniqueID=="5b21")
-ggplot(sub5b21,aes(x=time,y=counts15,colour=experiment))+geom_line()
+#sub5b21<-subset(dsct.order2,uniqueID=="5b21")
+#ggplot(sub5b21,aes(x=time,y=counts15,colour=experiment))+geom_line()
 
 dsct.order3<-dsct.order2%>%
   arrange(uniqueID,date)
@@ -286,6 +296,8 @@ ggplot(merg.dat,aes(x=V1,y=new.eclosions,colour=paste(Host,organism)))+geom_poin
 
 #subset haw
 
+### Testing effect of experiment and organisms on biological rhythms
+
 ```{r}
 #haw<-subset(merg.dat,Host=="Haw")
 haw<-merg.dat%>%
@@ -294,6 +306,8 @@ haw<-merg.dat%>%
 mod<-aov(V1~organism*experiment+uniqueID,data=haw)
 summary(mod)
 ggplot(data=haw,aes(x=experiment,y=V1,fill=organism))+geom_boxplot()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")+T
+
+ggplot(data=haw,aes(x=experiment,y=V1,group=uniqueID,colour=organism))+geom_point(size=3)+geom_line()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")
 
 haw%>%
   group_by(experiment,organism)%>%
@@ -309,6 +323,7 @@ summary(mod10)
 haw.e<-subset(haw,experiment=="entrainment")
 mod11<-aov(V1~organism,data=haw.e)
 summary(mod11)
+
 
 ```
 
