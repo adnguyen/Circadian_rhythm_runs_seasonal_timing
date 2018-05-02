@@ -294,6 +294,23 @@ ggplot(merg.dat,aes(x=V1,y=new.eclosions,colour=paste(Host,organism)))+geom_poin
 ```
 
 
+### Subset flies
+
+```{r}
+flies.hosts<-merg.dat%>%
+  filter(organism=="fly")#
+  
+summary(aov(new.eclosions~circ*treatment*Host,data=flies.hosts))  
+
+flies.hosts2<-merg.dat%>%
+  filter(organism=="fly"&treatment=="SO")#
+  
+summary(aov(new.eclosions~circ*Host,data=flies.hosts))  
+
+ggplot(flies.hosts2,aes(y=new.eclosions,x=circ))+geom_point()+stat_smooth()
+
+```
+
 #subset haw
 
 ### Testing effect of experiment and organisms on biological rhythms
