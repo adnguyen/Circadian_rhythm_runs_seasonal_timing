@@ -1,0 +1,38 @@
+---
+title: "00_2018-05-01_workflow_diagrammER"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Library
+
+```{r}
+library(DiagrammeR)
+```
+
+## Workflow for setting up treatments
+°
+```{r}
+mermaid("
+graph LR
+  A{Cohort} --> B[3 treatments]
+  B --save for genotyping--> C[Genetic reference]
+  B --measure intrinsic dormancy ability--> D[Rearing temperature 23 C]
+  B --measure under dormancy--> E[Simulated Overwintering treatment]
+  D --> F{Measure Eclosion}
+  E --> F
+  F --Esimate biological rhythms--> G{Measure activity with Trikinetics}
+
+  style F fill:#f9f,stroke:#333,stroke-width:4px
+  style G fill:#23772C,stroke:#333,stroke-width:4px
+        ")
+
+```
+
+
+# Session info
+
+```{r}
+sessionInfo()
+
+```
