@@ -426,9 +426,9 @@ par.dat<-dsct.order2%>%
 
 dwf.fits<-par.dat%>%
   group_by(uniqueID,experiment)%>%
-  summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5))
+  summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5),up=globdwf(vec=counts15,Jcirc=7))
 
-
+names(dwf.fits)
 
 ggplot(dwf.fits,aes(y=int,x=experiment))+geom_boxplot()
 ggplot(dwf.fits,aes(y=circ,x=experiment))+geom_boxplot()
@@ -447,12 +447,38 @@ ggplot(dwf.fits,aes(y=ult,x=experiment))+geom_boxplot()
 merg.dat2<-inner_join(dwf.fits,ecl,by="uniqueID")
 length(unique(merg.dat2$uniqueID))
 
-
+### relationship with eclosion
 ggplot(data=merg.dat2,aes(x=circ,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
 
 ggplot(data=merg.dat2,aes(x=int,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
 
 ggplot(data=merg.dat2,aes(x=ult,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
+
+
+#looking at sample sizes
+merg.dat2%>%
+  group_by(Host,organism,treatment)%>%
+  summarise(n=length(Host))
+
+##exploring ultradian filter
+ggplot(data=merg.dat2,aes(y=ult,x=Host,colour=organism))+geom_boxplot()+facet_grid(treatment~experiment)
+
+RT.haw<-merg.dat2%>%
+  filter(treatment=="RT"&Host=="Haw")
+
+summary(aov(ult~experiment*organism+uniqueID,data=RT.haw))
+
+# ultradian
+ggplot(data=merg.dat2,aes(y=circ,x=Host,colour=organism))+geom_boxplot()+facet_grid(treatment~experiment)
+
+summary(aov(circ~experiment*organism+uniqueID,data=RT.haw))
+
+#high level
+ggplot(data=merg.dat2,aes(y=int,x=Host,colour=organism))+geom_boxplot()+facet_grid(treatment~experiment)
+
+summary(aov(int~experiment*organism+uniqueID,data=RT.haw))
+
+
 
 ```
 
