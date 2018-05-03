@@ -182,6 +182,12 @@ ggplot(ecl.filter,aes(x=new.eclosions,fill=paste(Host,organism)))+geom_density(p
 
 ggplot(ecl.filter,aes(y=eclosion_days,x=Host,fill=organism))+geom_boxplot()+facet_grid(treatment~.,scales="free")+ylab("Adult Emergence (days)")+T
 
+#what are the sample sizes
+ecl.filter%>%
+  group_by(treatment,organism,Host)%>%
+  summarise(n=length(Host))
+
+
 ##for the biological rhythms conference, I just need to take the RT for Haw samples
 ecl.filter.haw<-ecl.filter%>%
   filter(Host=="Haw"&treatment=="RT")
@@ -201,8 +207,19 @@ summary(mod2)
 ggplot(subecl,aes(y=new.eclosions,x=Host))+geom_boxplot()+facet_grid(.~treatment)
 
 ggplot(subecl,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~.)
+
 ggplot(subecl,aes(x=eclosion_days,fill=paste(Host)))+geom_histogram(position="identity",alpha=.52)+facet_grid(treatment~.)
 
+###comparing just the SO 
+subecl2<-subecl%>%
+  filter(treatment=="SO")
+mod22<-aov(new.eclosions~Host,data=subecl2)
+summary(mod22)
+ggplot(subecl2,aes(x=Host,y=new.eclosions))+geom_boxplot()
+
+subecl2%>%
+  group_by(Host)%>%
+  summarise(n=length(Host))
 
 #comparing similar sites only 
 subecl.site<-subecl%>%
