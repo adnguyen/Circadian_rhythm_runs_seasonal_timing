@@ -324,7 +324,9 @@ mod<-aov(V1~organism*experiment+uniqueID,data=haw)
 summary(mod)
 ggplot(data=haw,aes(x=experiment,y=V1,fill=organism))+geom_boxplot()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")+T
 
-ggplot(data=haw,aes(x=experiment,y=V1,group=uniqueID,colour=organism))+geom_point(size=3)+geom_line()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")
+#ggplot(data=haw,aes(x=experiment,y=V1,group=uniqueID,colour=organism))+geom_point(size=3)+geom_line()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")
+
+
 
 haw%>%
   group_by(experiment,organism)%>%
@@ -335,12 +337,14 @@ haw.free<-subset(haw,experiment=="free run")
 mod10<-aov(V1~organism,data=haw.free)
 summary(mod10)
 
+#ggplot(haw.free,aes(x=V1,y=new.eclosions,colour=organism))+geom_point()+stat_smooth(method="lm")
 
 
 haw.e<-subset(haw,experiment=="entrainment")
 mod11<-aov(V1~organism,data=haw.e)
 summary(mod11)
 
+ggplot(haw.e,aes(x=organism,y=V1))+geom_boxplot()
 
 ```
 
