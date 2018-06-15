@@ -27,13 +27,19 @@ T<-theme_bw()+theme(,text=element_text(size=25),axis.text=element_text(size=25),
 ##grabbing data if git cloned
 #eclosions<-fread("../Data/2018-01-26_rhagoletis_masterdata_data_slice.csv")
 #grabbing from online
-eclosions<-fread("../Data/2018-05-01_rhagoletis_masterdata_data_slice.csv")
+eclosions<-fread("../Data/2018-06-13_master_data_slice.csv")
 
 head(eclosions,10)
 names(eclosions)
 dim(eclosions)
 #tail(eclosions,10)
 
+
+eclosions%>%
+  group_by(Host,Site_name)%>%
+  summarise(sample_size=length(Host))%>%
+  filter(Site_name!="Blank")%>%
+  knitr::kable()
 
 ### getting numbers for eclosions without simulated overwintering, so these pupae were left at rearing temperature
 t1<-eclosions%>%
@@ -180,7 +186,12 @@ summary(mod6)
 #split out plot by host and plot organism within each host
 ggplot(ecl.filter,aes(x=new.eclosions,fill=paste(Host,organism)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~Host)+xlab("Eclosion(days)")+T
 
+##boxplots
 ggplot(ecl.filter,aes(y=eclosion_days,x=Host,fill=organism))+geom_boxplot()+facet_grid(treatment~.,scales="free")+ylab("Adult Emergence (days)")+T
+##violin plot
+ggplot(ecl.filter,aes(y=eclosion_days,x=Host,fill=organism))+geom_violin()+facet_grid(treatment~.,scales="free")+ylab("Adult Emergence (days)")+T
+
+
 
 #what are the sample sizes
 ecl.filter%>%
