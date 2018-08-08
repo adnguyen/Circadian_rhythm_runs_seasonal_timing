@@ -51,9 +51,11 @@ knitr::kable(fread("../Data/raw/Trikinetics/2018-04-18_nb3_pg14_multiple_entrain
 ```{r load monitor data}
 ######################################################
 ######################################################
-m1<-read.table("../Data/raw/Trikinetics/Monitor1.txt")
+#m1<-read.table("../Data/raw/Trikinetics/Monitor1.txt")
+m1<-read.table("../Data/raw/Trikinetics/Monitor1_2018-07-31.txt")
 m1$monitor<-rep(1,length(m1$V1))
-m2<-read.table("../Data/raw/Trikinetics/Monitor2.txt")
+#m2<-read.table("../Data/raw/Trikinetics/Monitor2.txt")
+m2<-read.table("../Data/raw/Trikinetics/Monitor2_2018_07-31.txt")
 m2$monitor<-rep(2,length(m2$V1))
 m3<-read.table("../Data/raw/Trikinetics/Monitor3.txt")
 m3$monitor<-rep(3,length(m3$V1))
@@ -126,7 +128,7 @@ fwrite(monitors.long,"../Data/raw/Trikinetics/02_2018-04-18_trik_dat_long.csv")
 
 # testing out whether we can read data from URL
 
-```{r}
+```{r eval=FALSE}
 
 test<-fread("https://raw.githubusercontent.com/adnguyen/Circadian_rhythm_runs_seasonal_timing/master/Data/2017-08-24_rhagoletis_data_sheet_2017-12-13_dataslice.csv")
 head(test)

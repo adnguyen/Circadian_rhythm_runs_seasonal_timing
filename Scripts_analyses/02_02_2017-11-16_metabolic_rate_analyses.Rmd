@@ -3,6 +3,8 @@ title: "calculating mass specific metabolic rate"
 output: 
   html_document: 
     toc: yes
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Goal: calculate and visualize mass specific metabolic rate  
@@ -20,7 +22,7 @@ library(dplyr)
 library(ggplot2)
 
 
-dat<-read.csv("../Data/2017-08-24_rhagoletis_data_sheet_2017-12-13_dataslice.csv")
+dat<-read.csv("../Data/2018-08-07_master_data_slice.csv")
 str(dat)
 ```
 

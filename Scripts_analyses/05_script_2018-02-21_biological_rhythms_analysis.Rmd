@@ -27,6 +27,7 @@ library(dplyr)
 ```{r}
 #dat<-fread("MergeComplete.csv")
 dat<-fread("../Data/04_2018-04-19_unique_ID_trikinetics_behavioral_counts.csv")
+dat$uniqueID<-as.vector(as.factor(dat$uniqueID))
 
 str(dat)# structure
 
@@ -83,13 +84,13 @@ dat.sum.counts<-dat %>%
 
 dim(dat.sum.counts)
 str(dat.sum.counts)
-
+summary(dat.sum.counts)
 
 
 ##checking if the manipulations are what I expect them to be. Are the same number of individuals retained? How many are in entrainment, how many in free run? 
 rec.sum15<-dat.sum.counts%>%
-  group_by(uniqueID,experiment)%>%
-  summarise(length=length(bins15))
+  dplyr::group_by(uniqueID,experiment)%>%
+  dplyr::summarise(length=length(bins15))
 
 
 dim(rec.sum15)
@@ -195,9 +196,9 @@ length(unique(dsct.sub$uniqueID)) # 159
 ###time manipulation, gotta re-order the dates
 dsct.sub$dt<-paste(dsct.sub$date,dsct.sub$bins15)
 dsct.order2<-dsct.sub%>%
-  group_by(uniqueID,experiment)%>%
-  arrange(date)%>%
-  mutate(time=seq(1,length(bins15),1))
+  dplyr::group_by(uniqueID,experiment)%>%
+  dplyr::arrange(date)%>%
+  dplyr::mutate(time=seq(1,length(bins15),1))
 #dsct.order<-ddply(dsct.sub,.(uniqueID,experiment),transform,order(date))
 #dsct.order2<-ddply(dsct.order,.(uniqueID),transform,time=seq(1,length(bins15),1))
 length(unique(dsct.order2$uniqueID))
@@ -207,8 +208,8 @@ length(unique(dsct.order2$uniqueID))
 
 #whole.sa.dat<-ddply(dsct.order2,.(uniqueID,experiment),function(sub) sa.an(sub$counts15))
 whole.sa.dat<-dsct.order2%>%
-  group_by(uniqueID,experiment)%>%
-  summarise(V1=sa.an(ts=counts15)[1],V2=sa.an(ts=counts15)[2],V3=sa.an(ts=counts15)[3])
+  dplyr::group_by(uniqueID,experiment)%>%
+  dplyr::summarise(V1=sa.an(ts=counts15)[1],V2=sa.an(ts=counts15)[2],V3=sa.an(ts=counts15)[3])
 whole.sa.dat
 
 #fwrite(whole.sa.dat,"whole.sa.dat.csv")
@@ -219,7 +220,7 @@ whole.sa.dat
 raw data actograms 
 
 ```{r}
-ggplot(dsct.order2,aes(x=time,y=counts15,colour=experiment))+geom_line()+facet_wrap(~uniqueID,nrow=10,scales="free")
+#ggplot(dsct.order2,aes(x=time,y=counts15,colour=experiment))+geom_line()+facet_wrap(~uniqueID,nrow=10,scales="free")
 
 
 #sub5b21<-subset(dsct.order2,uniqueID=="5b21")
@@ -270,7 +271,7 @@ merg.dat%>%
   filter(uniqueID %in% list)
 #none match
 s11w5<-subset(dsct.order2,uniqueID=="11w5")
-ggplot(s11w5,aes(x=time,y=counts15,colour=experiment))+geom_line()
+ggplot(s11w5,aes(x=time,y=counts15,colour=experiment))+geom_line()+
 ```
 
 
@@ -344,7 +345,7 @@ haw.e<-subset(haw,experiment=="entrainment")
 mod11<-aov(V1~organism,data=haw.e)
 summary(mod11)
 
-ggplot(haw.e,aes(x=organism,y=V1))+geom_boxplot()
+#ggplot(haw.e,aes(x=organism,y=V1))+geom_boxplot()
 
 ```
 
@@ -414,10 +415,10 @@ globdwf()
 ```{r}
 # sort data that enables estimation of circ rhythm 
 nam.vec.exclude<-dsct.order2%>%
-  group_by(uniqueID,experiment)%>%
-  summarise(n=length(experiment))%>%
-  filter(n<768)%>%
-  select(uniqueID)
+  dplyr::group_by(uniqueID,experiment)%>%
+  dplyr::summarise(n=length(experiment))%>%
+  dplyr::filter(n<768)%>%
+  dplyr::select(uniqueID)
 as.vector(nam.vec.exclude)
 
 #v<-c("12b32","5b31","5w42","h2b12","h2r23","h4o4")
@@ -426,11 +427,11 @@ as.vector(nam.vec.exclude)
 #par.dat<-dsct.order2%>%
  # filter(uniqueID!="12b32"&uniqueID!="5b31"&uniqueID!="5w42"&uniqueID!="h2b12"&uniqueID!="h4o4"&uniqueID!="h2r23")
 par.dat<-dsct.order2%>%
-  filter(!uniqueID%in%nam.vec.exclude$uniqueID)
+  dplyr::filter(!uniqueID%in%nam.vec.exclude$uniqueID)
 
 dwf.fits<-par.dat%>%
-  group_by(uniqueID,experiment)%>%
-  summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5),up=globdwf(vec=counts15,Jcirc=7))
+  dplyr::group_by(uniqueID,experiment)%>%
+  dplyr::summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5),up=globdwf(vec=counts15,Jcirc=7))
 
 names(dwf.fits)
 
