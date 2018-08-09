@@ -429,9 +429,15 @@ as.vector(nam.vec.exclude)
 par.dat<-dsct.order2%>%
   dplyr::filter(!uniqueID%in%nam.vec.exclude$uniqueID)
 
+#dwf.fits<-par.dat%>%
+  #dplyr::group_by(uniqueID,experiment)%>%
+ # dplyr::summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdw#f(vec=counts15,Jcirc=5),up=globdwf(vec=counts15,Jcirc=7))
+
+
 dwf.fits<-par.dat%>%
   dplyr::group_by(uniqueID,experiment)%>%
-  dplyr::summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5),up=globdwf(vec=counts15,Jcirc=7))
+  dplyr::summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5))
+
 
 names(dwf.fits)
 
@@ -466,7 +472,7 @@ merg.dat2%>%
   summarise(n=length(Host))
 
 ##exploring ultradian filter
-ggplot(data=merg.dat2,aes(y=ult,x=Host,colour=organism))+geom_boxplot()+facet_grid(treatment~experiment)
+ggplot(data=merg.dat2,aes(y=ult,x=Host,colour=organism))+geom_boxplot()+facet_grid(treatment~experiment,scale="free")
 
 RT.haw<-merg.dat2%>%
   filter(treatment=="RT"&Host=="Haw")
@@ -484,7 +490,55 @@ ggplot(data=merg.dat2,aes(y=int,x=Host,colour=organism))+geom_boxplot()+facet_gr
 summary(aov(int~experiment*organism+uniqueID,data=RT.haw))
 
 
+#
+#dim(merg.dat2)
+merg.dat2.SO<-merg.dat2%>%
+  filter(treatment=="SO")
 
+ggplot(merg.dat2.SO,aes(y=circ,x=experiment,colour=Host))+geom_boxplot()
+ggplot(merg.dat2.SO,aes(y=circ,x=experiment,colour=Host,group=uniqueID))+geom_line()+geom_point()
+
+library(lme4)
+library(lmerTest)
+m1<-lmer(circ~experiment*Host+(1|uniqueID),data=merg.dat2.SO)
+summary(m1)
+
+m2<-lmer(ult~experiment*Host+(1|uniqueID),data=merg.dat2.SO)
+summary(m2)
+plot(m2)
+
+
+ggplot(merg.dat2.SO,aes(y=ult,x=experiment,colour=Host))+geom_boxplot()
+```
+
+
+### Subset out a few unique ids and plot them 
+
+
+```{r}
+###bneed to change h4o4
+
+h4o13<-dsct.order3%>%
+  filter(uniqueID=="h4o13")
+
+h4o13$hm<-hour(hm(h4o13$bins15))+minute(hm(h4o13$bins15))/60
+
+
+ggplot(h4o13,aes(x=hm,y=counts15,colour=experiment))+geom_line()+facet_grid(date~.,scale="free")+geom_vline(xintercept=c(6,20))
+
+
+#spectral density analysis
+estim<-h4o13%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::summarise(V1=sa.an(ts=counts15)[1],V2=sa.an(ts=counts15)[2],V3=sa.an(ts=counts15)[3])
+estim
+
+#wavelet analysis 
+estim2<-h4o13%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::filter(experiment=="free run")%>%
+  dplyr::summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5),hi=globdwf(vec=counts15,Jcirc=7))
+estim2
 ```
 
 # SessionINfo
