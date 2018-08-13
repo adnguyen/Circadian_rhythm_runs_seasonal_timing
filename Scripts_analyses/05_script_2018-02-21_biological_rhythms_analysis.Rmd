@@ -514,8 +514,9 @@ ggplot(merg.dat2.SO,aes(y=ult,x=experiment,colour=Host))+geom_boxplot()
 
 ### Subset out a few unique ids and plot them 
 
+h4013 sample
 
-```{r}
+```{r h4o13 sample}
 ###bneed to change h4o4
 
 h4o13<-dsct.order3%>%
@@ -523,22 +524,108 @@ h4o13<-dsct.order3%>%
 
 h4o13$hm<-hour(hm(h4o13$bins15))+minute(hm(h4o13$bins15))/60
 
-
+# days stacked
 ggplot(h4o13,aes(x=hm,y=counts15,colour=experiment))+geom_line()+facet_grid(date~.,scale="free")+geom_vline(xintercept=c(6,20))
 
+# phase shift
+#ggplot(h4o13,aes(x=time,y=counts15,colour=experiment))+geom_line()+facet_grid(date~.,scale="free")#+geom_vline(xintercept=c(6,20))
 
+# lets pot by days
+#bin by days
+
+h4o13.days<-h4o13%>%
+  dplyr::group_by(experiment,date)%>%
+  dplyr::summarise(day.counts=sum(counts15))
+
+ggplot(h4o13.days,aes(x=date,y=day.counts,group=experiment,colour=experiment))+geom_line()+geom_point()
+
+#lets see how many days there are 
+h4o13.days%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::summarise(n=length(experiment))
+
+```
+
+h4o13 analyses
+
+```{r single analyses on h4o13}
 #spectral density analysis
+
+#15 min bins
 estim<-h4o13%>%
   dplyr::group_by(experiment)%>%
   dplyr::summarise(V1=sa.an(ts=counts15)[1],V2=sa.an(ts=counts15)[2],V3=sa.an(ts=counts15)[3])
 estim
 
+#bin by days
+estim.day<-h4o13.days%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::summarise(V1=sa.an(ts=day.counts)[1]*4,V2=sa.an(ts=day.counts)[2]*4,V3=sa.an(ts=day.counts)[3]*4)
+estim.day
+
 #wavelet analysis 
 estim2<-h4o13%>%
   dplyr::group_by(experiment)%>%
-  dplyr::filter(experiment=="free run")%>%
-  dplyr::summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5),hi=globdwf(vec=counts15,Jcirc=7))
+  #dplyr::filter(experiment=="free run")%>%
+  dplyr::summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5))#,hi=globdwf(vec=counts15,Jcirc=7)
 estim2
+
+#lomb-scargle analysis
+#install.packages("lomb")
+library(lomb)
+a<-lsp(h4o13$counts15,times=h4o13$time/4,type="period",from=5,to=100)
+summary(a)
+a$peak
+a$peak.at[1]
+##grabbing the significant peaks
+per<-data.frame(power=a$power,time=a$scanned)
+per%>%filter(power>a$sig.level)
+
+
+###estimating period for different experiments
+#15 min bins
+lsa<-h4o13%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::do(dp=lsp(.$counts15,times=.$time/4,type="period",from=5,to=100)$peak.at[1])
+
+lsa$dp<-lsa%>%
+  dplyr::rowwise()%>%
+  dplyr::select("dp")%>%
+  unlist()
+lsa
+
+#day bins
+h4o13.days<-h4o13.days%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::mutate(.,time=seq(1,length(experiment),1))
+
+lsa.d<-h4o13.days%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::do(dp=lsp(.$day.counts,times=.$time,type="period",from=3,to=50)$peak.at[1])
+
+lsa.d$dp<-lsa.d%>%
+  dplyr::rowwise()%>%
+  dplyr::select("dp")%>%
+  unlist()
+lsa.d
+
+
+#randlsp(repeats=50,h4o13$counts15,times=h4o13$time,type="period")
+
+#periodograms
+library(TSA)
+
+pergram<-periodogram(h4o13$counts15,xlim=c(0,.05))
+str(pergram)
+
+per
+
+
+install.packages('devtools')
+devtools::install_github('hugheylab/tipa')
+library('tipa')
+
+?tipaPhaseRef
 ```
 
 # SessionINfo
