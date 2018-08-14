@@ -35,8 +35,8 @@ dim(dat) # dimensions
 
 # how many unique ids and how many records they have
 rec<-dat%>%
-  group_by(uniqueID)%>%
-  summarise(counts=length(uniqueID))
+  dplyr::group_by(uniqueID)%>%
+  dplyr::summarise(counts=length(uniqueID))
 #rec<-ddply(dat,.(uniqueID),summarize,counts=length(uniqueID))
 dim(rec);rec
 
@@ -84,7 +84,8 @@ dat.sum.counts<-dat %>%
 
 dim(dat.sum.counts)
 str(dat.sum.counts)
-summary(dat.sum.counts)
+length(unique(as.factor(dat.sum.counts$uniqueID)))
+#summary(dat.sum.counts)
 
 
 ##checking if the manipulations are what I expect them to be. Are the same number of individuals retained? How many are in entrainment, how many in free run? 
@@ -185,12 +186,11 @@ out[1:4]
 
 ##subset the data that has both entrainment and free run 
 dat.sum.count.treatment<-inner_join(dat.sum.counts,treatment.table,by="uniqueID")
+head(dat.sum.count.treatment)
 #subsetting if the unique ID has X1 and X2 > 0. 
 dsct.sub<-subset(dat.sum.count.treatment,X1>0 & X2 > 0)
-dim(dat.sum.count.treatment)
-dim(dsct.sub)
 #how many individuals left? 
-length(unique(dsct.sub$uniqueID)) # 159
+length(unique(dsct.sub$uniqueID)) # 230
 
 
 ###time manipulation, gotta re-order the dates
@@ -251,13 +251,13 @@ length(unique(merg.dat$uniqueID))
 #ddply(merg.dat,.(Host,organism),summarize,counts=length(Host))
 #ddply(merg.dat,.(Host,organism,experiment),summarize,mean=mean(V1),sd=sd(V1),n=length(Host))
 merg.dat%>%
-  group_by(Host,organism)%>%
-  summarise(counts=length(Host))
+  dplyr::group_by(Host,treatment,organism)%>%
+  dplyr::summarise(counts=length(Host))%>%
+  knitr::kable()
 
-
-merg.dat%>%
-  group_by(Host,organism)%>%
-  summarise(mean=mean(V1),sd=sd(V1),n=length(Host))
+#merg.dat%>%
+#  group_by(Host,organism)%>%
+ # summarise(mean=mean(V1),sd=sd(V1),n=length(Host))
 ```
 
 ### Filter out unique IDs that have not accounted for the monitor 6 switch
@@ -270,8 +270,8 @@ list<-c("2b15","19r23","4o72","18w11","13r12","10w6","11o16","12o67","11o40","11
 merg.dat%>%
   filter(uniqueID %in% list)
 #none match
-s11w5<-subset(dsct.order2,uniqueID=="11w5")
-ggplot(s11w5,aes(x=time,y=counts15,colour=experiment))+geom_line()+
+#s11w5<-subset(dsct.order2,uniqueID=="11w5")
+#ggplot(s11w5,aes(x=time,y=counts15,colour=experiment))+geom_line()+
 ```
 
 
@@ -280,7 +280,7 @@ ggplot(s11w5,aes(x=time,y=counts15,colour=experiment))+geom_line()+
 
 ```{r stats}
 merg.dat<-subset(merg.dat,V1<50)
-merg.dat$circ<-apply(merg.dat[,3:6],1,function(x){mean(subset(x,x<30 & x > 20))})
+merg.dat$circ<-apply(merg.dat[,3:6],1,function(x){mean(subset(x,x<30 & x > 5))})
 
 #mod1<-lmer(eclosion_days~V1*experiment+(1|cohort_day),merg.dat)
 #summary(mod1)
@@ -292,6 +292,11 @@ summary(aov(circ~organism,data=merg.dat))
 
 
 ggplot(merg.dat,aes(x=V1,y=new.eclosions,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
+
+merg.dat%>%
+  dplyr::group_by(Host,organism,experiment)%>%
+  dplyr::summarise(n=length(Host))%>%
+  knitr::kable()
 ```
 
 
@@ -330,8 +335,8 @@ ggplot(data=haw,aes(x=experiment,y=V1,fill=organism))+geom_boxplot()+ylim(0,30)+
 
 
 haw%>%
-  group_by(experiment,organism)%>%
-  summarise(n=length(experiment))
+  dplyr::group_by(experiment,organism)%>%
+  dplyr::summarise(n=length(experiment))
 
 
 haw.free<-subset(haw,experiment=="free run")
@@ -417,7 +422,7 @@ globdwf()
 nam.vec.exclude<-dsct.order2%>%
   dplyr::group_by(uniqueID,experiment)%>%
   dplyr::summarise(n=length(experiment))%>%
-  dplyr::filter(n<768)%>%
+  #dplyr::filter(n<768)%>%
   dplyr::select(uniqueID)
 as.vector(nam.vec.exclude)
 
@@ -457,6 +462,11 @@ ggplot(dwf.fits,aes(y=ult,x=experiment))+geom_boxplot()
 
 merg.dat2<-inner_join(dwf.fits,ecl,by="uniqueID")
 length(unique(merg.dat2$uniqueID))
+
+#numbers
+merg.dat2%>%
+  dplyr::group_by(Host,organism,experiment,treatment)%>%
+  dplyr::summarise(n=length(Host))
 
 ### relationship with eclosion
 ggplot(data=merg.dat2,aes(x=circ,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
