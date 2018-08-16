@@ -190,7 +190,7 @@ head(dat.sum.count.treatment)
 #subsetting if the unique ID has X1 and X2 > 0. 
 dsct.sub<-subset(dat.sum.count.treatment,X1>0 & X2 > 0)
 #how many individuals left? 
-length(unique(dsct.sub$uniqueID)) # 230
+length(unique(dsct.sub$uniqueID)) # 298
 
 
 ###time manipulation, gotta re-order the dates
@@ -280,7 +280,7 @@ merg.dat%>%
 
 ```{r stats}
 merg.dat<-subset(merg.dat,V1<50)
-merg.dat$circ<-apply(merg.dat[,3:6],1,function(x){mean(subset(x,x<30 & x > 5))})
+merg.dat$circ<-apply(merg.dat[,3:6],1,function(x){mean(subset(x,x<30 & x > 20))})
 
 #mod1<-lmer(eclosion_days~V1*experiment+(1|cohort_day),merg.dat)
 #summary(mod1)
@@ -328,7 +328,7 @@ haw<-merg.dat%>%
 
 mod<-aov(V1~organism*experiment+uniqueID,data=haw)
 summary(mod)
-ggplot(data=haw,aes(x=experiment,y=V1,fill=organism))+geom_boxplot()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")+T
+ggplot(data=haw,aes(x=experiment,y=V1,fill=organism))+geom_boxplot()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")#+T
 
 #ggplot(data=haw,aes(x=experiment,y=V1,group=uniqueID,colour=organism))+geom_point(size=3)+geom_line()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")
 
@@ -422,7 +422,7 @@ globdwf()
 nam.vec.exclude<-dsct.order2%>%
   dplyr::group_by(uniqueID,experiment)%>%
   dplyr::summarise(n=length(experiment))%>%
-  #dplyr::filter(n<768)%>%
+  dplyr::filter(n<768)%>%
   dplyr::select(uniqueID)
 as.vector(nam.vec.exclude)
 
