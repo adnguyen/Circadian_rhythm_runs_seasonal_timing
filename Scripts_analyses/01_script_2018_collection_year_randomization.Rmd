@@ -1,0 +1,31 @@
+---
+title: "2018 collection year randomization"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+This year is a little different because I'm not doing respirometry on all of the samples. Therefore, the uniqueIDs will be a little different. 
+
+For genetic controls, they'll be labeled by host (H or A), cohort day (1-20), then by individual number (1-30ish)
+
+
+
+Creating wells
+
+```{r}
+
+letters<-rep(c("A","B","C","D","E","F","G","H"),12)
+
+num<-sort(rep(seq(1,12,1),8))
+
+wells<-paste(letters,num,sep="")
+```
+
+Sampling for cohort day 6 (2018-08-21)
+
+```{r}
+A6<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
+write.csv(A6,"../Data/randomizing/2018_collection_year/2018-09-04_apple_day6_cohort_2018-08-21.csv")
+
+```
