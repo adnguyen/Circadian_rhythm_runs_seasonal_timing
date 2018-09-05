@@ -27,6 +27,7 @@ library(dplyr)
 ```{r}
 #dat<-fread("MergeComplete.csv")
 dat<-fread("../Data/04_2018-04-19_unique_ID_trikinetics_behavioral_counts.csv")
+dat$uniqueID<-as.vector(as.factor(dat$uniqueID))
 
 str(dat)# structure
 
@@ -34,8 +35,8 @@ dim(dat) # dimensions
 
 # how many unique ids and how many records they have
 rec<-dat%>%
-  group_by(uniqueID)%>%
-  summarise(counts=length(uniqueID))
+  dplyr::group_by(uniqueID)%>%
+  dplyr::summarise(counts=length(uniqueID))
 #rec<-ddply(dat,.(uniqueID),summarize,counts=length(uniqueID))
 dim(rec);rec
 
@@ -83,13 +84,14 @@ dat.sum.counts<-dat %>%
 
 dim(dat.sum.counts)
 str(dat.sum.counts)
-
+length(unique(as.factor(dat.sum.counts$uniqueID)))
+#summary(dat.sum.counts)
 
 
 ##checking if the manipulations are what I expect them to be. Are the same number of individuals retained? How many are in entrainment, how many in free run? 
 rec.sum15<-dat.sum.counts%>%
-  group_by(uniqueID,experiment)%>%
-  summarise(length=length(bins15))
+  dplyr::group_by(uniqueID,experiment)%>%
+  dplyr::summarise(length=length(bins15))
 
 
 dim(rec.sum15)
@@ -184,20 +186,19 @@ out[1:4]
 
 ##subset the data that has both entrainment and free run 
 dat.sum.count.treatment<-inner_join(dat.sum.counts,treatment.table,by="uniqueID")
+head(dat.sum.count.treatment)
 #subsetting if the unique ID has X1 and X2 > 0. 
 dsct.sub<-subset(dat.sum.count.treatment,X1>0 & X2 > 0)
-dim(dat.sum.count.treatment)
-dim(dsct.sub)
 #how many individuals left? 
-length(unique(dsct.sub$uniqueID)) # 159
+length(unique(dsct.sub$uniqueID)) # 298
 
 
 ###time manipulation, gotta re-order the dates
 dsct.sub$dt<-paste(dsct.sub$date,dsct.sub$bins15)
 dsct.order2<-dsct.sub%>%
-  group_by(uniqueID,experiment)%>%
-  arrange(date)%>%
-  mutate(time=seq(1,length(bins15),1))
+  dplyr::group_by(uniqueID,experiment)%>%
+  dplyr::arrange(date)%>%
+  dplyr::mutate(time=seq(1,length(bins15),1))
 #dsct.order<-ddply(dsct.sub,.(uniqueID,experiment),transform,order(date))
 #dsct.order2<-ddply(dsct.order,.(uniqueID),transform,time=seq(1,length(bins15),1))
 length(unique(dsct.order2$uniqueID))
@@ -207,8 +208,8 @@ length(unique(dsct.order2$uniqueID))
 
 #whole.sa.dat<-ddply(dsct.order2,.(uniqueID,experiment),function(sub) sa.an(sub$counts15))
 whole.sa.dat<-dsct.order2%>%
-  group_by(uniqueID,experiment)%>%
-  summarise(V1=sa.an(ts=counts15)[1],V2=sa.an(ts=counts15)[2],V3=sa.an(ts=counts15)[3])
+  dplyr::group_by(uniqueID,experiment)%>%
+  dplyr::summarise(V1=sa.an(ts=counts15)[1],V2=sa.an(ts=counts15)[2],V3=sa.an(ts=counts15)[3])
 whole.sa.dat
 
 #fwrite(whole.sa.dat,"whole.sa.dat.csv")
@@ -219,7 +220,7 @@ whole.sa.dat
 raw data actograms 
 
 ```{r}
-ggplot(dsct.order2,aes(x=time,y=counts15,colour=experiment))+geom_line()+facet_wrap(~uniqueID,nrow=10,scales="free")
+#ggplot(dsct.order2,aes(x=time,y=counts15,colour=experiment))+geom_line()+facet_wrap(~uniqueID,nrow=10,scales="free")
 
 
 #sub5b21<-subset(dsct.order2,uniqueID=="5b21")
@@ -250,13 +251,13 @@ length(unique(merg.dat$uniqueID))
 #ddply(merg.dat,.(Host,organism),summarize,counts=length(Host))
 #ddply(merg.dat,.(Host,organism,experiment),summarize,mean=mean(V1),sd=sd(V1),n=length(Host))
 merg.dat%>%
-  group_by(Host,organism)%>%
-  summarise(counts=length(Host))
+  dplyr::group_by(Host,treatment,organism)%>%
+  dplyr::summarise(counts=length(Host))%>%
+  knitr::kable()
 
-
-merg.dat%>%
-  group_by(Host,organism)%>%
-  summarise(mean=mean(V1),sd=sd(V1),n=length(Host))
+#merg.dat%>%
+#  group_by(Host,organism)%>%
+ # summarise(mean=mean(V1),sd=sd(V1),n=length(Host))
 ```
 
 ### Filter out unique IDs that have not accounted for the monitor 6 switch
@@ -269,8 +270,8 @@ list<-c("2b15","19r23","4o72","18w11","13r12","10w6","11o16","12o67","11o40","11
 merg.dat%>%
   filter(uniqueID %in% list)
 #none match
-s11w5<-subset(dsct.order2,uniqueID=="11w5")
-ggplot(s11w5,aes(x=time,y=counts15,colour=experiment))+geom_line()
+#s11w5<-subset(dsct.order2,uniqueID=="11w5")
+#ggplot(s11w5,aes(x=time,y=counts15,colour=experiment))+geom_line()+
 ```
 
 
@@ -291,6 +292,11 @@ summary(aov(circ~organism,data=merg.dat))
 
 
 ggplot(merg.dat,aes(x=V1,y=new.eclosions,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
+
+merg.dat%>%
+  dplyr::group_by(Host,organism,experiment)%>%
+  dplyr::summarise(n=length(Host))%>%
+  knitr::kable()
 ```
 
 
@@ -322,15 +328,15 @@ haw<-merg.dat%>%
 
 mod<-aov(V1~organism*experiment+uniqueID,data=haw)
 summary(mod)
-ggplot(data=haw,aes(x=experiment,y=V1,fill=organism))+geom_boxplot()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")+T
+ggplot(data=haw,aes(x=experiment,y=V1,fill=organism))+geom_boxplot()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")#+T
 
 #ggplot(data=haw,aes(x=experiment,y=V1,group=uniqueID,colour=organism))+geom_point(size=3)+geom_line()+ylim(0,30)+ylab("Dominant \nActivity Rhythm (hours)")
 
 
 
 haw%>%
-  group_by(experiment,organism)%>%
-  summarise(n=length(experiment))
+  dplyr::group_by(experiment,organism)%>%
+  dplyr::summarise(n=length(experiment))
 
 
 haw.free<-subset(haw,experiment=="free run")
@@ -344,7 +350,7 @@ haw.e<-subset(haw,experiment=="entrainment")
 mod11<-aov(V1~organism,data=haw.e)
 summary(mod11)
 
-ggplot(haw.e,aes(x=organism,y=V1))+geom_boxplot()
+#ggplot(haw.e,aes(x=organism,y=V1))+geom_boxplot()
 
 ```
 
@@ -414,10 +420,10 @@ globdwf()
 ```{r}
 # sort data that enables estimation of circ rhythm 
 nam.vec.exclude<-dsct.order2%>%
-  group_by(uniqueID,experiment)%>%
-  summarise(n=length(experiment))%>%
-  filter(n<768)%>%
-  select(uniqueID)
+  dplyr::group_by(uniqueID,experiment)%>%
+  dplyr::summarise(n=length(experiment))%>%
+  dplyr::filter(n<768)%>%
+  dplyr::select(uniqueID)
 as.vector(nam.vec.exclude)
 
 #v<-c("12b32","5b31","5w42","h2b12","h2r23","h4o4")
@@ -426,11 +432,17 @@ as.vector(nam.vec.exclude)
 #par.dat<-dsct.order2%>%
  # filter(uniqueID!="12b32"&uniqueID!="5b31"&uniqueID!="5w42"&uniqueID!="h2b12"&uniqueID!="h4o4"&uniqueID!="h2r23")
 par.dat<-dsct.order2%>%
-  filter(!uniqueID%in%nam.vec.exclude$uniqueID)
+  dplyr::filter(!uniqueID%in%nam.vec.exclude$uniqueID)
+
+#dwf.fits<-par.dat%>%
+  #dplyr::group_by(uniqueID,experiment)%>%
+ # dplyr::summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdw#f(vec=counts15,Jcirc=5),up=globdwf(vec=counts15,Jcirc=7))
+
 
 dwf.fits<-par.dat%>%
-  group_by(uniqueID,experiment)%>%
-  summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5),up=globdwf(vec=counts15,Jcirc=7))
+  dplyr::group_by(uniqueID,experiment)%>%
+  dplyr::summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5))
+
 
 names(dwf.fits)
 
@@ -451,6 +463,11 @@ ggplot(dwf.fits,aes(y=ult,x=experiment))+geom_boxplot()
 merg.dat2<-inner_join(dwf.fits,ecl,by="uniqueID")
 length(unique(merg.dat2$uniqueID))
 
+#numbers
+merg.dat2%>%
+  dplyr::group_by(Host,organism,experiment,treatment)%>%
+  dplyr::summarise(n=length(Host))
+
 ### relationship with eclosion
 ggplot(data=merg.dat2,aes(x=circ,y=eclosion_days,colour=paste(Host,organism)))+geom_point()+stat_smooth(method="lm")
 
@@ -465,7 +482,7 @@ merg.dat2%>%
   summarise(n=length(Host))
 
 ##exploring ultradian filter
-ggplot(data=merg.dat2,aes(y=ult,x=Host,colour=organism))+geom_boxplot()+facet_grid(treatment~experiment)
+ggplot(data=merg.dat2,aes(y=ult,x=Host,colour=organism))+geom_boxplot()+facet_grid(treatment~experiment,scale="free")
 
 RT.haw<-merg.dat2%>%
   filter(treatment=="RT"&Host=="Haw")
@@ -483,7 +500,142 @@ ggplot(data=merg.dat2,aes(y=int,x=Host,colour=organism))+geom_boxplot()+facet_gr
 summary(aov(int~experiment*organism+uniqueID,data=RT.haw))
 
 
+#
+#dim(merg.dat2)
+merg.dat2.SO<-merg.dat2%>%
+  filter(treatment=="SO")
 
+ggplot(merg.dat2.SO,aes(y=circ,x=experiment,colour=Host))+geom_boxplot()
+ggplot(merg.dat2.SO,aes(y=circ,x=experiment,colour=Host,group=uniqueID))+geom_line()+geom_point()
+
+library(lme4)
+library(lmerTest)
+m1<-lmer(circ~experiment*Host+(1|uniqueID),data=merg.dat2.SO)
+summary(m1)
+
+m2<-lmer(ult~experiment*Host+(1|uniqueID),data=merg.dat2.SO)
+summary(m2)
+plot(m2)
+
+
+ggplot(merg.dat2.SO,aes(y=ult,x=experiment,colour=Host))+geom_boxplot()
+```
+
+
+### Subset out a few unique ids and plot them 
+
+h4013 sample
+
+```{r h4o13 sample}
+###bneed to change h4o4
+
+h4o13<-dsct.order3%>%
+  filter(uniqueID=="h4o13")
+
+h4o13$hm<-hour(hm(h4o13$bins15))+minute(hm(h4o13$bins15))/60
+
+# days stacked
+ggplot(h4o13,aes(x=hm,y=counts15,colour=experiment))+geom_line()+facet_grid(date~.,scale="free")+geom_vline(xintercept=c(6,20))
+
+# phase shift
+#ggplot(h4o13,aes(x=time,y=counts15,colour=experiment))+geom_line()+facet_grid(date~.,scale="free")#+geom_vline(xintercept=c(6,20))
+
+# lets pot by days
+#bin by days
+
+h4o13.days<-h4o13%>%
+  dplyr::group_by(experiment,date)%>%
+  dplyr::summarise(day.counts=sum(counts15))
+
+ggplot(h4o13.days,aes(x=date,y=day.counts,group=experiment,colour=experiment))+geom_line()+geom_point()
+
+#lets see how many days there are 
+h4o13.days%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::summarise(n=length(experiment))
+
+```
+
+h4o13 analyses
+
+```{r single analyses on h4o13}
+#spectral density analysis
+
+#15 min bins
+estim<-h4o13%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::summarise(V1=sa.an(ts=counts15)[1],V2=sa.an(ts=counts15)[2],V3=sa.an(ts=counts15)[3])
+estim
+
+#bin by days
+estim.day<-h4o13.days%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::summarise(V1=sa.an(ts=day.counts)[1]*4,V2=sa.an(ts=day.counts)[2]*4,V3=sa.an(ts=day.counts)[3]*4)
+estim.day
+
+#wavelet analysis 
+estim2<-h4o13%>%
+  dplyr::group_by(experiment)%>%
+  #dplyr::filter(experiment=="free run")%>%
+  dplyr::summarise(circ=globdwf(vec=counts15,Jcirc=6),ult=globdwf(vec=counts15,Jcirc=4),int=globdwf(vec=counts15,Jcirc=5))#,hi=globdwf(vec=counts15,Jcirc=7)
+estim2
+
+#lomb-scargle analysis
+#install.packages("lomb")
+library(lomb)
+a<-lsp(h4o13$counts15,times=h4o13$time/4,type="period",from=5,to=100)
+summary(a)
+a$peak
+a$peak.at[1]
+##grabbing the significant peaks
+per<-data.frame(power=a$power,time=a$scanned)
+per%>%filter(power>a$sig.level)
+
+
+###estimating period for different experiments
+#15 min bins
+lsa<-h4o13%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::do(dp=lsp(.$counts15,times=.$time/4,type="period",from=5,to=100)$peak.at[1])
+
+lsa$dp<-lsa%>%
+  dplyr::rowwise()%>%
+  dplyr::select("dp")%>%
+  unlist()
+lsa
+
+#day bins
+h4o13.days<-h4o13.days%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::mutate(.,time=seq(1,length(experiment),1))
+
+lsa.d<-h4o13.days%>%
+  dplyr::group_by(experiment)%>%
+  dplyr::do(dp=lsp(.$day.counts,times=.$time,type="period",from=3,to=50)$peak.at[1])
+
+lsa.d$dp<-lsa.d%>%
+  dplyr::rowwise()%>%
+  dplyr::select("dp")%>%
+  unlist()
+lsa.d
+
+
+#randlsp(repeats=50,h4o13$counts15,times=h4o13$time,type="period")
+
+#periodograms
+library(TSA)
+
+pergram<-periodogram(h4o13$counts15,xlim=c(0,.05))
+str(pergram)
+
+per
+
+
+install.packages('devtools')
+devtools::install_github('hugheylab/tipa')
+library('tipa')
+
+?tipaPhaseRef
 ```
 
 # SessionINfo

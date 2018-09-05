@@ -14,7 +14,7 @@ activity.dt <- fread("../Data/raw/Trikinetics/02_2018-04-18_trik_dat_long.csv", 
 
 #This isn't reading last row id:h12w5
 #fly.dt <- fread("~/HahnLab/Circadian_rhythm_runs_seasonal_timing/Data/2018-01-26_rhagoletis_masterdata_data_slice.csv", header = TRUE, stringsAsFactors = FALSE)
-fly.dt <- fread("../Data/2018-04-26_rhagoletis_masterdata_data_slice.csv", header = TRUE, stringsAsFactors = FALSE)
+fly.dt <- fread("../Data/2018-08-14_master_data_slice.csv", header = TRUE, stringsAsFactors = FALSE)
 #fly.dt <- fly.dt[,c(23:39)] #limit to columns of interest
 fly.dt <- fly.dt[,c(25:42)] #limit to columns of interest
 
