@@ -14,7 +14,7 @@ For genetic controls, they'll be labeled by host (H or A), cohort day (1-20), th
 Creating wells
 
 ```{r}
-
+v<-c("genetic control","RT eclosion","Simulated Overwintering")
 letters<-rep(c("A","B","C","D","E","F","G","H"),12)
 
 num<-sort(rep(seq(1,12,1),8))
@@ -22,10 +22,36 @@ num<-sort(rep(seq(1,12,1),8))
 wells<-paste(letters,num,sep="")
 ```
 
-Sampling for cohort day 6 (2018-08-21)
+
+Non respo randomizatiosn 
 
 ```{r}
+#Sampling for cohort day 6 (2018-08-21)
 A6<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
 write.csv(A6,"../Data/randomizing/2018_collection_year/2018-09-04_apple_day6_cohort_2018-08-21.csv")
 
+#sampling for cohort day 7 (2018-08-22
+)
+A7<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
+write.csv(A7,"../Data/randomizing/2018_collection_year/2018-09-04_apple_day7_cohort_2018-08-22.csv")
 ```
+
+Respo randomization 
+
+Need to distinguish between years
+
+```{r}
+#2018-08-26 cohort day 11
+c11<-read.csv("../Data/randomizing/2018_collection_year/2018-09-05_day6cohort_apple_2018-08-21_resp.csv")
+
+c11$uniqueID<-paste("h",c11$cohort_day,substr(c11$tape,1,1),c11$Ind_ID,"_18",sep="")
+
+
+c11$rando_assign<-sample(v,length(c11[,1]),replace=TRUE)
+##assign well id for Rt and fridge treatments 
+c11$wellID<-ifelse(c11$rando_assign=="RT eclosion",sample(wells,length(c11$Ind_ID),replace=FALSE),ifelse(c11$rando_assign=="Simulated Overwintering",sample(wells,length(c11$Ind_ID),replace=FALSE),""))
+c11$wellID
+
+write.csv(c11,"../Data/randomizing/2018_collection_year/2018-09-05_day11cohort_apple_2018-08-21_resp_randomized.csv")
+```
+
