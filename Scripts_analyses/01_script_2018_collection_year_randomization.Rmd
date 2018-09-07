@@ -31,9 +31,22 @@ A6<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
 write.csv(A6,"../Data/randomizing/2018_collection_year/2018-09-04_apple_day6_cohort_2018-08-21.csv")
 
 #sampling for cohort day 7 (2018-08-22
-)
+
 A7<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
 write.csv(A7,"../Data/randomizing/2018_collection_year/2018-09-04_apple_day7_cohort_2018-08-22.csv")
+
+#sampling for cohort day 8 (2018-08-23
+A8<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
+write.csv(A8,"../Data/randomizing/2018_collection_year/2018-09-07_apple_day8_cohort_2018-08-23.csv")
+
+#sampling for cohort day 9 (2018-08-24)
+A9<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
+write.csv(A9,"../Data/randomizing/2018_collection_year/2018-09-07_apple_day9_cohort_2018-08-24.csv")
+
+#sampling for cohort day 10 (2018-08-25)
+A10<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
+write.csv(A10,"../Data/randomizing/2018_collection_year/2018-09-07_apple_day10_cohort_2018-08-25.csv")
+
 ```
 
 Respo randomization 
@@ -41,7 +54,10 @@ Respo randomization
 Need to distinguish between years
 
 ```{r}
+##########################################
 #2018-08-26 cohort day 11
+##########################################
+
 c11<-read.csv("../Data/randomizing/2018_collection_year/2018-09-05_day6cohort_apple_2018-08-21_resp.csv")
 
 c11$uniqueID<-paste("h",c11$cohort_day,substr(c11$tape,1,1),c11$Ind_ID,"_18",sep="")
@@ -53,5 +69,20 @@ c11$wellID<-ifelse(c11$rando_assign=="RT eclosion",sample(wells,length(c11$Ind_I
 c11$wellID
 
 write.csv(c11,"../Data/randomizing/2018_collection_year/2018-09-05_day11cohort_apple_2018-08-21_resp_randomized.csv")
+
+##########################################
+#2018-08-76 cohort  day 12 apple
+##########################################
+c12<-read.csv("../Data/randomizing/2018_collection_year/2018-09-07_apple_d12_2018-08-27cohort_data.csv")
+
+c12$uniqueID<-paste("a",c12$cohort_day,substr(c12$tape,1,1),c12$Ind_ID,"_18",sep="")
+
+
+c12$rando_assign<-sample(v,length(c12[,1]),replace=TRUE)
+##assign well id for Rt and fridge treatments 
+c12$wellID<-ifelse(c12$rando_assign=="RT eclosion",sample(wells,length(c12$Ind_ID),replace=FALSE),ifelse(c12$rando_assign=="Simulated Overwintering",sample(wells,length(c12$Ind_ID),replace=FALSE),""))
+c12$wellID
+
+write.csv(c12,"../Data/randomizing/2018_collection_year/2018-09-07_day11cohort_apple_2018-08-71_resp_randomized.csv")
 ```
 
