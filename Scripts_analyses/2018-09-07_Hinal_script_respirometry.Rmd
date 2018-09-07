@@ -1,0 +1,59 @@
+---
+title: "respirometry_hinal"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+Load libraries
+```{r}
+library(ggplot2)
+library(dplyr)
+library(data.table)
+```
+
+Load data
+
+```{r hinal}
+
+resp<-fread("../Data/2018-09-07_Hinal_diapause_determination.csv")
+dim(resp)
+
+resp$msmr<- resp$day6_resp / resp$day5_weight
+
+#if you have multiple cohorts, use this code
+#ggplot2::ggplot(resp,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(cohort_date~.)
+
+# if you have 1 cohort, use this code
+respco<-resp%>%
+  filter(cohort_date=="2018-09-02")
+
+# this will plot the histogram for you to determine the cutoff value for diapause or non-diapause
+ggplot2::ggplot(respco,aes(x=msmr))+geom_histogram()
+
+# this code tells you what cut off to determine diapause or non diapause animals
+
+respco$dia_class<-ifelse(respco$msmr<0.06,"Diapause","Non-diapause")
+#glimpse(respco11)
+
+#determine numbers of diapause and non-diapause
+respco%>%
+  group_by(dia_class)%>%
+  summarise(n=length(dia_class))
+
+#fwrite(respco11,"2018-09-07_d11cohort_resp_at_day11.csv")
+```
+
+
+# Andrew's dataset
+
+```{r}
+resp<-fread("../Data/2018-08-07_data_slice.csv")
+
+resp$msmr<- resp$resp_day11/ resp$mass_day10
+resp1<-resp%>%
+  dplyr::filter(cohort_date=="2018-08-26" | cohort_date=="2018-08-27")
+
+ggplot(resp1,aes(msmr))+geom_histogram()+facet_grid(cohort_date~.)+geom_vline(xintercept=0.06)+xlim(0,0.3)
+
+```
