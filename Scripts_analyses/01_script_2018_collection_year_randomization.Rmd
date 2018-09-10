@@ -20,6 +20,7 @@ letters<-rep(c("A","B","C","D","E","F","G","H"),12)
 num<-sort(rep(seq(1,12,1),8))
 
 wells<-paste(letters,num,sep="")
+#wells<-as.factor(wells)
 ```
 
 
@@ -83,6 +84,6 @@ c12$rando_assign<-sample(v,length(c12[,1]),replace=TRUE)
 c12$wellID<-ifelse(c12$rando_assign=="RT eclosion",sample(wells,length(c12$Ind_ID),replace=FALSE),ifelse(c12$rando_assign=="Simulated Overwintering",sample(wells,length(c12$Ind_ID),replace=FALSE),""))
 c12$wellID
 
-write.csv(c12,"../Data/randomizing/2018_collection_year/2018-09-07_day11cohort_apple_2018-08-71_resp_randomized.csv")
+write.csv(c12,"../Data/randomizing/2018_collection_year/2018-09-10_day12cohort_apple_2018-08-27_resp_randomized.csv")
 ```
 
