@@ -48,6 +48,13 @@ write.csv(A9,"../Data/randomizing/2018_collection_year/2018-09-07_apple_day9_coh
 A10<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
 write.csv(A10,"../Data/randomizing/2018_collection_year/2018-09-07_apple_day10_cohort_2018-08-25.csv")
 
+##########################################
+#2018-08-28 cohort  day 13 apple
+##########################################
+A13<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
+write.csv(A13,"../Data/randomizing/2018_collection_year/2018-09-12_apple_day13_cohort_2018-08-28.csv")
+
+
 ```
 
 Respo randomization 
@@ -72,7 +79,7 @@ c11$wellID
 write.csv(c11,"../Data/randomizing/2018_collection_year/2018-09-05_day11cohort_apple_2018-08-21_resp_randomized.csv")
 
 ##########################################
-#2018-08-76 cohort  day 12 apple
+#2018-08-27 cohort  day 12 apple
 ##########################################
 c12<-read.csv("../Data/randomizing/2018_collection_year/2018-09-07_apple_d12_2018-08-27cohort_data.csv")
 
@@ -85,5 +92,10 @@ c12$wellID<-ifelse(c12$rando_assign=="RT eclosion",sample(wells,length(c12$Ind_I
 c12$wellID
 
 write.csv(c12,"../Data/randomizing/2018_collection_year/2018-09-10_day12cohort_apple_2018-08-27_resp_randomized.csv")
+
+
+
+
+
 ```
 
