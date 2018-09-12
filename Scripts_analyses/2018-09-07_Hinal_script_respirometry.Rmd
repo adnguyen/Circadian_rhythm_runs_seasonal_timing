@@ -19,17 +19,17 @@ Load data
 resp<-fread("../Data/2018-09-07_Hinal_diapause_determination.csv")
 dim(resp)
 
-resp$msmr<- resp$day6_resp / resp$day5_weight
+resp$msmr<- (resp$day8_resp / resp$day7_weight) 
 
 #if you have multiple cohorts, use this code
 #ggplot2::ggplot(resp,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(cohort_date~.)
 
 # if you have 1 cohort, use this code
 respco<-resp%>%
-  filter(cohort_date=="2018-09-02")
+  filter(cohort_date=="2018-09-03")
 
 # this will plot the histogram for you to determine the cutoff value for diapause or non-diapause
-ggplot2::ggplot(respco,aes(x=msmr))+geom_histogram()
+ggplot2::ggplot(respco,aes(x=msmr))+geom_histogram()+geom_vline(xintercept=.06)
 
 # this code tells you what cut off to determine diapause or non diapause animals
 
@@ -50,10 +50,10 @@ respco%>%
 ```{r}
 resp<-fread("../Data/2018-08-07_data_slice.csv")
 
-resp$msmr<- resp$resp_day11/ resp$mass_day10
+resp$msmr<- (resp$resp_day11/ resp$mass_day10)/18.5
 resp1<-resp%>%
   dplyr::filter(cohort_date=="2018-08-26" | cohort_date=="2018-08-27")
 
-ggplot(resp1,aes(msmr))+geom_histogram()+facet_grid(cohort_date~.)+geom_vline(xintercept=0.06)+xlim(0,0.3)
+ggplot(resp1,aes(msmr))+geom_histogram()+facet_grid(cohort_date~.)#+geom_vline(xintercept=0.06)+xlim(0,0.3)
 
 ```
