@@ -54,6 +54,32 @@ write.csv(A10,"../Data/randomizing/2018_collection_year/2018-09-07_apple_day10_c
 A13<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
 write.csv(A13,"../Data/randomizing/2018_collection_year/2018-09-12_apple_day13_cohort_2018-08-28.csv")
 
+##########################################
+#2018-08-29 cohort  day 14 apple
+##########################################
+A14<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
+write.csv(A14,"../Data/randomizing/2018_collection_year/2018-09-13_apple_day14_cohort_2018-08-29.csv")
+
+
+##########################################
+#2018-08-30 cohort  day 15 apple
+##########################################
+A15<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
+write.csv(A15,"../Data/randomizing/2018_collection_year/2018-09-13_apple_day15_cohort_2018-08-30.csv")
+
+
+##########################################
+#2018-08-31 cohort  day 16 apple
+##########################################
+A16<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
+write.csv(A16,"../Data/randomizing/2018_collection_year/2018-09-13_apple_day16_cohort_2018-08-31.csv")
+
+##########################################
+#2018-09-01 cohort  day 17 apple
+##########################################
+A17<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
+write.csv(A17,"../Data/randomizing/2018_collection_year/2018-09-13_apple_day17_cohort_2018-09-01.csv")
+
 
 ```
 
