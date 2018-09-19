@@ -1,18 +1,23 @@
 ---
 title: "respirometry_hinal"
-output: html_document
+output: 
+  html_document: 
+    toc: yes
 editor_options: 
   chunk_output_type: console
 ---
 
-Load libraries
+# Load libraries
+
 ```{r}
 library(ggplot2)
 library(dplyr)
 library(data.table)
 ```
 
-Load data
+# Load data
+
+WE want to load the data and calculate quick and dirty mass specific metabolism (with not accounting for hours just yet; so no rate)
 
 ```{r hinal}
 
@@ -22,14 +27,24 @@ dim(resp)
 resp$msmr<- (resp$day8_resp / resp$day7_weight) 
 
 #if you have multiple cohorts, use this code
-#ggplot2::ggplot(resp,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(cohort_date~.)
+ggplot2::ggplot(resp,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(cohort_date~.)+geom_vline(xintercept=0.065)
+
+# it looks like 0.065 is a good cut off for all cohorts; lets parse out samples based on this value
+
+resp$CLASS<-ifelse(resp$msmr<0.065,"Diapause","Non-diapause")
+
+glimpse(resp)
+
+```
+
+
 
 # if you have 1 cohort, use this code
 respco<-resp%>%
-  filter(cohort_date=="2018-09-03")
+  filter(cohort_date=="9/3/2018")
 
 # this will plot the histogram for you to determine the cutoff value for diapause or non-diapause
-ggplot2::ggplot(respco,aes(x=msmr))+geom_histogram()+geom_vline(xintercept=.06)
+ggplot2::ggplot(respco,aes(x=msmr))+geom_histogram()#+geom_vline(xintercept=.06)
 
 # this code tells you what cut off to determine diapause or non diapause animals
 
@@ -42,12 +57,12 @@ respco%>%
   summarise(n=length(dia_class))
 
 #fwrite(respco11,"2018-09-07_d11cohort_resp_at_day11.csv")
-```
+
 
 
 # Andrew's dataset
 
-```{r}
+```{r, eval=FALSE, include=FALSE}
 resp<-fread("../Data/2018-08-07_data_slice.csv")
 
 resp$msmr<- (resp$resp_day11/ resp$mass_day10)/18.5
@@ -56,4 +71,10 @@ resp1<-resp%>%
 
 ggplot(resp1,aes(msmr))+geom_histogram()+facet_grid(cohort_date~.)#+geom_vline(xintercept=0.06)+xlim(0,0.3)
 
+```
+
+# Session info
+
+```{r}
+sessionInfo()
 ```
