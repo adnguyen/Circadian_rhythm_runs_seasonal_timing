@@ -130,18 +130,26 @@ c924$uniqueID<-paste("a",c924$cohort_day,substr(c924$tape,1,1),c924$Ind_ID,"_18"
 
 c924$rando_assign<-sample(v,length(c924[,1]),replace=TRUE)
 ##assign well id for Rt and fridge treatments 
-#c924$wellID<-ifelse(c924$rando_assign=="RT eclosion",sample(wells,length(c924$Ind_ID),replace=FALSE),ifelse(c924$rando_assign=="Simulated Overwintering",sample(wells,length(c924$Ind_ID),replace=FALSE),""))
+c924$wellID<-ifelse(c924$rando_assign=="RT eclosion",sample(wells,length(c924$Ind_ID),replace=FALSE),ifelse(c924$rando_assign=="Simulated Overwintering",sample(wells,length(c924$Ind_ID),replace=FALSE),""))
 c924$wellID
 
-c924%>%
-  dplyr::filter(.,rando_assign=="RT eclosion")%>%
-  sample(v,length(rando_assign),replace=FALSE)
-
-
-
-
-
 write.csv(c924,"../Data/randomizing/2018_collection_year/2018-09-19_day8_24cohort_apple_2018-09-08_resp_randomized.csv")
+
+
+##########################################
+#2018-09-09 cohort  day 10+25 apple
+##########################################
+c1025<-read.csv("../Data/randomizing/2018_collection_year/2018-09-19_day10_25cohort_apple_2018-09-09_resp.csv")
+
+c1025$uniqueID<-paste("a",c1025$cohort_day,substr(c1025$tape,1,1),c1025$Ind_ID,"_18",sep="")
+
+
+c1025$rando_assign<-sample(v,length(c1025[,1]),replace=TRUE)
+##assign well id for Rt and fridge treatments 
+c1025$wellID<-ifelse(c1025$rando_assign=="RT eclosion",sample(wells,length(c1025$Ind_ID),replace=FALSE),ifelse(c1025$rando_assign=="Simulated Overwintering",sample(wells,length(c1025$Ind_ID),replace=FALSE),""))
+c1025$wellID
+
+write.csv(c1025,"../Data/randomizing/2018_collection_year/2018-09-19_day10_25cohort_apple_2018-09-09_resp_randomized.csv")
 
 
 ```
