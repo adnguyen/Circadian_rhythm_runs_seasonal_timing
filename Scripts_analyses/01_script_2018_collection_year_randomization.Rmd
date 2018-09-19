@@ -120,7 +120,28 @@ c12$wellID
 write.csv(c12,"../Data/randomizing/2018_collection_year/2018-09-10_day12cohort_apple_2018-08-27_resp_randomized.csv")
 
 
+##########################################
+#2018-09-08 cohort  day 9+24 apple
+##########################################
+c924<-read.csv("../Data/randomizing/2018_collection_year/2018-09-19_day10_24cohort_apple_2018-09-08_resp.csv")
 
+c924$uniqueID<-paste("a",c924$cohort_day,substr(c924$tape,1,1),c924$Ind_ID,"_18",sep="")
+
+
+c924$rando_assign<-sample(v,length(c924[,1]),replace=TRUE)
+##assign well id for Rt and fridge treatments 
+#c924$wellID<-ifelse(c924$rando_assign=="RT eclosion",sample(wells,length(c924$Ind_ID),replace=FALSE),ifelse(c924$rando_assign=="Simulated Overwintering",sample(wells,length(c924$Ind_ID),replace=FALSE),""))
+c924$wellID
+
+c924%>%
+  dplyr::filter(.,rando_assign=="RT eclosion")%>%
+  sample(v,length(rando_assign),replace=FALSE)
+
+
+
+
+
+write.csv(c924,"../Data/randomizing/2018_collection_year/2018-09-19_day8_24cohort_apple_2018-09-08_resp_randomized.csv")
 
 
 ```
