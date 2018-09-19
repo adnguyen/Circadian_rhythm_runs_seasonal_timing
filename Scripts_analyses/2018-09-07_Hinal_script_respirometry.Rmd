@@ -35,6 +35,13 @@ resp$CLASS<-ifelse(resp$msmr<0.065,"Diapause","Non-diapause")
 
 glimpse(resp)
 
+fwrite(resp,"../Data/raw/Respirometry/2018/Hinal/2018-09-19_CLASSING_respirometry.csv")
+
+
+resp%>%
+  group_by(cohort_date,CLASS)%>%
+  summarise(n=length(CLASS))
+
 ```
 
 
