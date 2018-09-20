@@ -22,7 +22,8 @@ library(dplyr)
 library(ggplot2)
 
 
-dat<-read.csv("../Data/2018-08-07_master_data_slice.csv")
+#dat<-read.csv("../Data/2018-08-07_master_data_slice.csv")
+dat<-read.csv("2018-09-20_test_flies_only_eclosions.csv")
 str(dat)
 ```
 

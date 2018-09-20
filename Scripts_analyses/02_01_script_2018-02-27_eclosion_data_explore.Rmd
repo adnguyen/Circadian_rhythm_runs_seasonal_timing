@@ -215,7 +215,7 @@ subecl<-eclosions%>%
 mod2<-aov(new.eclosions~Host*treatment,data=subecl)
 summary(mod2)
 
-ggplot(subecl,aes(y=new.eclosions,x=Host))+geom_boxplot()+facet_grid(.~treatment)
+#ggplot(subecl,aes(y=new.eclosions,x=Host))+geom_boxplot()+facet_grid(.~treatment)
 
 ggplot(subecl,aes(x=eclosion_days,fill=paste(Host)))+geom_density(position="identity",alpha=.52)+facet_grid(treatment~.)
 
