@@ -15,6 +15,7 @@ Creating wells
 
 ```{r}
 v<-c("genetic control","RT eclosion","Simulated Overwintering")
+v2<-c("RT eclosion","Simulated Overwintering")
 letters<-rep(c("A","B","C","D","E","F","G","H"),12)
 
 num<-sort(rep(seq(1,12,1),8))
@@ -184,3 +185,7 @@ write.csv(c1227,"../Data/randomizing/2018_collection_year/2018-09-21_day12_27coh
 
 ```
 
+```{r}
+write.csv(rbind(cbind(sample(v2,25,replace = TRUE),sample(wells,25,replace=FALSE)),cbind(sample(v2,25,replace = TRUE),sample(wells,25,replace=FALSE))),"test.csv")
+
+```
