@@ -198,6 +198,21 @@ c2h$wellID
 
 write.csv(c2h,"../Data/randomizing/2018_collection_year/2018-10-01_day2_cohort_haw_2018-09-22_resp_randomized.csv")
 
+##########################################
+#2018-09-23 cohort  day 3 HAW
+##########################################
+c3h<-read.csv("../Data/randomizing/2018_collection_year/2018-10-03_day3_cohort_haw_2018-09-23_resp.csv")
+
+c3h$uniqueID<-paste("a",c3h$cohort_day,substr(c3h$tape,1,1),c3h$Ind_ID,"_18",sep="")
+
+
+c3h$rando_assign<-sample(v,length(c3h[,1]),replace=TRUE)
+##assign well id for Rt and fridge treatments 
+c3h$wellID<-ifelse(c3h$rando_assign=="RT eclosion",sample(wells,length(c3h$Ind_ID),replace=FALSE),ifelse(c3h$rando_assign=="Simulated Overwintering",sample(wells,length(c3h$Ind_ID),replace=FALSE),""))
+c3h$wellID
+
+write.csv(c3h,"../Data/randomizing/2018_collection_year/2018-10-03_day3_cohort_haw_2018-09-23_resp_randomized.csv")
+
 ```
 
 ```{r}
