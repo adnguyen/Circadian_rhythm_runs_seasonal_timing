@@ -23,11 +23,20 @@ WE want to load the data and calculate quick and dirty mass specific metabolism 
 
 resp<-fread("../Data/2018-09-07_Hinal_diapause_determination.csv")
 dim(resp)
+head(resp)
 
-resp$msmr<- (resp$day8_resp / resp$day7_weight) 
+#resp$msmr<- (resp$day8_resp / resp$day7_weight) 
+
+resp$msmr<- (resp$Respiration/ resp$weight ) 
 
 #if you have multiple cohorts, use this code
 ggplot2::ggplot(resp,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(cohort_date~.)+geom_vline(xintercept=0.065)
+#by host
+ggplot2::ggplot(resp,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(cohort_date~Host)+geom_vline(xintercept=0.065)
+
+#by host and cohort date + resp date
+resp$co_resp<-paste(resp$cohort_date,resp$day_resp)
+ggplot2::ggplot(resp,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_grid(co_resp~Host)+geom_vline(xintercept=0.065)
 
 # it looks like 0.065 is a good cut off for all cohorts; lets parse out samples based on this value
 
@@ -45,6 +54,34 @@ resp%>%
 ```
 
 
+### Hinal wants 3 plots
+
+### Apple day 8 ( y axis= count; x-axis = msmr)
+
+```{r}
+respA.8<-resp%>%
+  subset(Host=="Apple"& day_resp == "8")
+
+ggplot2::ggplot(respA.8,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(~cohort_date,scale="free")+geom_vline(xintercept=0.065)
+
+```
+### Apple day 20 
+
+```{r}
+respA.20<-resp%>%
+  subset(Host=="Apple"& day_resp == "20")
+
+ggplot2::ggplot(respA.20,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(~cohort_date,scale="free")+geom_vline(xintercept=0.065)
+```
+#Hwthorn day 8 
+
+```{r}
+respH.8<-resp%>%
+  subset(Host=="Hawthorn"& day_resp == "8")
+
+ggplot2::ggplot(respH.8,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(~cohort_date,scale="free")+geom_vline(xintercept=0.065)
+
+```
 
 # if you have 1 cohort, use this code
 respco<-resp%>%
