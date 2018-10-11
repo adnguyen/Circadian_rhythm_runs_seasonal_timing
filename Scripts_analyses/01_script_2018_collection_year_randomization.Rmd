@@ -49,6 +49,21 @@ write.csv(A9,"../Data/randomizing/2018_collection_year/2018-09-07_apple_day9_coh
 A10<-data.frame(sample(wells,60),treatment=c(rep("RT",30),rep("SO",30)))
 write.csv(A10,"../Data/randomizing/2018_collection_year/2018-09-07_apple_day10_cohort_2018-08-25.csv")
 
+####Apple!!!!####
+
+
+#Now HAW #######################################################
+#Now HAW #######################################################
+
+#sampling for cohort day 6 (2018-09-26)
+H6<-data.frame(sample(wells,27*2),treatment=c(rep("RT",27),rep("SO",27)))
+write.csv(H6,"../Data/randomizing/2018_collection_year/2018-10-11_haw_day6_cohort_2018-09-26.csv")
+
+
+
+
+
+
 ##########################################
 #2018-08-28 cohort  day 13 apple
 ##########################################
