@@ -24,6 +24,11 @@ wells<-paste(letters,num,sep="")
 #wells<-as.factor(wells)
 ```
 
+```{r}
+
+t<-data.frame(sample(wells,50),treatment=c(rep("RT",25),rep("SO",25)))
+write.csv(t,"../Data/randomizing/2018_collection_year/2018-10-12_haw_cohortday2_2018-09-22.csv")
+```
 
 Non respo randomizatiosn 
 
