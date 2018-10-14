@@ -27,11 +27,15 @@ wells<-paste(letters,num,sep="")
 ```{r}
 
 t<-data.frame(sample(wells,50),treatment=c(rep("RT",25),rep("SO",25)))
+t<-data.frame(sample(wells,22),treatment=c(rep("RT",11),rep("SO",11)))
+write.csv(t,"test.csv")
 write.csv(t,"../Data/randomizing/2018_collection_year/2018-10-12_haw_cohortday2_2018-09-22.csv")
 
 write.csv(t,"../Data/randomizing/2018_collection_year/2018-10-12_haw_cohortday7_2018-09-27.csv")
 
 write.csv(t,"../Data/randomizing/2018_collection_year/2018-10-13_haw_cohortday8_2018-09-28.csv")
+
+write.csv(t,"../Data/randomizing/2018_collection_year/2018-10-14_haw_cohortday9_2018-09-29.csv")
 ```
 
 Non respo randomizatiosn 
