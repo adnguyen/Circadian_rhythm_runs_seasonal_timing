@@ -13,7 +13,12 @@ editor_options:
 library(ggplot2)
 library(dplyr)
 library(data.table)
+library(lubridate)
 ```
+
+
+
+
 
 # Load data
 
@@ -25,6 +30,27 @@ resp<-fread("../Data/2018-09-07_Hinal_diapause_determination.csv")
 dim(resp)
 head(resp)
 
+#convert purge times to units in hours
+resp$purge_time<-hour(hm(resp$`Purge time`))+minute(hm(resp$`Purge time`))/60
+```
+
+
+# calculating purge time
+
+we need to create a sequence of purge times that are the length of the cohorts
+
+```{r}
+resp$cohort_date<-as.factor(resp$cohort_date)
+test<-base::subset(resp,cohort_date=='9/3/2018' & tape=="red")
+test<-base::subset(resp,cohort_date=="9/3/2018")
+
+
+
+
+```
+
+
+```{r}
 #resp$msmr<- (resp$day8_resp / resp$day7_weight) 
 
 resp$msmr<- (resp$Respiration/ resp$weight ) 
