@@ -36,6 +36,9 @@ write.csv(t,"../Data/randomizing/2018_collection_year/2018-10-12_haw_cohortday7_
 write.csv(t,"../Data/randomizing/2018_collection_year/2018-10-13_haw_cohortday8_2018-09-28.csv")
 
 write.csv(t,"../Data/randomizing/2018_collection_year/2018-10-14_haw_cohortday9_2018-09-29.csv")
+
+write.csv(t,"../Data/randomizing/2018_collection_year/2018-10-15_haw_cohortday10_2018-09-30.csv")
+
 ```
 
 Non respo randomizatiosn 
