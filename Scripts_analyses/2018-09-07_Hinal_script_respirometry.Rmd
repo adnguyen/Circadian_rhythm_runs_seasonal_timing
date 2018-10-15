@@ -41,12 +41,26 @@ we need to create a sequence of purge times that are the length of the cohorts
 
 ```{r}
 resp$cohort_date<-as.factor(resp$cohort_date)
-test<-base::subset(resp,cohort_date=='9/3/2018' & tape=="red")
-test<-base::subset(resp,cohort_date=="9/3/2018")
+test<-filter(resp,cohort_date=="9/29/18" & tape=="red")
+#filter(resp,cohort_date=="9/29/18")
 
+start<-min(test$purge_time,na.rm=TRUE)
+finish<-max(test$purge_time,na.rm=TRUE)
+n<-length(test$purge_time)
 
+seq(from=start,to=finish,length.out=n)
 
+#figuring out sample sizes per host, tape, cohort,and resp day
+#resp%>%
+ # dplyr::group_by(Host,tape,cohort_date,day_resp)%>%
+  #summarise(n=length(tape))
 
+resp.1<-resp%>%
+  dplyr::group_by(Host,tape,cohort_date,day_resp)%>%
+  mutate(full_purge_time=seq(from=min(purge_time,na.rm=TRUE),to=max(purge_time,na.rm=TRUE),length.out=length(purge_time)))
+
+names(resp.1)
+resp.1$full_purge_time
 ```
 
 
