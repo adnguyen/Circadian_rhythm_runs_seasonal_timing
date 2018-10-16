@@ -1,19 +1,22 @@
 ---
 title: "respirometry_hinal"
-output: 
-  html_document: 
+output:
+  pdf_document:
     toc: yes
-editor_options: 
+  html_document:
+    toc: yes
+editor_options:
   chunk_output_type: console
 ---
 
 # Load libraries
 
-```{r}
+```{r,message=FALSE}
 library(ggplot2)
 library(dplyr)
 library(data.table)
 library(lubridate)
+library(MASS)
 ```
 
 
@@ -31,7 +34,7 @@ dim(resp)
 head(resp)
 
 #convert purge times to units in hours
-resp$purge_time<-hour(hm(resp$`Purge time`))+minute(hm(resp$`Purge time`))/60
+resp$purge_time<-hour(hm(resp$Purge_time))+minute(hm(resp$Purge_time))/60
 ```
 
 
@@ -39,7 +42,7 @@ resp$purge_time<-hour(hm(resp$`Purge time`))+minute(hm(resp$`Purge time`))/60
 
 we need to create a sequence of purge times that are the length of the cohorts
 
-```{r}
+```{r, echo=FALSE,include=FALSE}
 resp$cohort_date<-as.factor(resp$cohort_date)
 test<-filter(resp,cohort_date=="9/29/18" & tape=="red")
 #filter(resp,cohort_date=="9/29/18")
@@ -49,113 +52,107 @@ finish<-max(test$purge_time,na.rm=TRUE)
 n<-length(test$purge_time)
 
 seq(from=start,to=finish,length.out=n)
+```
 
+# Data manipulation and calculating resp rate
+
+```{r}
 #figuring out sample sizes per host, tape, cohort,and resp day
 #resp%>%
  # dplyr::group_by(Host,tape,cohort_date,day_resp)%>%
   #summarise(n=length(tape))
 
+#w e figured out purge time 
 resp.1<-resp%>%
   dplyr::group_by(Host,tape,cohort_date,day_resp)%>%
   mutate(full_purge_time=seq(from=min(purge_time,na.rm=TRUE),to=max(purge_time,na.rm=TRUE),length.out=length(purge_time)))
 
-names(resp.1)
-resp.1$full_purge_time
+#names(resp.1)
+#resp.1$full_purge_time
+
+### now we need total time 
+
+#resp.1$Respiration_time
+
+resp.1$resp_time1<-hour(hms(resp.1$Respiration_time)) + minute(hms(resp.1$Respiration_time))/60+second(hms(resp.1$Respiration_time))/360
+
+resp.1$total_time<- (24-resp.1$full_purge_time) +resp.1$resp_time1
+
+
+### now that we have total time in syringe, we can measure metablic rate (CO2/time)
+
+## we first need to subtract every value by blank 
+
+blank<-resp.1%>%
+  dplyr::group_by(Host,tape,cohort_date,day_resp)%>%
+  filter(Sample=="b")%>%
+  summarize(blank=mean(Respiration))
+
+# To look at the negative resp values 
+#filter(resp.1,Respiration<0)
+#join smaller blank dataset with larger dataset  
+resp.2<-inner_join(resp.1,blank,by=c("Host","tape","cohort_date","day_resp"))
+#cbind(resp.2$Respiration,resp.2$blank)
+#subtract rows!
+resp.2$norm_resp<-resp.2$Respiration-resp.2$blank
+
+
+####Calculating metabolic rate and mass specific metabolic rate
+
+resp.2$MR<- resp.2$norm_resp/resp.2$total_time # metabolic rate
+resp.2$MSMR<- resp.2$norm_resp/(resp.2$total_time*resp.2$weight)# mass specific metabolic rate
+resp.2<-filter(resp.2,Sample=="e")
+
 ```
 
+
+
+
+## Make plots of the data
 
 ```{r}
-#resp$msmr<- (resp$day8_resp / resp$day7_weight) 
+#mass specific metabolic rate
+ggplot(resp.2,aes(x=MSMR,fill=Host))+geom_histogram(position="identity")+facet_wrap(day_resp~cohort_date,scale="free")+geom_vline(xintercept=0.0025)
 
-resp$msmr<- (resp$Respiration/ resp$weight ) 
-
-#if you have multiple cohorts, use this code
-ggplot2::ggplot(resp,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(cohort_date~.)+geom_vline(xintercept=0.065)
-#by host
-ggplot2::ggplot(resp,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(cohort_date~Host)+geom_vline(xintercept=0.065)
-
-#by host and cohort date + resp date
-resp$co_resp<-paste(resp$cohort_date,resp$day_resp)
-ggplot2::ggplot(resp,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_grid(co_resp~Host)+geom_vline(xintercept=0.065)
-
-# it looks like 0.065 is a good cut off for all cohorts; lets parse out samples based on this value
-
-resp$CLASS<-ifelse(resp$msmr<0.065,"Diapause","Non-diapause")
-
-glimpse(resp)
-
-fwrite(resp,"../Data/raw/Respirometry/2018/Hinal/2018-09-19_CLASSING_respirometry.csv")
-
-
-resp%>%
-  group_by(cohort_date,CLASS)%>%
-  summarise(n=length(CLASS))
+#metabolic rate
+ggplot(resp.2,aes(x=MR,fill=Host))+geom_histogram(position="identity")+facet_wrap(day_resp~cohort_date,scale="free")+geom_vline(xintercept=0.02)
 
 ```
 
-
-### Hinal wants 3 plots
-
-### Apple day 8 ( y axis= count; x-axis = msmr)
+### Assigning cutoffs for diapause and non-diapause 
 
 ```{r}
-respA.8<-resp%>%
-  subset(Host=="Apple"& day_resp == "8")
+# 2 cutoffs and let's see how they match 
+resp.2$cutoffMSMR<-ifelse(resp.2$MSMR<0.0025,"Diapause","Non-Diapause")
 
-ggplot2::ggplot(respA.8,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(~cohort_date,scale="free")+geom_vline(xintercept=0.065)
+resp.2$cutoffMR<-ifelse(resp.2$MR<0.02,"Diapause","Non-Diapause")
 
-```
-### Apple day 20 
+table(resp.2$cutoffMR,resp.2$cutoffMSMR)
 
-```{r}
-respA.20<-resp%>%
-  subset(Host=="Apple"& day_resp == "20")
+#how many non-diapausers across days and host? 
+resp.2%>%
+  group_by(Host,day_resp,cutoffMSMR)%>%
+  summarise(sample.size=length(Host))%>%
+  knitr::kable()
 
-ggplot2::ggplot(respA.20,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(~cohort_date,scale="free")+geom_vline(xintercept=0.065)
-```
-#Hwthorn day 8 
+resp.sum<-resp.2%>%
+  group_by(Host,day_resp,cohort_date,cutoffMR)%>%
+  summarise(sample.size=length(Host))%>%
+  data.frame()
+  #knitr::kable()
 
-```{r}
-respH.8<-resp%>%
-  subset(Host=="Hawthorn"& day_resp == "8")
+#resp.sum
 
-ggplot2::ggplot(respH.8,aes(x=msmr))+geom_histogram()+xlim(0,0.25)+facet_wrap(~cohort_date,scale="free")+geom_vline(xintercept=0.065)
+#ggplot(resp.sum,aes(x=day_resp,y=sample.size,colour=factor(cutoffMR)))+geom_point(size=5)+geom_line(size=2)+facet_grid(.~Host)
+ggplot(resp.sum,aes(x=factor(day_resp),y=sample.size,colour=paste(cutoffMR,Host)))+geom_boxplot()
 
-```
+#mod1<-glm(sample.size~day_resp*cutoffMR*Host,family=poisson(link="log"),data=resp.sum)
+mod1<-glm.nb(sample.size~day_resp*cutoffMR*Host,data=resp.sum)
 
-# if you have 1 cohort, use this code
-respco<-resp%>%
-  filter(cohort_date=="9/3/2018")
-
-# this will plot the histogram for you to determine the cutoff value for diapause or non-diapause
-ggplot2::ggplot(respco,aes(x=msmr))+geom_histogram()#+geom_vline(xintercept=.06)
-
-# this code tells you what cut off to determine diapause or non diapause animals
-
-respco$dia_class<-ifelse(respco$msmr<0.06,"Diapause","Non-diapause")
-#glimpse(respco11)
-
-#determine numbers of diapause and non-diapause
-respco%>%
-  group_by(dia_class)%>%
-  summarise(n=length(dia_class))
-
-#fwrite(respco11,"2018-09-07_d11cohort_resp_at_day11.csv")
-
-
-
-# Andrew's dataset
-
-```{r, eval=FALSE, include=FALSE}
-resp<-fread("../Data/2018-08-07_data_slice.csv")
-
-resp$msmr<- (resp$resp_day11/ resp$mass_day10)/18.5
-resp1<-resp%>%
-  dplyr::filter(cohort_date=="2018-08-26" | cohort_date=="2018-08-27")
-
-ggplot(resp1,aes(msmr))+geom_histogram()+facet_grid(cohort_date~.)#+geom_vline(xintercept=0.06)+xlim(0,0.3)
+summary(mod1)
 
 ```
+
 
 # Session info
 
