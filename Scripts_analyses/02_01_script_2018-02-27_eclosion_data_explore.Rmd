@@ -258,13 +258,22 @@ write.csv(eclosions,"05_master_dataset_eclosions_IDs.csv")
 dat8<-fread("../Data/data-slice_2019-01-08_master_datac_2018_collection_year.csv")
 
 glimpse(dat8)
+#unique(levels(as.factor(dat8$collection_date)))
 
 dat8$treatment15_5months<-ymd(dat8$treatment_day15)%m+%months(5)
 
-dat8%>%
+five.month.schedule<-dat8%>%
   group_by(collection_date,cohort_date,Host,treatment_day15,treatment15_5months)%>%
-  summarize(months5=unique(treatment15_5months))
+  filter(Host!="Crab Apple")%>%
+  summarize(months5=unique(treatment15_5months))%>%
+  na.omit()
   
+fwrite(five.month.schedule,"2018-2019_collection_year_SO_schedule.csv")
+
+
+dat8%>%
+  filter(cohort_date=="2018-09-24" & Host=="Apple")#%>%
+  #write.csv("blanks.csv")
 ```
 
 
