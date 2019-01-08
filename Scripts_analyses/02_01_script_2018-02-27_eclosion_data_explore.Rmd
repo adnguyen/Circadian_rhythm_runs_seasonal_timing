@@ -264,7 +264,7 @@ dat8$treatment15_5months<-ymd(dat8$treatment_day15)%m+%months(5)
 
 five.month.schedule<-dat8%>%
   group_by(collection_date,cohort_date,Host,treatment_day15,treatment15_5months)%>%
-  filter(Host!="Crab Apple")%>%
+  filter(Host!="Crab Apple" & Host!="Crab")%>%
   summarize(months5=unique(treatment15_5months))%>%
   na.omit()
   
@@ -272,7 +272,7 @@ fwrite(five.month.schedule,"2018-2019_collection_year_SO_schedule.csv")
 
 
 dat8%>%
-  filter(cohort_date=="2018-09-24" & Host=="Apple")#%>%
+  filter(cohort_date=="2018-12-02" & Host=="Apple")#%>%
   #write.csv("blanks.csv")
 ```
 
