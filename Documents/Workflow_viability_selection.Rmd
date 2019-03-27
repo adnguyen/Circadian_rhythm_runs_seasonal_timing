@@ -1,0 +1,70 @@
+---
+title: "Workflow_viability_selection"
+output:
+  html_document:
+    toc: yes
+editor_options:
+  chunk_output_type: console
+---
+
+# Library
+
+```{r}
+library(DiagrammeR)
+```
+
+# Overall Workflow
+
+```{r}
+mermaid("
+  graph TD
+  A[Master Data Sheet]--Calculate-->B[Metablic Rates CO2 production per hr per mass]
+  B --> T[Day 11]
+  B --> R[Day 15]
+  A --Calculate--> C[Lifespan]
+  T --> E[Scatter plot showing relationship between lifespan and mr]
+  R --> E
+  C --> E
+          ")
+```
+
+## Detailed workflow for calculating metabolic rate  
+
+How do we calculate metabolic rate? 
+
+Metabolic rate = Co2 production / hours
+
+Mass specific metabolic rate = Co2 production/hour/mass or Co2 production/(hour * mass)
+
+What are cohorts? 
+
+These are essentially handling replicates because we cannot sample all of the flies at once. For each cohort, there are two batches: 1 for licor 7000, and 1 for licor 6262. To process more samples, we spread out our measurements across 2 respirometers(licors). Each licor, has an associated tape color in the tape column. When we purged (purging = letting pupae breath in a syringe under standardized air without CO2), there was a start time and end time for the beginning and end of the purge for each tape samples(aka licor batch). 
+
+What columns do we need from the master data sheet? 
+
+* mass_day10 : mass at day 10 in mgs
+* purge_time_1  : initial time for pupae in tube to breath 
+* resp_time_1 : time of sampling for respirometry
+* resp_day11 : respirometry at day 11
+
+**The problem** with purge_time_1 is that besides cohort 1 for apple, there is only start and stop times for each cohort and color.
+**The solution** is to create a time sequence for each cohort from start to end. 
+
+
+```{r}
+mermaid("
+  graph TD
+  A[Master data Sheet] --> B[Create time sequence for purge_time_1 in hours minutes]
+  B --Subtract from 24 and add to resp_time_1--> C[Total hours]
+  C --multiply by mass and divide over resp_day11--> D[Mass specific metabolic rate]      
+  C --divide over resp_day11-->  V{Metabolic rate}
+        ")
+
+```
+
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
