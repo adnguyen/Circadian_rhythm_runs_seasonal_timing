@@ -13,7 +13,6 @@ This project is funded by the National Science Foundation, grant #...
 * [Project Workflow](#id-section2)
 * [Meta data for critical datasets](#id-section3)
 
-imm making make change
 
 ------
 
